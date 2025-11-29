@@ -1,16 +1,36 @@
-# React + Vite
+# Market Pulse
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
+A real-time stock market simulation game built with React.
 
-Currently, two official plugins are available:
+## Stack
+- React
+- Vite
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Setup
+To set up the project locally, follow these steps:
 
-## React Compiler
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/market-pulse-react.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd market-pulse-react
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Documentation
+- [Data Structure](documentation/DATA_STRUCTURE.md)
+- [Game Documentation](documentation/GAME_DOCUMENTATION.md)
+- [Market Pulse HTML](documentation/market_pulse.html) (Prototype)
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Link of Deployed Site
+[Deployed Site Link Here] (Replace with actual link)
