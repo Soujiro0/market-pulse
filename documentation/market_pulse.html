@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Pulse: Strategic Business Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px;
+            border-radius: 50%; background: #6366f1; cursor: pointer; margin-top: -6px; 
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Balance Animations */
+        @keyframes flash-green { 0% { color: #34d399; transform: scale(1); } 50% { color: #d1fae5; transform: scale(1.1); text-shadow: 0 0 15px #34d399; } 100% { color: #34d399; transform: scale(1); } }
+        @keyframes flash-red { 0% { color: #f87171; transform: scale(1); } 50% { color: #fee2e2; transform: scale(1.1); text-shadow: 0 0 15px #f87171; } 100% { color: #f87171; transform: scale(1); } }
+        
+        .anim-balance-up { animation: flash-green 0.8s ease-out; }
+        .anim-balance-down { animation: flash-red 0.8s ease-out; }
+
+        /* Rarity Effects & Backgrounds */
+        .card-glow-unicorn { box-shadow: 0 0 25px rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.5); }
+        .bg-unicorn { background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%); }
+        
+        .card-glow-disruptive { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.5); }
+        .bg-disruptive { background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%); }
+        
+        .card-glow-emerging { box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); }
+        .bg-emerging { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%); }
+        
+        .card-base { border: 1px solid #334155; }
+        .bg-standard { background: linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.8) 100%); }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header id="main-navbar" class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="game.setView('market')">
+                <div id="header-logo-icon" class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20 group-hover:bg-indigo-500 transition-colors">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-white hidden sm:block">Market<span class="text-indigo-500">Pulse</span></h1>
+            </div>
+            
+            <div class="flex items-center gap-4 sm:gap-6">
+                <!-- Profile Button -->
+                <button onclick="game.setView('profile')" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 group bg-slate-800/50 hover:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700/50" title="Operator Profile">
+                    <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:text-indigo-300">
+                        <i data-lucide="user" class="w-3 h-3"></i>
+                    </div>
+                    <div class="flex flex-col items-start text-left">
+                        <span id="header-tier-name" class="text-[10px] font-bold text-slate-300 uppercase leading-none">Intern</span>
+                        <span id="header-rank-display" class="text-[9px] text-slate-500 font-mono leading-none">Rank 1</span>
+                    </div>
+                </button>
+
+                 <button onclick="game.setView('help')" class="text-slate-400 hover:text-indigo-400 transition-colors flex items-center gap-1 group">
+                    <i data-lucide="book-open" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> <span class="text-xs font-semibold hidden sm:inline">MANUAL</span>
+                </button>
+
+                <div class="text-right hidden md:block border-l border-slate-700 pl-4">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Climate</p>
+                    <div id="market-climate-container" class="flex items-center gap-2 justify-end">
+                        <span id="market-climate" class="font-mono text-sm font-bold text-slate-200">Neutral</span>
+                    </div>
+                </div>
+                <div class="text-right pl-4 sm:pl-6 border-l border-slate-700">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Turn</p>
+                    <p id="turn-display" class="font-mono text-lg font-bold text-slate-200">1</p>
+                </div>
+                <div class="text-right pl-4 sm:pl-6 border-l border-slate-700">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Liquidity</p>
+                    <p id="balance-display" class="font-mono text-xl font-bold text-emerald-400 transition-all duration-300">$10,000</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-6 relative">
+        <div id="app-container" class="max-w-7xl mx-auto h-full">
+            <!-- Content injected via JS -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="main-footer" class="bg-slate-900 border-t border-slate-800 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs font-mono">
+            <p>MARKET PULSE_SIMULATION.SYS // V.2.8.4 // AUTHORIZED_USER_ONLY</p>
+            <button onclick="game.resetData()" class="mt-2 md:mt-0 text-red-900 hover:text-red-500 transition-colors">RESET_DATA</button>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-slate-950 z-[200] flex flex-col items-center justify-center fade-in">
+        <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+        <h2 class="text-indigo-400 font-mono text-lg font-bold animate-pulse">ESTABLISHING UPLINK...</h2>
+        <p class="text-slate-500 text-xs font-mono mt-2">Syncing Market Data Stream</p>
+    </div>
+
+    <!-- TEMPLATES -->
+    
+    <!-- 1. MARKET VIEW -->
+    <template id="tpl-market">
+        <div class="space-y-6 fade-in relative pb-20">
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Market Info -->
+                <div class="lg:col-span-8 glass-panel p-6 rounded-xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+                                <i data-lucide="globe" class="w-6 h-6 text-indigo-500"></i> Global Ventures
+                            </h2>
+                            <p class="text-slate-400 text-sm mt-1">
+                                Sourcing <span class="font-bold text-indigo-400">10</span> potential assets. Signal strength: STRONG.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="game.toggleMarketView('grid')" id="btn-view-grid" class="p-2 rounded bg-slate-700 text-slate-300 hover:bg-indigo-600 hover:text-white transition-colors">
+                                <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="game.toggleMarketView('list')" id="btn-view-list" class="p-2 rounded bg-slate-800 text-slate-500 hover:bg-indigo-600 hover:text-white transition-colors">
+                                <i data-lucide="list" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loan Bank Card -->
+                <div class="lg:col-span-4 bg-slate-800 p-6 rounded-xl border border-slate-700 relative overflow-hidden group hover:border-slate-600 transition-colors shadow-lg">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="relative z-10 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="landmark" class="w-5 h-5 text-indigo-400"></i> Loan Bank
+                            </h3>
+                            <span id="loan-status-badge" class="text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-500 px-2 py-1 rounded uppercase tracking-wide">Standby</span>
+                        </div>
+                        
+                        <div id="bank-no-loan">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded bg-slate-900 flex items-center justify-center border border-slate-700 text-slate-600">
+                                    <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-tight">Access credit lines to leverage capital. Default risk applies.</p>
+                            </div>
+                            <button onclick="game.toggleLoanModal(true)" class="w-full py-2.5 bg-slate-700 hover:bg-indigo-600 hover:text-white text-slate-300 text-xs font-bold uppercase tracking-wider rounded transition-all shadow-md">
+                                Request Liquidity
+                            </button>
+                        </div>
+
+                        <div id="bank-active-loan" class="hidden space-y-3 bg-slate-900/50 p-3 rounded border border-red-900/30">
+                            <div class="flex justify-between items-baseline border-b border-slate-700 pb-2">
+                                <span class="text-xs text-red-400 uppercase font-bold">Liability</span>
+                                <span id="loan-amount-display" class="font-mono text-lg font-bold text-red-500">$0</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <span class="text-slate-500 block">Rate</span>
+                                    <span id="loan-rate-display" class="font-mono font-bold text-slate-300">5%</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-slate-500 block">Maturity</span>
+                                    <span id="loan-due-display" class="font-mono font-bold text-slate-300">T-5</span>
+                                </div>
+                            </div>
+                            <button id="btn-pay-loan" onclick="game.payLoan()" class="w-full py-2 bg-emerald-700/80 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white text-xs font-bold rounded transition-colors mt-2 uppercase tracking-wide">
+                                Settle Debt
+                            </button>
+                            <p id="loan-lock-msg" class="text-[9px] text-center text-slate-500 hidden font-mono">LOCKED UNTIL MATURITY</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Product Grid/List Container -->
+            <div id="product-grid" class="grid gap-4 transition-all duration-300 pb-24">
+                <!-- Cards injected here -->
+            </div>
+        </div>
+
+        <!-- Loan Modal -->
+        <div id="loan-modal" class="hidden fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+            <div class="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-slate-700 relative">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="text-indigo-500">❖</span> Credit Facility
+                    </h3>
+                    <button onclick="game.toggleLoanModal(false)" class="text-slate-500 hover:text-white text-2xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Requested Capital</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-slate-500 font-mono">$</span>
+                            <input type="number" id="input-loan-amount" class="w-full p-2 pl-6 bg-slate-800 border border-slate-600 rounded font-mono text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors placeholder-slate-600" placeholder="5000">
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1 text-right">Limit: <span class="font-mono text-slate-400">$50,000</span></p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Duration (Turns)</label>
+                        <input type="range" id="input-loan-term" min="5" max="20" value="10" class="w-full accent-indigo-500">
+                        <div class="flex justify-between text-xs text-slate-500 mt-2 font-mono">
+                            <span>5</span>
+                            <span id="loan-term-val" class="font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">10 Turns</span>
+                            <span>20</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Base Rate</span>
+                            <span class="font-mono font-bold text-slate-400">5.0%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Term Premium</span>
+                            <span id="loan-premium" class="font-mono font-bold text-red-400">+2.0%</span>
+                        </div>
+                        <div class="border-t border-slate-700 my-2"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-300 uppercase text-xs">Total Repayment</span>
+                            <span id="loan-total-repay" class="font-mono text-lg font-bold text-white">$0</span>
+                        </div>
+                    </div>
+                    <button onclick="game.takeLoan()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98]">
+                        AUTHORIZE TRANSACTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 2. TRADING DESK -->
+    <template id="tpl-trading">
+        <div class="max-w-5xl mx-auto space-y-6 fade-in h-full flex flex-col">
+            <div class="flex items-center gap-2 text-slate-500 hover:text-white cursor-pointer transition-colors w-fit group" onclick="game.setView('market')">
+                <span class="group-hover:-translate-x-1 transition-transform">&larr;</span> <span class="font-semibold text-sm font-mono uppercase">Abort Transaction</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+                <!-- Asset Card -->
+                <div class="md:col-span-1">
+                    <div id="desk-card" class="glass-panel p-8 rounded-2xl h-full relative overflow-hidden flex flex-col items-center text-center">
+                        <div class="relative z-10 w-full flex flex-col items-center">
+                            <div class="flex items-center gap-2 mb-6">
+                                <span id="desk-rarity-icon" class="text-slate-400"></span>
+                                <span id="desk-rarity-badge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900 border border-slate-700 text-slate-400">Standard</span>
+                            </div>
+                            
+                            <div class="w-24 h-24 bg-slate-800 rounded-2xl shadow-inner border border-slate-700 flex items-center justify-center text-5xl mb-6 relative" id="desk-icon">
+                                📦
+                                <div class="absolute inset-0 bg-indigo-500/10 rounded-2xl"></div>
+                            </div>
+                            
+                            <h2 id="desk-name" class="text-2xl font-bold text-white mb-2 leading-tight">Product Name</h2>
+                            <p id="desk-desc" class="text-xs text-slate-400 mb-4 italic px-4">"Description goes here..."</p>
+                            <p id="desk-price" class="font-mono text-3xl font-bold text-indigo-400 mb-6">$0.00</p>
+
+                            <div class="w-full space-y-4 text-left bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase">Multiplier Rate</span>
+                                        <span id="desk-multiplier" class="text-[10px] font-bold text-slate-300 font-mono">x1.0</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                        <div id="desk-volatility-bar" class="h-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)] transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase">Momentum</span>
+                                        <span id="desk-momentum" class="text-[10px] font-bold">Bullish</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Form -->
+                <div class="md:col-span-2 flex flex-col">
+                    <div class="glass-panel p-8 rounded-2xl h-full flex flex-col justify-between">
+                        <div class="space-y-8">
+                            <div class="border-b border-slate-700 pb-4">
+                                <h3 class="text-xl font-bold text-white mb-1 font-mono uppercase">Order Configuration</h3>
+                                <p class="text-sm text-slate-500">Set investment parameters.</p>
+                            </div>
+                            
+                            <!-- Duration -->
+                            <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800">
+                                <div class="flex justify-between mb-4">
+                                    <label class="text-xs font-bold text-slate-500 uppercase">Horizon</label>
+                                    <span id="val-duration" class="font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-1 rounded text-sm border border-indigo-500/20">90 Days</span>
+                                </div>
+                                <input type="range" id="input-duration" min="30" max="365" step="5" value="90" class="w-full accent-indigo-600">
+                                <div class="flex justify-between mt-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                                    <span>Short Term</span>
+                                    <span>Long Term</span>
+                                </div>
+                            </div>
+
+                            <!-- Units -->
+                            <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-800">
+                                <div class="flex justify-between mb-2">
+                                    <label class="text-xs font-bold text-slate-500 uppercase">Volume (Units)</label>
+                                    <span id="error-msg" class="text-xs font-bold text-white hidden bg-red-600 px-2 py-1 rounded shadow-lg shadow-red-900/50">Insufficient Funds</span>
+                                </div>
+                                <div class="flex gap-4 items-center">
+                                    <input type="number" id="input-units" min="1" value="10" class="flex-grow p-3 bg-slate-800 border border-slate-600 rounded-lg font-mono text-lg text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all">
+                                    <button id="btn-max-units" class="bg-slate-800 border border-slate-600 hover:border-indigo-500 text-slate-400 hover:text-indigo-400 px-4 py-3 rounded-lg text-xs font-bold uppercase transition-colors">Max</button>
+                                </div>
+                                <div class="flex justify-between mt-2">
+                                    <span class="text-[10px] text-slate-500">Buying Power: <span id="max-units-hint" class="font-mono text-slate-300 font-bold">0</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Totals -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 border border-slate-700 bg-slate-800/30 rounded-xl">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Cost Basis</p>
+                                    <p id="calc-investment" class="font-mono font-bold text-white text-xl">$0</p>
+                                </div>
+                                <div class="p-4 border border-slate-700 bg-slate-800/30 rounded-xl">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Projected Net</p>
+                                    <p id="calc-balance" class="font-mono font-bold text-slate-400 text-xl">$0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-lock" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/40 transition-all transform hover:-translate-y-1 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none uppercase tracking-wide relative overflow-hidden">
+                            Execute Trade
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 3. SIMULATION VIEW (FULL SCREEN) -->
+    <template id="tpl-simulation">
+        <div class="fixed inset-0 z-[100] bg-slate-950 flex flex-col fade-in">
+            <!-- Full Screen HUD -->
+            <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-20 pointer-events-none">
+                <!-- Left HUD -->
+                <div class="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg">
+                     <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Active Asset</div>
+                     <div id="sim-product-name" class="text-xl font-mono text-indigo-400 font-bold">PRODUCT_ID</div>
+                     <div class="flex items-center gap-2 mt-2">
+                        <div id="live-indicator" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                        <span id="live-text" class="text-[10px] text-red-500 font-bold uppercase">Live Feed</span>
+                     </div>
+                </div>
+                
+                <!-- Right HUD -->
+                <div class="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg text-right min-w-[200px]">
+                    <div class="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Current Valuation</div>
+                    <div id="sim-current-price" class="text-3xl font-mono text-white font-bold">$0.00</div>
+                    <div id="sim-current-pl" class="text-lg font-mono font-bold mt-1 text-slate-500">$0</div>
+                </div>
+            </div>
+
+            <!-- Chart Area (Full Screen) -->
+            <div class="flex-grow w-full h-full relative">
+                <div class="chart-container w-full h-full">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Control Deck -->
+            <div class="absolute bottom-0 left-0 w-full p-6 z-20">
+                <div class="max-w-4xl mx-auto bg-slate-900/90 backdrop-blur border border-slate-700 rounded-full p-2 flex justify-between items-center shadow-2xl">
+                    
+                    <div class="flex items-center gap-6 px-6">
+                        <div>
+                            <span class="block text-[10px] text-slate-500 font-mono uppercase">T-Time</span>
+                            <span id="sim-current-day" class="font-mono text-white font-bold text-lg">0</span>
+                        </div>
+                         <div class="hidden sm:block">
+                            <select id="chart-type-selector" onchange="game.updateChartType()" class="bg-slate-800 border border-slate-700 text-slate-400 text-xs rounded focus:border-indigo-500 block p-1 outline-none font-mono">
+                               <option value="line">LINE</option>
+                               <option value="bar">BAR</option>
+                           </select>
+                       </div>
+                    </div>
+
+                    <!-- Media Controls -->
+                    <div class="flex items-center gap-2" id="sim-controls">
+                        <button onclick="game.togglePause()" id="btn-pause" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 flex items-center justify-center transition-colors">
+                            <i data-lucide="pause" class="w-3 h-3"></i>
+                        </button>
+                        <div class="h-6 w-px bg-slate-700 mx-2"></div>
+                        <button onclick="game.setSpeed(1)" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-mono border border-slate-700 transition-colors">1x</button>
+                        <button onclick="game.setSpeed(2)" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-mono border border-slate-700 transition-colors">2x</button>
+                        <button onclick="game.setSpeed(4)" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-mono border border-slate-700 transition-colors">4x</button>
+                        <div class="h-6 w-px bg-slate-700 mx-2"></div>
+                        <button onclick="game.skipSimulation()" class="px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-indigo-500/30 transition-all">SKIP >></button>
+                    </div>
+
+                    <!-- Post-Sim Controls (Hidden initially) -->
+                    <div id="post-sim-controls" class="hidden items-center gap-4 px-4 w-full justify-end">
+                        <span class="text-xs text-emerald-400 font-bold uppercase tracking-wider animate-pulse">Simulation Complete</span>
+                        <button onclick="game.showResultOverlay()" class="px-6 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2">
+                            FINALIZE <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Overlay -->
+            <div id="sim-result-overlay" class="hidden fixed inset-0 bg-slate-950/90 z-[200] flex items-center justify-center p-4 fade-in">
+                <div class="max-w-md w-full text-center relative">
+                    <!-- Glow behind result -->
+                    <div class="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="mb-8">
+                            <div id="result-icon" class="text-8xl mb-4 animate-bounce drop-shadow-2xl">💰</div>
+                            <h3 id="result-title" class="text-4xl font-bold mb-2 text-white tracking-tight">Venture Closed</h3>
+                            <p id="result-message" class="text-slate-400 text-lg">Position liquidated.</p>
+                        </div>
+                        
+                        <div class="bg-slate-900/80 backdrop-blur rounded-2xl p-8 mb-8 border border-slate-700 shadow-2xl">
+                            <div class="flex justify-between mb-4 border-b border-slate-800 pb-4">
+                                <span class="text-slate-500 text-sm uppercase font-bold tracking-wider">Initial Capital</span>
+                                <span id="res-invested" class="font-mono font-bold text-white text-lg">$0</span>
+                            </div>
+                            <div class="flex justify-between mb-4 border-b border-slate-800 pb-4">
+                                <span class="text-slate-500 text-sm uppercase font-bold tracking-wider">Exit Valuation</span>
+                                <span id="res-value" class="font-mono font-bold text-white text-lg">$0</span>
+                            </div>
+                            <div class="flex justify-between pt-2">
+                                <span class="font-bold text-slate-400 text-sm uppercase tracking-wider">Net P/L</span>
+                                <span id="res-profit" class="font-mono font-bold text-2xl text-emerald-400">$0</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <button onclick="game.hideResultOverlay()" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl border border-slate-700 transition-colors uppercase text-xs">
+                                Review Chart
+                            </button>
+                            <button onclick="game.nextTurn()" class="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/50 transition-transform hover:-translate-y-1 uppercase text-xs tracking-wide">
+                                Return to Market
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 4. PROFILE VIEW (New) -->
+    <template id="tpl-profile">
+        <div class="space-y-6 fade-in">
+            <div class="flex items-center gap-2 text-slate-500 hover:text-white cursor-pointer transition-colors w-fit group mb-4" onclick="game.setView('market')">
+                <span class="group-hover:-translate-x-1 transition-transform">&larr;</span> <span class="font-semibold text-sm font-mono uppercase">Back to Market</span>
+            </div>
+
+            <!-- Profile Header -->
+            <div class="glass-panel p-8 rounded-xl flex items-center gap-6">
+                <div class="relative">
+                    <div id="profile-tier-icon" class="w-20 h-20 rounded-full bg-slate-800 border-2 border-indigo-500 flex items-center justify-center text-indigo-400 shadow-lg shadow-indigo-500/20">
+                        <i data-lucide="user" class="w-10 h-10"></i>
+                    </div>
+                    <div id="profile-tier-badge" class="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 rounded-full border border-slate-900">
+                        Rank 1
+                    </div>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                        OPERATOR_ID <span id="profile-tier-name" class="text-sm font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">INTERN</span>
+                    </h2>
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">
+                            <span>Progress to Next Rank</span>
+                            <span id="profile-xp-text">0 / 1000 XP</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="profile-xp-bar" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-emerald-500">
+                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Win Rate</p>
+                    <p id="profile-winrate" class="text-3xl font-mono font-bold text-white">0%</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500">
+                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Total Turns</p>
+                    <p id="profile-turns" class="text-3xl font-mono font-bold text-white">0</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-yellow-500">
+                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider mb-2">Net Lifetime P/L</p>
+                    <p id="profile-pl" class="text-3xl font-mono font-bold text-white">$0</p>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="glass-panel rounded-xl overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-400 text-xs uppercase tracking-wider font-mono flex items-center gap-2">
+                        <i data-lucide="history" class="w-4 h-4"></i> Transaction Log
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-900 border-b border-slate-800">
+                            <tr>
+                                <th class="px-6 py-3 font-semibold font-mono">Turn</th>
+                                <th class="px-6 py-3 font-semibold font-mono">Asset</th>
+                                <th class="px-6 py-3 font-semibold font-mono">Tier</th>
+                                <th class="px-6 py-3 font-semibold font-mono">Climate</th>
+                                <th class="px-6 py-3 font-semibold font-mono text-right">Vol</th>
+                                <th class="px-6 py-3 font-semibold font-mono text-right">Buy</th>
+                                <th class="px-6 py-3 font-semibold font-mono text-right">Sell</th>
+                                <th class="px-6 py-3 text-right font-semibold font-mono">P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="text-slate-300">
+                            <tr id="empty-history"><td colspan="8" class="px-6 py-8 text-center text-slate-600 font-mono text-xs">NO_DATA_FOUND</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 5. HELP VIEW -->
+    <template id="tpl-help">
+        <div class="max-w-5xl mx-auto fade-in bg-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden my-8 flex flex-col h-[85vh]">
+            <div class="bg-slate-950 px-8 py-6 border-b border-slate-800 flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i data-lucide="book" class="w-6 h-6 text-indigo-500"></i> Operator Manual
+                </h2>
+                <button onclick="game.setView('market')" class="text-slate-500 hover:text-white font-bold px-4 py-2 hover:bg-slate-800 rounded transition-colors">&times; CLOSE</button>
+            </div>
+
+            <div class="p-8 space-y-12 overflow-y-auto text-slate-300 flex-grow">
+                <!-- Overview -->
+                <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="crosshair" class="w-5 h-5 text-indigo-400"></i> Mission Objectives
+                    </h3>
+                    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-sm leading-relaxed">
+                        <p class="mb-4"><strong>Primary Goal:</strong> Scale your initial <strong>$10,000</strong> capital into a corporate empire. Climb the <strong>10 Tiers</strong> of the operator ladder.</p>
+                        <p class="mb-4"><strong>The Loop:</strong></p>
+                        <ul class="space-y-2 list-disc pl-5 marker:text-indigo-500">
+                            <li><strong>Analyze:</strong> Review 10 randomized assets each turn. Assess price, rarity, and hype.</li>
+                            <li><strong>Invest:</strong> Commit capital to an asset. Determine your <strong>Horizon</strong> (Duration) and <strong>Volume</strong> (Units).</li>
+                            <li><strong>Simulate:</strong> Watch market performance in real-time.</li>
+                            <li><strong>Liquidate:</strong> Collect returns (or absorb losses) automatically when the horizon ends.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Tips & Suggestions -->
+                <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-400"></i> Strategic Advice
+                    </h3>
+                    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-sm space-y-4">
+                        <p><strong class="text-indigo-400">1. Leverage Debt Wisely:</strong> Taking loans early can boost your buying power for safe, Standard tier assets. But beware of compound interest—always check the total repayment before signing.</p>
+                        <p><strong class="text-indigo-400">2. Match Horizon to Rarity:</strong> 
+                            <br>- <strong>Standard/Emerging:</strong> Good for short-term flips (30-60 days).
+                            <br>- <strong>Unicorns:</strong> Require long horizons (200+ days) to realize their massive 10x potential, as they are extremely volatile in the short term.
+                        </p>
+                        <p><strong class="text-indigo-400">3. Climate Awareness:</strong>
+                            <br>- In a <strong>Bull Market</strong>, be aggressive. Most assets drift upwards.
+                            <br>- In a <strong>Bear Market</strong>, trade small volumes or sit out turns to preserve capital.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Leveling System -->
+                <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="award" class="w-5 h-5 text-indigo-400"></i> Career Progression
+                    </h3>
+                    <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-sm">
+                        <p class="mb-4">Operators gain <strong>XP</strong> for every completed transaction. Profitable trades yield bonus XP.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs font-mono text-slate-400 text-center">
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">1. Intern</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">2. Analyst</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">3. Associate</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">4. Trader</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">5. Broker</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">6. Manager</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">7. Director</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">8. VP</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800">9. Executive</span>
+                            <span class="bg-slate-900 p-2 rounded border border-slate-800 text-yellow-500 font-bold">10. Chairman</span>
+                        </div>
+                        <p class="mt-4 text-xs text-slate-500">*Each Rank requires 1000 XP.</p>
+                    </div>
+                </section>
+
+                <!-- Rarity System -->
+                <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Asset Classification
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 border border-slate-700 rounded-lg bg-slate-800/50 flex gap-4">
+                            <div class="text-slate-400"><i data-lucide="box" class="w-8 h-8"></i></div>
+                            <div>
+                                <span class="text-xs font-bold bg-slate-700 text-slate-300 px-2 py-1 rounded uppercase">Standard (Common)</span>
+                                <p class="text-xs mt-2 text-slate-400">Low volatility foundation assets. <br><strong>Multiplier: 1.0x</strong></p>
+                            </div>
+                        </div>
+                        <div class="p-4 border border-blue-900/50 rounded-lg bg-blue-900/10 flex gap-4">
+                            <div class="text-blue-400"><i data-lucide="zap" class="w-8 h-8"></i></div>
+                            <div>
+                                <span class="text-xs font-bold bg-blue-900/50 text-blue-300 px-2 py-1 rounded uppercase">Emerging (Uncommon)</span>
+                                <p class="text-xs mt-2 text-slate-400">Growth startups. Moderate risk. <br><strong>Multiplier: 1.5x</strong></p>
+                            </div>
+                        </div>
+                        <div class="p-4 border border-purple-900/50 rounded-lg bg-purple-900/10 flex gap-4">
+                            <div class="text-purple-400"><i data-lucide="star" class="w-8 h-8"></i></div>
+                            <div>
+                                <span class="text-xs font-bold bg-purple-900/50 text-purple-300 px-2 py-1 rounded uppercase">Disruptive (Rare)</span>
+                                <p class="text-xs mt-2 text-slate-400">Market movers. High volatility. <br><strong>Multiplier: 3.0x</strong></p>
+                            </div>
+                        </div>
+                        <div class="p-4 border border-yellow-900/50 rounded-lg bg-yellow-900/10 flex gap-4">
+                            <div class="text-yellow-400"><i data-lucide="crown" class="w-8 h-8"></i></div>
+                            <div>
+                                <span class="text-xs font-bold bg-yellow-900/50 text-yellow-300 px-2 py-1 rounded uppercase">Unicorn (Legendary)</span>
+                                <p class="text-xs mt-2 text-slate-400">Extreme risk/reward. The 1%. <br><strong>Multiplier: 10.0x</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Market Forces -->
+                <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-400"></i> Market Dynamics
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-white text-sm mb-2">Market Climate</h4>
+                            <ul class="text-xs text-slate-400 space-y-2">
+                                <li class="flex justify-between"><span class="text-emerald-400">Bull Market</span> <span>Uptrend Bias</span></li>
+                                <li class="flex justify-between"><span class="text-slate-400">Neutral</span> <span>Standard Volatility</span></li>
+                                <li class="flex justify-between"><span class="text-red-400">Bear Market</span> <span>Downtrend Bias</span></li>
+                                <li class="flex justify-between"><span class="text-orange-400">Volatile</span> <span>Extreme Swings</span></li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-white text-sm mb-2">Hype Meter</h4>
+                            <p class="text-xs text-slate-400 mb-2">Located on asset cards. Indicates short-term public sentiment.</p>
+                            <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-1">
+                                <div class="w-3/4 h-full bg-emerald-500"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-500 text-right">High Hype = Strong Momentum</p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-white text-sm mb-2">Overdraft</h4>
+                            <p class="text-xs text-slate-400">
+                                You can execute trades exceeding your cash balance. This creates a <strong>Negative Balance (Debt)</strong>. Use with caution.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+                
+                 <!-- Banking -->
+                 <section>
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="landmark" class="w-5 h-5 text-indigo-400"></i> Loan Bank
+                    </h3>
+                    <div class="bg-red-950/10 p-6 rounded-xl border border-red-900/30 text-sm space-y-4">
+                        <p class="text-slate-300">The Loan Bank provides liquidity when you are insolvent or wish to leverage up.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                            <div class="p-3 bg-red-900/20 rounded border border-red-900/30">
+                                <strong class="text-red-400 block mb-1">Credit Limit</strong>
+                                $50,000 Max Principal
+                            </div>
+                            <div class="p-3 bg-red-900/20 rounded border border-red-900/30">
+                                <strong class="text-red-400 block mb-1">Lock Period</strong>
+                                Cannot repay before Maturity Date.
+                            </div>
+                            <div class="p-3 bg-red-900/20 rounded border border-red-900/30">
+                                <strong class="text-red-400 block mb-1">Liquidation</strong>
+                                Defaulting (10 turns late) seizes assets.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // --- CONFIG ---
+        const CLIMATES = {
+            'Bull Market': { icon: 'trending-up', color: 'text-emerald-400' },
+            'Bear Market': { icon: 'trending-down', color: 'text-red-400' },
+            'Neutral': { icon: 'minus', color: 'text-slate-400' },
+            'Volatile': { icon: 'activity', color: 'text-orange-400' }
+        };
+
+        const RARITY = {
+            STANDARD: { id: 'standard', label: 'Standard', mult: 1, color: 'text-slate-400', bg: 'bg-standard', border: 'card-base', icon: 'box', glow: 'card-base' },
+            EMERGING: { id: 'emerging', label: 'Emerging', mult: 1.5, color: 'text-blue-400', bg: 'bg-emerging', border: 'border-blue-500/50', icon: 'zap', glow: 'card-glow-emerging' },
+            DISRUPTIVE: { id: 'disruptive', label: 'Disruptive', mult: 3, color: 'text-purple-400', bg: 'bg-disruptive', border: 'border-purple-500/50', icon: 'star', glow: 'card-glow-disruptive' },
+            UNICORN: { id: 'unicorn', label: 'Unicorn', mult: 10, color: 'text-yellow-400', bg: 'bg-unicorn', border: 'border-yellow-500/50', icon: 'crown', glow: 'card-glow-unicorn' }
+        };
+
+        const TIERS = ["Intern", "Analyst", "Associate", "Trader", "Broker", 
+            "Manager", "Director", "VP", "Executive", "Chairman"];
+
+        const itemNames = ["Quantum Toaster", "Smart Socks", "Vintage Console", "Lab-Grown Burger", "VR Headset", "Lithium Battery", "Crypto Wallet", "Drone Delivery", "AI Assistant", "Space Ticket", "Hydroponic Kit", "3D House", "Neural Link", "Holo Phone", "Cyber Arm", "Fusion Cell", "Nano Bot", "Vertical Farm", "Asteroid Ore", "Synth Silk", "Bio Fuel", "Carbon Unit", "Smart Lens", "Flying Taxi", "Sea Hotel", "Robot Pet", "Mind Backup", "Teleport Pod", "Gene Kit", "Weather Sub", "Digi Estate", "NFT Gallery", "Smart Mirror", "Auto Chef", "Sleep Pod", "Exo Suit", "Youth Serum", "Water Pill", "Solar Paint", "Wind Kite", "Sea Vacuum", "Mars Tire", "Zero-G Joe", "Plasma 8K", "Retro Walkman", "Vinyl Press", "E-Ink Pad", "Graph Chip", "SSD Drive", "Q-Key"];
+        const icons = ['🍞','🧦','🕹️','🍔','👓','🔋','💳','🚁','🤖','🚀','🌱','🏠','🧠','📱','🦾','⚛️','💊','🏢','☄️','🕸️','⛽','🌫️','👁️','🚕','🏨','🐕','💾','✨','🧬','⛈️','🌐','🖼️','🪞','👨‍🍳','💤','🦴','🧪','💧','🎨','🪁','🧹','🌑','☕','📺','🎧','💿','📝','💻','💾','🔑'];
+
+        const flavorTexts = [
+            "Browns bread using quantum tunneling.", "Tracks steps and warms toes via app.", "Nostalgia bait for millennials.", "Cruelty-free protein synthesis.", "Immersive reality distortion field.", "High-density energy storage.", "Decentralized ledger access.", "Last-mile logistics solution.", "Predictive algorithmic help.", "One-way trip to Mars.", "Indoor farming module.", "Rapid construction printer.", "Direct brain-computer interface.", "3D projection communication.", "Enhanced strength prosthetic.", "Infinite clean energy source.", "Microscopic medical repair.", "Urban agricultural tower.", "Rare earth metals from space.", "Spider-goat generated fabric.", "Algae-based propulsion fuel.", "Atmospheric scrubbing tech.", "AR display in a contact lens.", "Autonomous aerial transport.", "Sub-aquatic luxury lodging.", "Hypoallergenic mechanical dog.", "Consciousness cloud upload.", "Instant matter transport.", "DIY CRISPR home kit.", "Local climate modification.", "Virtual land speculation.", "Tokenized art ownership.", "AI-powered reflection analysis.", "Robotic culinary assistant.", "Optimized REM sleep chamber.", "Industrial strength augmentation.", "Telomere extension therapy.", "Desalination in a tablet.", "Photovoltaic coating liquid.", "High-altitude energy harvesting.", "Ocean plastic filtration.", "Durability for red planet terrain.", "Caffeine for zero gravity.", "Retina-burning resolution.", "Analog audio revival.", "High-fidelity groove carving.", "Paper-like digital writing.", "Carbon-based computing.", "Solid state memory brick.", "Quantum encryption dongle."
+        ];
+
+        // --- GAME CLASS ---
+        class MarketGame {
+            constructor() {
+                this.state = {
+                    balance: 10000,
+                    turn: 1,
+                    view: 'market',
+                    marketViewMode: 'grid', 
+                    marketClimate: 'Neutral',
+                    activeProducts: [], 
+                    currentProduct: null, 
+                    investmentAmount: 0,
+                    units: 0,
+                    duration: 0,
+                    history: [],
+                    loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
+                    chartType: 'line',
+                    // Leveling
+                    xp: 0,
+                    tierIndex: 0,
+                    rank: 1
+                };
+                
+                this.chartInstance = null;
+                this.simState = { paused: false, speed: 1, finished: false };
+                this.simTimeout = null;
+                this.previousBalance = 10000;
+
+                this.productPool = itemNames.map((name, i) => ({
+                    id: `p${i}`, name, icon: icons[i] || '📦',
+                    basePrice: Math.floor(Math.random() * 500) + 20,
+                    desc: flavorTexts[i] || "Revolutionary tech."
+                }));
+
+                this.appContainer = document.getElementById('app-container');
+                this.ui = {
+                    balance: document.getElementById('balance-display'),
+                    turn: document.getElementById('turn-display'),
+                    climate: document.getElementById('market-climate'),
+                    navbar: document.getElementById('main-navbar'),
+                    footer: document.getElementById('main-footer')
+                };
+
+                // Bind global scope for HTML callbacks
+                window.game = this;
+                this.init();
+            }
+
+            init() {
+                this.loadGame();
+                if (!this.state.activeProducts || this.state.activeProducts.length === 0) {
+                    this.randomizeMarket(); 
+                }
+                this.renderView();
+            }
+
+            saveGame() {
+                localStorage.setItem('marketPulseSave_v3', JSON.stringify(this.state));
+            }
+
+            loadGame() {
+                const saved = localStorage.getItem('marketPulseSave_v3');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.state = { ...this.state, ...parsed };
+                        this.state.view = 'market';
+                        // Remove incompatible v2.9 properties if present
+                        delete this.state.selectedProducts;
+                        delete this.state.rerollCost;
+                    } catch (e) {
+                        console.error("Save file corrupted, starting new game.");
+                    }
+                }
+            }
+
+            resetData() {
+                if(confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
+                    localStorage.removeItem('marketPulseSave_v3');
+                    location.reload();
+                }
+            }
+
+            formatMoney(amount) {
+                const str = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.abs(amount));
+                return amount < 0 ? `-${str}` : str;
+            }
+
+            // --- LEVELING LOGIC ---
+            addXp(amount) {
+                this.state.xp += amount;
+                this.checkLevelUp();
+            }
+
+            checkLevelUp() {
+                // REVERTED: Simple XP calculation without gates/demotion
+                const xpPerRank = 1000;
+                const totalRanks = Math.floor(this.state.xp / xpPerRank);
+                
+                let newTier = Math.floor(totalRanks / 5);
+                let newRank = (totalRanks % 5) + 1;
+
+                if (newTier >= TIERS.length) {
+                    newTier = TIERS.length - 1;
+                    newRank = 5;
+                }
+
+                this.state.tierIndex = newTier;
+                this.state.rank = newRank;
+            }
+
+            // ... (Other methods remain unchanged) ...
+            updateHeader() {
+                const isSim = this.state.view === 'simulation';
+                this.ui.navbar.style.display = isSim ? 'none' : 'block';
+                this.ui.footer.style.display = isSim ? 'none' : 'block';
+
+                const balanceEl = this.ui.balance;
+                if (this.state.balance > this.previousBalance) {
+                    balanceEl.classList.remove('anim-balance-up', 'anim-balance-down');
+                    void balanceEl.offsetWidth; 
+                    balanceEl.classList.add('anim-balance-up');
+                } else if (this.state.balance < this.previousBalance) {
+                    balanceEl.classList.remove('anim-balance-up', 'anim-balance-down');
+                    void balanceEl.offsetWidth; 
+                    balanceEl.classList.add('anim-balance-down');
+                }
+                this.previousBalance = this.state.balance;
+
+                balanceEl.textContent = this.formatMoney(this.state.balance);
+                balanceEl.className = `font-mono text-xl font-bold transition-all duration-300 ${this.state.balance < 0 ? 'text-red-500' : 'text-emerald-400'}`;
+                
+                this.ui.turn.textContent = this.state.turn;
+                
+                const climateData = CLIMATES[this.state.marketClimate];
+                const climateContainer = document.getElementById('market-climate-container');
+                if(climateContainer) {
+                    climateContainer.innerHTML = `
+                        <i data-lucide="${climateData.icon}" class="w-4 h-4 ${climateData.color}"></i>
+                        <span class="font-mono text-sm font-bold text-slate-200">${this.state.marketClimate}</span>
+                    `;
+                }
+
+                const tierName = TIERS[this.state.tierIndex];
+                const tierEl = document.getElementById('header-tier-name');
+                const rankEl = document.getElementById('header-rank-display');
+                if(tierEl) tierEl.textContent = tierName;
+                if(rankEl) rankEl.textContent = `Rank ${this.state.rank}`;
+            }
+
+            setView(viewName) {
+                this.state.view = viewName;
+                this.renderView();
+            }
+
+            toggleMarketView(mode) {
+                this.state.marketViewMode = mode;
+                this.saveGame();
+                this.initMarket(); 
+            }
+
+            renderView() {
+                this.appContainer.innerHTML = '';
+                this.updateHeader();
+
+                const template = document.getElementById(`tpl-${this.state.view}`);
+                if (template) {
+                    const clone = template.content.cloneNode(true);
+                    this.appContainer.appendChild(clone);
+                    
+                    if (this.state.view === 'market') this.initMarket();
+                    if (this.state.view === 'trading') this.initTrading();
+                    if (this.state.view === 'simulation') this.initSimulation();
+                    if (this.state.view === 'profile') this.initProfile();
+                    
+                    if(window.lucide) window.lucide.createIcons();
+                }
+            }
+
+            // --- MARKET LOGIC ---
+            randomizeMarket() {
+                const rand = Math.random();
+                let climate = 'Neutral';
+                let momentumBias = 1.0, volatilityMult = 1.0;
+
+                if (rand < 0.25) { climate = 'Bull Market'; momentumBias = 1.02; volatilityMult = 0.8; }
+                else if (rand < 0.50) { climate = 'Bear Market'; momentumBias = 0.98; volatilityMult = 1.2; }
+                else if (rand < 0.70) { climate = 'Volatile'; volatilityMult = 1.5; }
+
+                this.state.marketClimate = climate;
+
+                const shuffled = [...this.productPool].sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, 10);
+
+                this.state.activeProducts = selected.map(tpl => {
+                    const rRoll = Math.random();
+                    let rarity = RARITY.STANDARD;
+                    if(rRoll > 0.95) rarity = RARITY.UNICORN;
+                    else if(rRoll > 0.85) rarity = RARITY.DISRUPTIVE;
+                    else if(rRoll > 0.60) rarity = RARITY.EMERGING;
+
+                    const priceVariation = 0.8 + (Math.random() * 0.4);
+                    const currentPrice = tpl.basePrice * rarity.mult * priceVariation;
+
+                    let baseVol = 0.1 + Math.random() * 0.9;
+                    if(rarity.id === 'unicorn') baseVol = 0.8 + (Math.random() * 0.2);
+                    let finalVol = Math.min(1.0, baseVol * volatilityMult);
+
+                    let baseMom = 0.9 + (Math.random() * 0.2); 
+                    if (climate === 'Bull Market') baseMom += 0.02;
+                    if (climate === 'Bear Market') baseMom -= 0.02;
+
+                    return {
+                        ...tpl, currentPrice, volatility: finalVol, momentum: baseMom, rarity,
+                        hype: Math.floor(Math.random() * 100)
+                    };
+                });
+            }
+
+            initMarket() {
+                const btnGrid = document.getElementById('btn-view-grid');
+                const btnList = document.getElementById('btn-view-list');
+                if(this.state.marketViewMode === 'grid') {
+                    btnGrid.className = "p-2 rounded bg-indigo-600 text-white shadow-lg shadow-indigo-500/30";
+                    btnList.className = "p-2 rounded bg-slate-800 text-slate-500 hover:text-white";
+                } else {
+                    btnList.className = "p-2 rounded bg-indigo-600 text-white shadow-lg shadow-indigo-500/30";
+                    btnGrid.className = "p-2 rounded bg-slate-800 text-slate-500 hover:text-white";
+                }
+
+                this.bindLoanUI();
+
+                // Loan Calculation Listeners - only active if modal is open usually, but modal is global
+                const loanInput = document.getElementById('input-loan-amount');
+                const loanTerm = document.getElementById('input-loan-term');
+                if(loanInput && loanTerm) {
+                    const updateLoanCalc = () => {
+                        const amt = parseInt(loanInput.value) || 0;
+                        const term = parseInt(loanTerm.value);
+                        document.getElementById('loan-term-val').textContent = `${term} Turns`;
+                        const premium = Math.floor(term / 5) * 0.01;
+                        document.getElementById('loan-premium').textContent = `+${(premium*100).toFixed(0)}%`;
+                        const rate = 0.05 + premium;
+                        const totalPay = Math.floor(amt * (1 + rate));
+                        document.getElementById('loan-total-repay').textContent = this.formatMoney(totalPay);
+                    };
+                    loanInput.addEventListener('input', updateLoanCalc);
+                    loanTerm.addEventListener('input', updateLoanCalc);
+                }
+
+                const grid = document.getElementById('product-grid');
+                grid.innerHTML = '';
+
+                if (this.state.marketViewMode === 'grid') {
+                    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6";
+                } else {
+                    grid.className = "flex flex-col gap-3";
+                }
+
+                this.state.activeProducts.forEach(p => {
+                    const r = p.rarity;
+                    const card = document.createElement('div');
+                    let hypeColor = p.hype > 50 ? 'bg-emerald-500' : 'bg-orange-500';
+
+                    if (this.state.marketViewMode === 'grid') {
+                        card.className = `relative rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border overflow-hidden flex flex-col group cursor-pointer ${r.glow} ${r.bg}`;
+                        card.innerHTML = `
+                            <div class="p-5 flex-1 relative z-10">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-slate-900/80 backdrop-blur border border-slate-700 text-white flex items-center gap-1">
+                                        <i data-lucide="${r.icon}" class="w-3 h-3"></i> ${r.label}
+                                    </span>
+                                </div>
+                                <div class="flex flex-col items-center text-center my-4">
+                                    <div class="text-6xl mb-3 filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">${p.icon}</div>
+                                    <h3 class="text-lg font-bold text-white leading-tight mb-1 shadow-black drop-shadow-md">${p.name}</h3>
+                                    <p class="text-[10px] text-slate-300 italic h-8 overflow-hidden leading-tight opacity-80 px-2 line-clamp-2">${p.desc}</p>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-300 mb-1">
+                                        <span>DEMAND</span>
+                                        <span>${p.hype}%</span>
+                                    </div>
+                                    <div class="w-full h-1 bg-slate-900/50 rounded-full overflow-hidden">
+                                        <div class="${hypeColor} h-full rounded-full shadow-[0_0_10px_currentColor]" style="width: ${p.hype}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 border-t border-white/10 bg-slate-900/60 backdrop-blur-sm flex justify-between items-center group-hover:bg-slate-900/80 transition-colors z-10">
+                                <p class="font-mono font-bold text-white text-lg">${this.formatMoney(p.currentPrice)}</p>
+                                <span class="text-xs font-bold text-indigo-300 group-hover:translate-x-1 transition-transform">TRADE &rarr;</span>
+                            </div>
+                        `;
+                    } else {
+                        card.className = `relative bg-slate-800 rounded-lg shadow-sm hover:bg-slate-700 transition-all duration-200 border border-slate-700 flex items-center justify-between p-4 cursor-pointer group ${r.glow}`;
+                        card.style.borderLeftWidth = "4px";
+                        card.style.borderLeftColor = r.id === 'unicorn' ? '#eab308' : (r.id === 'disruptive' ? '#a855f7' : (r.id === 'emerging' ? '#3b82f6' : '#334155'));
+
+                        card.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <div class="text-2xl">${p.icon}</div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-white group-hover:text-indigo-400">${p.name}</h3>
+                                    <p class="text-[10px] text-slate-500 italic hidden sm:block">${p.desc}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-slate-900 text-slate-400 border border-slate-600 hidden md:flex items-center gap-1"><i data-lucide="${r.icon}" class="w-3 h-3"></i> ${r.label}</span>
+                                <div class="text-right">
+                                    <p class="font-mono font-bold text-white text-lg">${this.formatMoney(p.currentPrice)}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    card.addEventListener('click', () => {
+                        this.state.currentProduct = p;
+                        this.setView('trading');
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            // --- LOAN LOGIC (Robust implementation) ---
+            toggleLoanModal(show) {
+                const m = document.getElementById('loan-modal');
+                if(show) m.classList.remove('hidden'); else m.classList.add('hidden');
+            }
+            
+            bindLoanUI() {
+               if(this.state.loan.active) {
+                    document.getElementById('bank-no-loan').classList.add('hidden');
+                    document.getElementById('bank-active-loan').classList.remove('hidden');
+                    document.getElementById('loan-status-badge').textContent = 'ACTIVE';
+                    document.getElementById('loan-status-badge').className = "text-[10px] bg-red-900/30 text-red-500 border border-red-900 font-bold px-2 py-1 rounded uppercase animate-pulse";
+                    document.getElementById('loan-amount-display').textContent = this.formatMoney(this.state.loan.amount);
+
+                    // Maturity Lock Logic
+                    const btnPay = document.getElementById('btn-pay-loan');
+                    const msg = document.getElementById('loan-lock-msg');
+                    const isDue = this.state.turn >= this.state.loan.dueTurn;
+
+                    if (isDue) {
+                        btnPay.disabled = false;
+                        msg.classList.add('hidden');
+                    } else {
+                        btnPay.disabled = true;
+                        msg.classList.remove('hidden');
+                        msg.textContent = `LOCKED UNTIL TURN ${this.state.loan.dueTurn}`;
+                    }
+
+               } else {
+                   document.getElementById('bank-no-loan').classList.remove('hidden');
+                   document.getElementById('bank-active-loan').classList.add('hidden');
+                   document.getElementById('loan-status-badge').textContent = 'STANDBY';
+                   document.getElementById('loan-status-badge').className = "text-[10px] font-bold bg-slate-900 border border-slate-700 text-slate-500 px-2 py-1 rounded uppercase tracking-wide";
+               }
+            }
+            
+            takeLoan() { 
+                const amt = parseInt(document.getElementById('input-loan-amount').value);
+                const term = parseInt(document.getElementById('input-loan-term').value);
+                if(amt>0 && amt<=50000) {
+                    // Base 5% + 1% premium every 5 turns
+                    const premium = Math.floor(term / 5) * 0.01;
+                    const rate = 0.05 + premium;
+                    const totalDue = Math.floor(amt * (1 + rate));
+
+                    this.state.balance += amt;
+                    this.state.loan = { active:true, amount: totalDue, dueTurn: this.state.turn+term, interestRate:rate };
+                    this.saveGame(); this.toggleLoanModal(false); this.renderView();
+                } else {
+                    alert("Invalid amount. Max $50,000.");
+                }
+            }
+            
+            payLoan() {
+                if(this.state.balance >= this.state.loan.amount) {
+                    this.state.balance -= this.state.loan.amount;
+                    this.state.loan = { active:false, amount:0, dueTurn:0, interestRate:0.05 };
+                    this.saveGame(); this.renderView();
+                } else alert("Insufficient Funds");
+            }
+
+            checkLoanStatus() {
+                if(!this.state.loan.active) return;
+
+                // Check if overdue
+                if(this.state.turn > this.state.loan.dueTurn) {
+                    const overdueTurns = this.state.turn - this.state.loan.dueTurn;
+
+                    // Default Condition: 10 turns late
+                    if(overdueTurns >= 10) {
+                        alert("LOAN DEFAULT: Assets Seized. The bank has liquidated your capital to cover the debt.");
+                        this.state.balance -= this.state.loan.amount;
+                        this.state.loan.active = false;
+                    } else {
+                        // Late Penalty: Increase debt by 10%
+                        const penalty = Math.floor(this.state.loan.amount * 0.10);
+                        this.state.loan.amount += penalty;
+                        // Optional: Notify user via console or subtle UI update (Balance flash will happen on render)
+                    }
+                }
+            }
+
+            // --- TRADING LOGIC ---
+            initTrading() {
+                const p = this.state.currentProduct;
+                if (!p) return this.setView('market');
+
+                document.getElementById('desk-name').textContent = p.name;
+                document.getElementById('desk-desc').textContent = `"${p.desc}"`;
+                document.getElementById('desk-icon').innerHTML = `${p.icon}<div class="absolute inset-0 bg-indigo-500/10 rounded-2xl"></div>`;
+                document.getElementById('desk-price').textContent = this.formatMoney(p.currentPrice);
+                
+                const badge = document.getElementById('desk-rarity-badge');
+                badge.textContent = p.rarity.label;
+                badge.className = `px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900 border ${p.rarity.color} ${p.rarity.border}`;
+                
+                const iconContainer = document.getElementById('desk-rarity-icon');
+                iconContainer.innerHTML = `<i data-lucide="${p.rarity.icon}" class="w-4 h-4"></i>`;
+                iconContainer.className = p.rarity.color;
+
+                document.getElementById('desk-multiplier').textContent = `x${p.rarity.mult.toFixed(1)}`;
+                
+                document.getElementById('desk-card').className = `glass-panel p-8 rounded-2xl h-full relative overflow-hidden flex flex-col items-center text-center ${p.rarity.glow}`;
+
+                let momText = p.momentum > 1.02 ? "Bullish" : (p.momentum < 0.98 ? "Bearish" : "Stable");
+                let momColor = p.momentum > 1.02 ? "text-emerald-400" : (p.momentum < 0.98 ? "text-red-400" : "text-slate-400");
+                const momEl = document.getElementById('desk-momentum');
+                momEl.textContent = momText;
+                momEl.className = `text-[10px] font-bold ${momColor}`;
+                
+                document.getElementById('desk-volatility-bar').style.width = Math.min(100, (p.volatility * 100)) + '%';
+
+                const durInput = document.getElementById('input-duration');
+                const unitsInput = document.getElementById('input-units');
+                const btnLock = document.getElementById('btn-lock');
+                const btnMax = document.getElementById('btn-max-units');
+                const errorMsg = document.getElementById('error-msg');
+
+                const purchasingPower = Math.max(0, this.state.balance);
+                const affordableUnits = Math.floor(purchasingPower / p.currentPrice);
+                
+                document.getElementById('max-units-hint').textContent = affordableUnits; 
+                
+                unitsInput.value = affordableUnits > 0 ? Math.min(10, affordableUnits) : 1;
+                durInput.value = 90;
+
+                btnMax.onclick = () => {
+                    unitsInput.value = affordableUnits > 0 ? affordableUnits : 1;
+                    updateCalculations();
+                };
+
+                const updateCalculations = () => {
+                    let days = parseInt(durInput.value);
+                    let units = parseInt(unitsInput.value);
+                    if (isNaN(units) || units < 1) units = 0;
+                    
+                    const cost = units * p.currentPrice;
+                    document.getElementById('val-duration').textContent = `${days} Days`;
+                    document.getElementById('calc-investment').textContent = this.formatMoney(cost);
+                    
+                    const projectedBalance = this.state.balance - cost;
+                    document.getElementById('calc-balance').textContent = this.formatMoney(projectedBalance);
+                    
+                    if (cost > this.state.balance) {
+                        if (units > 1) {
+                            btnLock.disabled = true;
+                            errorMsg.classList.remove('hidden');
+                            errorMsg.textContent = "DEBT LIMIT: MAX 1 UNIT";
+                            errorMsg.className = "text-xs font-bold text-white bg-red-600 px-2 py-1 rounded shadow-lg shadow-red-900/50";
+                        } else {
+                            btnLock.disabled = false;
+                            errorMsg.classList.remove('hidden');
+                            errorMsg.textContent = "OVERDRAFT"; 
+                            errorMsg.className = "text-xs font-bold text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-900";
+                        }
+                        document.getElementById('calc-balance').classList.add('text-red-500');
+                    } else if (cost === 0) {
+                        btnLock.disabled = true;
+                        errorMsg.classList.add('hidden');
+                    } else {
+                        btnLock.disabled = false;
+                        errorMsg.classList.add('hidden');
+                        document.getElementById('calc-balance').classList.remove('text-red-500');
+                        document.getElementById('calc-balance').className = "font-mono font-bold text-slate-400 text-xl";
+                    }
+                    this.state.duration = days;
+                    this.state.units = units;
+                    this.state.investmentAmount = cost;
+                };
+
+                durInput.addEventListener('input', updateCalculations);
+                unitsInput.addEventListener('input', updateCalculations);
+                
+                btnLock.addEventListener('click', () => {
+                    btnLock.disabled = true;
+                    // Loading Overlay
+                    const overlay = document.getElementById('loading-overlay');
+                    overlay.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        this.state.balance -= this.state.investmentAmount;
+                        this.updateHeader();
+                        this.setView('simulation');
+                    }, 2000); 
+                });
+                updateCalculations();
+                window.lucide.createIcons();
+            }
+
+            // --- SIMULATION LOGIC ---
+            updateChartType() {
+                const sel = document.getElementById('chart-type-selector');
+                this.state.chartType = sel.value;
+                if(this.chartInstance) {
+                    this.chartInstance.config.type = this.state.chartType;
+                    this.chartInstance.update();
+                }
+            }
+            
+            togglePause() {
+                this.simState.paused = !this.simState.paused;
+                const btn = document.getElementById('btn-pause');
+                btn.innerHTML = this.simState.paused 
+                    ? '<i data-lucide="play" class="w-3 h-3"></i>' 
+                    : '<i data-lucide="pause" class="w-3 h-3"></i>';
+                window.lucide.createIcons();
+            }
+            
+            setSpeed(speed) { this.simState.speed = speed; }
+            skipSimulation() { this.simState.speed = 1000; }
+
+            initSimulation() {
+                this.simState = { paused: false, speed: 1, finished: false };
+                clearTimeout(this.simTimeout);
+
+                const p = this.state.currentProduct;
+                const days = this.state.duration;
+                const units = this.state.units;
+                const investment = this.state.investmentAmount;
+                
+                document.getElementById('sim-product-name').textContent = p.name;
+                document.getElementById('chart-type-selector').value = this.state.chartType;
+
+                let prices = [p.currentPrice];
+                let currentPrice = p.currentPrice;
+                for(let i=1; i<=days; i++) {
+                    let noise = (Math.random() * 2) - 1; 
+                    let volFactor = p.volatility * 0.05; 
+                    let bias = (p.momentum - 1) * 0.05; 
+                    let changePercent = (noise * volFactor) + bias;
+                    currentPrice = currentPrice * (1 + changePercent);
+                    if(currentPrice < 0.01) currentPrice = 0.01;
+                    prices.push(currentPrice);
+                }
+
+                const ctx = document.getElementById('marketChart').getContext('2d');
+                Chart.defaults.color = '#94a3b8';
+                Chart.defaults.borderColor = '#334155';
+                
+                this.chartInstance = new Chart(ctx, {
+                    type: this.state.chartType,
+                    data: {
+                        labels: [], 
+                        datasets: [{
+                            label: 'Price',
+                            data: [], 
+                            borderColor: '#10b981', 
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2, pointRadius: 0, fill: true, tension: 0.2
+                        }, {
+                            label: 'Entry', data: [], borderColor: '#64748b', borderDash: [5, 5], borderWidth: 1, pointRadius: 0, fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false, 
+                        interaction: { intersect: false, mode: 'index' },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { display: false } }, 
+                            y: { beginAtZero: false, grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                let currentDayIndex = 0;
+                const targetTime = 30000; 
+                let baseDelay = Math.max(20, Math.min(300, Math.floor(targetTime / days)));
+                
+                const step = () => {
+                    if (this.simState.finished) return;
+                    
+                    if (this.simState.paused) {
+                        this.simTimeout = setTimeout(step, 100);
+                        return;
+                    }
+
+                    if (currentDayIndex >= prices.length) {
+                        this.finishSimulation(prices[prices.length - 1], investment, units);
+                        return;
+                    }
+
+                    const price = prices[currentDayIndex];
+                    this.chartInstance.data.labels.push(currentDayIndex);
+                    this.chartInstance.data.datasets[0].data.push(price);
+                    this.chartInstance.data.datasets[1].data.push(p.currentPrice);
+                    
+                    if(price >= p.currentPrice) {
+                        this.chartInstance.data.datasets[0].borderColor = '#34d399';
+                        this.chartInstance.data.datasets[0].backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                    } else {
+                        this.chartInstance.data.datasets[0].borderColor = '#f87171';
+                        this.chartInstance.data.datasets[0].backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    }
+                    this.chartInstance.update();
+
+                    document.getElementById('sim-current-day').textContent = `T+${currentDayIndex}`;
+                    document.getElementById('sim-current-price').textContent = this.formatMoney(price);
+                    document.getElementById('sim-current-price').className = `text-3xl font-mono font-bold ${price >= p.currentPrice ? 'text-emerald-400' : 'text-red-400'}`;
+
+                    const profit = (price * units) - investment;
+                    const plEl = document.getElementById('sim-current-pl');
+                    plEl.textContent = (profit >= 0 ? '+' : '') + this.formatMoney(profit);
+                    plEl.className = `text-lg font-mono font-bold mt-1 ${profit >= 0 ? 'text-emerald-500' : 'text-red-500'}`;
+
+                    currentDayIndex++;
+                    let nextDelay = baseDelay / this.simState.speed;
+                    this.simTimeout = setTimeout(step, nextDelay);
+                };
+                setTimeout(step, 500);
+                window.lucide.createIcons();
+            }
+
+            finishSimulation(finalPrice, initialInvestment, units) {
+                this.simState.finished = true;
+                const finalValue = finalPrice * units;
+                const profit = finalValue - initialInvestment;
+                this.state.balance += finalValue;
+                
+                // Add XP (50 base + 1 per $100 profit)
+                let earnedXp = 50;
+                if (profit > 0) {
+                    earnedXp += Math.floor(profit / 100);
+                }
+                this.addXp(earnedXp);
+
+                this.updateHeader();
+                
+                this.state.history.push({
+                    turn: this.state.turn, 
+                    productName: this.state.currentProduct.name,
+                    rarityLabel: this.state.currentProduct.rarity.label,
+                    rarityBg: this.state.currentProduct.rarity.bg, 
+                    rarityColor: this.state.currentProduct.rarity.color,
+                    rarityId: this.state.currentProduct.rarity.id, // ID needed for icon lookup
+                    rarityIcon: this.state.currentProduct.rarity.icon, // Icon name
+                    profit: profit,
+                    units: units,
+                    buyPrice: initialInvestment / units,
+                    sellPrice: finalPrice,
+                    climate: this.state.marketClimate
+                });
+
+                document.getElementById('res-invested').textContent = this.formatMoney(initialInvestment);
+                document.getElementById('res-value').textContent = this.formatMoney(finalValue);
+                const pEl = document.getElementById('res-profit');
+                pEl.textContent = (profit >= 0 ? '+' : '') + this.formatMoney(profit);
+                pEl.className = `font-mono font-bold text-2xl ${profit >= 0 ? 'text-emerald-400' : 'text-red-500'}`;
+                
+                if(profit > 0) {
+                    document.getElementById('result-title').textContent = "Venture Closed";
+                    document.getElementById('result-message').textContent = "Capital gains realized.";
+                    document.getElementById('result-icon').textContent = "📈";
+                } else {
+                    document.getElementById('result-title').textContent = "Stop Loss";
+                    document.getElementById('result-message').textContent = "Asset value depreciated.";
+                    document.getElementById('result-icon').textContent = "📉";
+                }
+
+                document.getElementById('live-indicator').className = "w-2 h-2 rounded-full bg-slate-600";
+                document.getElementById('live-text').className = "text-[10px] text-slate-500 font-bold uppercase";
+                document.getElementById('live-text').textContent = "Offline";
+                
+                document.getElementById('sim-controls').classList.add('hidden');
+                document.getElementById('post-sim-controls').classList.remove('hidden');
+                document.getElementById('post-sim-controls').classList.add('flex');
+                
+                this.saveGame();
+                if(window.lucide) window.lucide.createIcons();
+            }
+
+            showResultOverlay() {
+                document.getElementById('sim-result-overlay').classList.remove('hidden');
+            }
+
+            hideResultOverlay() {
+                document.getElementById('sim-result-overlay').classList.add('hidden');
+            }
+
+            nextTurn() {
+                this.state.turn++;
+                this.checkLoanStatus(); 
+                this.randomizeMarket(); 
+                this.saveGame();
+                this.setView('market');
+            }
+            
+            // --- PROFILE VIEW ---
+            initProfile() {
+                const totalWins = this.state.history.filter(h => h.profit > 0).length;
+                const winRate = this.state.history.length > 0 ? Math.round((totalWins / this.state.history.length) * 100) : 0;
+                const totalPL = this.state.history.reduce((acc, h) => acc + h.profit, 0);
+
+                document.getElementById('profile-winrate').textContent = `${winRate}%`;
+                document.getElementById('profile-turns').textContent = this.state.history.length;
+                
+                const plEl = document.getElementById('profile-pl');
+                plEl.textContent = (totalPL >= 0 ? '+' : '') + this.formatMoney(totalPL);
+                plEl.className = `text-3xl font-mono font-bold ${totalPL >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+
+                // Level Stats
+                const tierName = TIERS[this.state.tierIndex];
+                document.getElementById('profile-tier-name').textContent = tierName;
+                document.getElementById('profile-tier-badge').textContent = `Rank ${this.state.rank}`;
+                
+                // XP Bar
+                const xpPerRank = 1000;
+                const currentRankXP = this.state.xp % xpPerRank;
+                const progress = (currentRankXP / xpPerRank) * 100;
+                document.getElementById('profile-xp-bar').style.width = `${progress}%`;
+                document.getElementById('profile-xp-text').textContent = `${currentRankXP} / ${xpPerRank} XP`;
+
+                // Render History Table
+                const historyBody = document.getElementById('history-table-body');
+                if (this.state.history.length > 0) {
+                    historyBody.innerHTML = '';
+                    [...this.state.history].reverse().forEach(h => {
+                        const row = document.createElement('tr');
+                        row.className = "border-b border-slate-700 hover:bg-slate-700/50 transition-colors";
+                        
+                        // Fix for rarity icon
+                        let rKey = (h.rarityId || 'STANDARD').toUpperCase();
+                        const rarityObj = RARITY[rKey] || RARITY.STANDARD;
+                        const rIcon = rarityObj.icon;
+                        const climateInfo = CLIMATES[h.climate] || { icon: 'minus', color: 'text-slate-400' };
+
+                        row.innerHTML = `
+                            <td class="px-6 py-4 font-mono text-slate-400">${h.turn}</td>
+                            <td class="px-6 py-4 font-bold text-white">${h.productName}</td>
+                            <td class="px-6 py-4"><span class="text-[10px] px-2 py-1 rounded uppercase font-bold border ${h.rarityBg} ${h.rarityColor} border-opacity-20 flex items-center w-fit gap-1"><i data-lucide="${h.rarityIcon || rIcon}" class="w-3 h-3"></i> ${h.rarityLabel}</span></td>
+                            <td class="px-6 py-4"><span class="text-xs font-mono flex items-center gap-1 ${climateInfo.color}"><i data-lucide="${climateInfo.icon}" class="w-3 h-3"></i> ${h.climate}</span></td>
+                            <td class="px-6 py-4 font-mono text-slate-300 text-right">${h.units}</td>
+                            <td class="px-6 py-4 font-mono text-slate-400 text-right">${this.formatMoney(h.buyPrice || 0)}</td>
+                            <td class="px-6 py-4 font-mono text-slate-300 text-right">${this.formatMoney(h.sellPrice || 0)}</td>
+                            <td class="px-6 py-4 text-right font-mono font-bold ${h.profit >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+                                ${h.profit >= 0 ? '+' : ''}${this.formatMoney(h.profit)}
+                            </td>
+                        `;
+                        historyBody.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        let game;
+        window.addEventListener('DOMContentLoaded', () => { game = new MarketGame(); });
+    </script>
+</body>
+</html>
