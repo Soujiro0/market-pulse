@@ -5,7 +5,7 @@ import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPag
 
 const AppRoutes = () => {
     return (
-        <Router>
+        <Router basename='/'>
             <Routes>
                 <Route path="/" element={<App />}>
                     <Route index element={<HomePage />} />
