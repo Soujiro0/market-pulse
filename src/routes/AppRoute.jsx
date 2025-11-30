@@ -1,7 +1,6 @@
-// src/routes/AppRoute.jsx
 import { Routes, Route } from 'react-router-dom';
-import App from '../App'; // App will be our layout component
-import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage } from '../pages';
+import App from '@/App';
+import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage } from '@/pages';
 
 const AppRoutes = () => {
     return (

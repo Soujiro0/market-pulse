@@ -1,5 +1,3 @@
-// src/App.jsx
-import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useGame } from './contexts/GameContext';
 import Header from './components/layout/Header';

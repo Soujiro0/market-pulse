@@ -1,10 +1,9 @@
-// src/pages/TradingPage.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGame } from '../contexts/GameContext';
-import { formatMoney } from '../utils';
+import { useGame } from '@/contexts/GameContext';
+import { formatMoney } from '@/utils';
 import { Box, Zap, Star, Crown, HelpCircle } from 'lucide-react';
-import { RARITY } from '../constants';
+import { RARITY } from '@/constants';
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {

@@ -1,12 +1,9 @@
-// src/pages/ProfilePage.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGame } from '../contexts/GameContext';
-import { formatMoney } from '../utils';
-import { Award, History, Globe, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User } from 'lucide-react';
-import { TIERS, CLIMATES, RARITY } from '../constants';
-
-const PROFILE_ICONS = ['👤', '🧑‍💼', '🦸', '🤖', '👾', '🎮', '🚀', '⚡', '💎', '🔥', '🌟', '👑'];
+import { useGame } from '@/contexts/GameContext';
+import { formatMoney } from '@/utils';
+import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User } from 'lucide-react';
+import { TIERS, CLIMATES, RARITY, PROFILE_ICONS } from '@/constants';
 
 const ProfilePage = () => {
     const { state, resetData, updateProfileIcon } = useGame();

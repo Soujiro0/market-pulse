@@ -1,8 +1,6 @@
-// src/components/ui/MarketCard.jsx
-import React from 'react';
 import { Box, Zap, Star, Crown } from 'lucide-react';
-import { formatMoney } from '../../utils';
-import { RARITY } from '../../constants';
+import { formatMoney } from '@/utils';
+import { RARITY } from '@/constants';
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {

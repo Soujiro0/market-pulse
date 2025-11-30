@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useReducer } from 'react';
-import { RARITY, TIERS } from '../constants';
-import { itemNames, icons, flavorTexts } from '../constants';
-import { formatMoney } from '../utils';
-import { simulationReducer, initialSimulationState } from '../reducers/simulationReducer';
+import { RARITY, TIERS } from '@/constants';
+import { itemNames, icons, flavorTexts } from '@/constants';
+import { formatMoney } from '@/utils';
+import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
 
 const useGameLogic = () => {
     const [state, setState] = useState(() => {

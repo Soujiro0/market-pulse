@@ -1,6 +1,5 @@
-// src/contexts/GameContext.jsx
-import React, { createContext, useContext } from 'react';
-import useGameLogic from '../hooks/useGameLogic';
+import { createContext, useContext } from 'react';
+import useGameLogic from '@/hooks/useGameLogic';
 
 const GameContext = createContext(null);
 

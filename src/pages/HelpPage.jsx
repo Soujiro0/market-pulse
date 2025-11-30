@@ -1,5 +1,3 @@
-// src/pages/HelpPage.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Book, Crosshair, Lightbulb, Award, Layers, BarChart2, Landmark, Box, Zap, Star, Crown, HelpCircle } from 'lucide-react';
 

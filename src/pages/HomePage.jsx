@@ -1,10 +1,8 @@
-// src/pages/HomePage.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGame } from '../contexts/GameContext';
-import { formatMoney } from '../utils';
-import { Play, TrendingUp, TrendingDown, Activity, DollarSign, Award, Target, Zap, BarChart3, User, BookOpen } from 'lucide-react';
-import { TIERS } from '../constants';
+import { useGame } from '@/contexts/GameContext';
+import { formatMoney } from '@/utils';
+import { Play, Activity, DollarSign, Zap, User, BookOpen } from 'lucide-react';
+import { TIERS } from '@/constants';
 
 const HomePage = () => {
     const { state } = useGame();

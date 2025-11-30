@@ -1,12 +1,10 @@
-// src/pages/MarketPage.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGame } from '../contexts/GameContext';
-import MarketCard from '../components/ui/MarketCard';
-import MarketListItem from '../components/ui/MarketListItem';
+import { useGame } from '@/contexts/GameContext';
+import MarketCard from '@/components/ui/MarketCard';
+import MarketListItem from '@/components/ui/MarketListItem';
 import { Globe, Landmark, LayoutGrid, List, DollarSign, RefreshCw, TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
-import { formatMoney } from '../utils';
-import { CLIMATES } from '../constants';
+import { formatMoney } from '@/utils';
+import { CLIMATES } from '@/constants';
 
 const MarketPage = () => {
     const { state, toggleMarketView, setCurrentProduct, toggleLoanModal, payLoan, rerollMarket } = useGame();

@@ -1,8 +1,7 @@
-// src/pages/SimulationPage.jsx
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGame } from '../contexts/GameContext';
-import { formatMoney } from '../utils';
+import { useGame } from '@/contexts/GameContext';
+import { formatMoney } from '@/utils';
 import { Play, Pause, CheckCircle } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';

@@ -1,5 +1,3 @@
-// src/components/layout/Header.jsx
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity } from 'lucide-react';
 

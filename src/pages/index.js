@@ -1,5 +1,3 @@
-// src/pages/index.js
-import React from 'react';
 import HomePage from './HomePage'; // Import the HomePage
 import MarketPage from './MarketPage'; // Import the actual MarketPage
 import TradingPage from './TradingPage'; // Import the actual TradingPage

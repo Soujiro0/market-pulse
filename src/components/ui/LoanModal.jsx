@@ -1,7 +1,6 @@
-// src/components/ui/LoanModal.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import { useGame } from '../../contexts/GameContext';
-import { formatMoney } from '../../utils';
+import { useState, useEffect, useCallback } from 'react';
+import { useGame } from '@/contexts/GameContext';
+import { formatMoney } from '@/utils';
 import { Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
 
 const LoanModal = () => {

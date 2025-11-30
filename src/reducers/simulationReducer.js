@@ -1,4 +1,3 @@
-// src/reducers/simulationReducer.js
 export const initialSimulationState = {
     speed: 1,
     isPaused: false,

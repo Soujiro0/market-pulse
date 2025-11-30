@@ -184,3 +184,50 @@ const RARITY = {
 **Typography:**
 *   UI Text: Inter (Clean Sans-Serif).
 *   Data/Numbers: JetBrains Mono
+
+**Art Style**
+
+JSON Format Context for Art Style
+```javascript
+{
+  "artStyleContext": {
+    "meta": {
+      "styleName": "Vector Pop-Industrial (Sprite)",
+      "version": "2.1.0",
+      "usage": "Game Inventory Icons / UI Sprites",
+      "description": "High-contrast 2D vector-style assets with cel-shading. Optimized for sprite sheets with transparent backgrounds."
+    },
+    "visualPillars": [
+      "Silhouette Isolation": "The object must have a closed, distinct outer boundary to facilitate clean background removal.",
+      "Square Composition": "The subject must fit comfortably within a 1:1 frame without cropping key details.",
+      "Hard-Surface Cartoon": "Sturdy machinery with friendly proportions.",
+      "Cel-Shading": "Hard-edged shadows using a 2-tone or 3-tone system."
+    ],
+    "technicalSpecs": {
+      "fileFormat": "PNG (32-bit with Alpha Channel)",
+      "dimensions": "1024x1024px (Source), 256x256px (In-Game)",
+      "aspectRatio": "1:1 (Square)",
+      "background": {
+        "type": "Transparent",
+        "hex": "#00000000",
+        "requirement": "No background scenery, gradients, or vignetting. Shadow must be contained within the object's footprint or explicitly excluded."
+      },
+      "padding": "Ensure 5-10% padding from image edges to prevent mipmap bleeding.",
+      "lineWork": {
+        "outerStroke": "Thick dark outline (8-12px) to separate asset from game background.",
+        "innerStroke": "Medium outline (4-6px) for major forms."
+      }
+    },
+    "colorPalette": {
+      "baseMaterials": ["#4F6D7A (Slate)", "#2C3E50 (Dark Grey)", "#D4C4A8 (Beige)"],
+      "accents": ["#F1C40F (Hazard Yellow)", "#E74C3C (Alert Red)"],
+      "energy": ["#00E5FF (Plasma Cyan)", "#D500F9 (Electric Purple)"]
+    },
+    "assetSpecifics": {
+      "itemName": "Quantum Toaster",
+      "viewAngle": "Isometric or 3/4 Front View",
+      "cropping": "Full object visible, centered."
+    }
+  }
+}
+```

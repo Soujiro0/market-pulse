@@ -1,6 +1,3 @@
-// src/components/ui/AlertModal.jsx
-import React from 'react';
-
 const AlertModal = ({ isOpen, onClose, title, message, type = 'info' }) => {
     if (!isOpen) return null;
 
