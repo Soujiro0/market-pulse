@@ -1,5 +1,7 @@
 # Market Pulse
 
+![Vite Logo](public/vite.svg)
+
 ## Description
 A real-time stock market simulation game built with React.
 
@@ -31,6 +33,3 @@ To set up the project locally, follow these steps:
 - [Data Structure](documentation/DATA_STRUCTURE.md)
 - [Game Documentation](documentation/GAME_DOCUMENTATION.md)
 - [Market Pulse HTML](documentation/market_pulse.html) (Prototype)
-
-## Link of Deployed Site
-[Deployed Site Link Here] (Replace with actual link)
