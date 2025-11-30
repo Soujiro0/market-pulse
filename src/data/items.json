@@ -1,0 +1,352 @@
+[
+  {
+    "id": 0,
+    "name": "Quantum Toaster",
+    "icon": "🍞",
+    "flavorText": "Browns bread using quantum tunneling.",
+    "image": "Quantum Toaster.png"
+  },
+  {
+    "id": 1,
+    "name": "Smart Socks",
+    "icon": "🧦",
+    "flavorText": "Tracks steps and warms toes via app.",
+    "image": "Smart Socks.png"
+  },
+  {
+    "id": 2,
+    "name": "Vintage Console",
+    "icon": "🕹️",
+    "flavorText": "Nostalgia bait for millennials.",
+    "image": "Vintage Console.png"
+  },
+  {
+    "id": 3,
+    "name": "Lab-Grown Burger",
+    "icon": "🍔",
+    "flavorText": "Cruelty-free protein synthesis.",
+    "image": "Lab-Grown Burger.png"
+  },
+  {
+    "id": 4,
+    "name": "VR Headset",
+    "icon": "👓",
+    "flavorText": "Immersive reality distortion field.",
+    "image": "VR Headset.png"
+  },
+  {
+    "id": 5,
+    "name": "Lithium Battery",
+    "icon": "🔋",
+    "flavorText": "High-density energy storage.",
+    "image": "Lithium Battery.png"
+  },
+  {
+    "id": 6,
+    "name": "Crypto Wallet",
+    "icon": "💳",
+    "flavorText": "Decentralized ledger access.",
+    "image": "Crypto Wallet.png"
+  },
+  {
+    "id": 7,
+    "name": "Drone Delivery",
+    "icon": "🚁",
+    "flavorText": "Last-mile logistics solution.",
+    "image": "Drone Delivery.png"
+  },
+  {
+    "id": 8,
+    "name": "AI Assistant",
+    "icon": "🤖",
+    "flavorText": "Predictive algorithmic help.",
+    "image": "AI Assistant.png"
+  },
+  {
+    "id": 9,
+    "name": "Space Ticket",
+    "icon": "🚀",
+    "flavorText": "One-way trip to Mars.",
+    "image": "Space Ticket.png"
+  },
+  {
+    "id": 10,
+    "name": "Hydroponic Kit",
+    "icon": "🌱",
+    "flavorText": "Indoor farming module.",
+    "image": "Hydroponic Kit.png"
+  },
+  {
+    "id": 11,
+    "name": "3D House",
+    "icon": "🏠",
+    "flavorText": "Rapid construction printer.",
+    "image": "3D House.png"
+  },
+  {
+    "id": 12,
+    "name": "Neural Link",
+    "icon": "🧠",
+    "flavorText": "Direct brain-computer interface.",
+    "image": "Neural Link.png"
+  },
+  {
+    "id": 13,
+    "name": "Holo Phone",
+    "icon": "📱",
+    "flavorText": "3D projection communication.",
+    "image": "Holo Phone.png"
+  },
+  {
+    "id": 14,
+    "name": "Cyber Arm",
+    "icon": "🦾",
+    "flavorText": "Enhanced strength prosthetic.",
+    "image": "Cyber Arm.png"
+  },
+  {
+    "id": 15,
+    "name": "Fusion Cell",
+    "icon": "⚛️",
+    "flavorText": "Infinite clean energy source.",
+    "image": "Fusion Cell.png"
+  },
+  {
+    "id": 16,
+    "name": "Nano Bot",
+    "icon": "💊",
+    "flavorText": "Microscopic medical repair.",
+    "image": "Nano Bot.png"
+  },
+  {
+    "id": 17,
+    "name": "Vertical Farm",
+    "icon": "🏢",
+    "flavorText": "Urban agricultural tower.",
+    "image": "Vertical Farm.png"
+  },
+  {
+    "id": 18,
+    "name": "Asteroid Ore",
+    "icon": "☄️",
+    "flavorText": "Rare earth metals from space.",
+    "image": "Asteroid Ore.png"
+  },
+  {
+    "id": 19,
+    "name": "Synth Silk",
+    "icon": "🕸️",
+    "flavorText": "Spider-goat generated fabric.",
+    "image": "Synth Silk.png"
+  },
+  {
+    "id": 20,
+    "name": "Bio Fuel",
+    "icon": "⛽",
+    "flavorText": "Algae-based propulsion fuel.",
+    "image": "Bio Fuel.png"
+  },
+  {
+    "id": 21,
+    "name": "Carbon Unit",
+    "icon": "🌫️",
+    "flavorText": "Atmospheric scrubbing tech.",
+    "image": "Carbon Unit.png"
+  },
+  {
+    "id": 22,
+    "name": "Smart Lens",
+    "icon": "👁️",
+    "flavorText": "AR display in a contact lens.",
+    "image": "Smart Lens.png"
+  },
+  {
+    "id": 23,
+    "name": "Flying Taxi",
+    "icon": "🚕",
+    "flavorText": "Autonomous aerial transport.",
+    "image": "Flying Taxi.png"
+  },
+  {
+    "id": 24,
+    "name": "Sea Hotel",
+    "icon": "🏨",
+    "flavorText": "Sub-aquatic luxury lodging.",
+    "image": "Sea Hotel.png"
+  },
+  {
+    "id": 25,
+    "name": "Robot Pet",
+    "icon": "🐕",
+    "flavorText": "Hypoallergenic mechanical dog.",
+    "image": "Robot Pet.png"
+  },
+  {
+    "id": 26,
+    "name": "Mind Backup",
+    "icon": "💾",
+    "flavorText": "Consciousness cloud upload.",
+    "image": "Mind Backup.png"
+  },
+  {
+    "id": 27,
+    "name": "Teleport Pod",
+    "icon": "✨",
+    "flavorText": "Instant matter transport.",
+    "image": "Teleport Pod.png"
+  },
+  {
+    "id": 28,
+    "name": "Gene Kit",
+    "icon": "🧬",
+    "flavorText": "DIY CRISPR home kit.",
+    "image": "Gene Kit.png"
+  },
+  {
+    "id": 29,
+    "name": "Weather Sub",
+    "icon": "⛈️",
+    "flavorText": "Local climate modification.",
+    "image": "Weather Sub.png"
+  },
+  {
+    "id": 30,
+    "name": "Digi Estate",
+    "icon": "🌐",
+    "flavorText": "Virtual land speculation.",
+    "image": "Digi Estate.png"
+  },
+  {
+    "id": 31,
+    "name": "NFT Gallery",
+    "icon": "🖼️",
+    "flavorText": "Tokenized art ownership.",
+    "image": "NFT Gallery.png"
+  },
+  {
+    "id": 32,
+    "name": "Smart Mirror",
+    "icon": "🪞",
+    "flavorText": "AI-powered reflection analysis.",
+    "image": "Smart Mirror.png"
+  },
+  {
+    "id": 33,
+    "name": "Auto Chef",
+    "icon": "👨‍🍳",
+    "flavorText": "Robotic culinary assistant.",
+    "image": "Auto Chef.png"
+  },
+  {
+    "id": 34,
+    "name": "Sleep Pod",
+    "icon": "💤",
+    "flavorText": "Optimized REM sleep chamber.",
+    "image": "Sleep Pod.png"
+  },
+  {
+    "id": 35,
+    "name": "Exo Suit",
+    "icon": "🦴",
+    "flavorText": "Industrial strength augmentation.",
+    "image": "Exo Suit.png"
+  },
+  {
+    "id": 36,
+    "name": "Youth Serum",
+    "icon": "🧪",
+    "flavorText": "Telomere extension therapy.",
+    "image": "Youth Serum.png"
+  },
+  {
+    "id": 37,
+    "name": "Water Pill",
+    "icon": "💧",
+    "flavorText": "Desalination in a tablet.",
+    "image": "Water Pill.png"
+  },
+  {
+    "id": 38,
+    "name": "Solar Paint",
+    "icon": "🎨",
+    "flavorText": "Photovoltaic coating liquid.",
+    "image": "Solar Paint.png"
+  },
+  {
+    "id": 39,
+    "name": "Wind Kite",
+    "icon": "🪁",
+    "flavorText": "High-altitude energy harvesting.",
+    "image": "Wind Kite.png"
+  },
+  {
+    "id": 40,
+    "name": "Sea Vacuum",
+    "icon": "🧹",
+    "flavorText": "Ocean plastic filtration.",
+    "image": "Sea Vacuum.png"
+  },
+  {
+    "id": 41,
+    "name": "Mars Tire",
+    "icon": "🌑",
+    "flavorText": "Durability for red planet terrain.",
+    "image": "Mars Tire.png"
+  },
+  {
+    "id": 42,
+    "name": "Zero-G Joe",
+    "icon": "☕",
+    "flavorText": "Caffeine for zero gravity.",
+    "image": "Zero-G Joe.png"
+  },
+  {
+    "id": 43,
+    "name": "Plasma 8K",
+    "icon": "📺",
+    "flavorText": "Retina-burning resolution.",
+    "image": "Plasma 8K.png"
+  },
+  {
+    "id": 44,
+    "name": "Retro Walkman",
+    "icon": "🎧",
+    "flavorText": "Analog audio revival.",
+    "image": "Retro Walkman.png"
+  },
+  {
+    "id": 45,
+    "name": "Vinyl Press",
+    "icon": "💿",
+    "flavorText": "High-fidelity groove carving.",
+    "image": "Vinyl Press.png"
+  },
+  {
+    "id": 46,
+    "name": "E-Ink Pad",
+    "icon": "📝",
+    "flavorText": "Paper-like digital writing.",
+    "image": "E-Ink Pad.png"
+  },
+  {
+    "id": 47,
+    "name": "Graph Chip",
+    "icon": "💻",
+    "flavorText": "Carbon-based computing.",
+    "image": "Graph Chip.png"
+  },
+  {
+    "id": 48,
+    "name": "SSD Drive",
+    "icon": "💾",
+    "flavorText": "Solid state memory brick.",
+    "image": "SSD Drive.png"
+  },
+  {
+    "id": 49,
+    "name": "Q-Key",
+    "icon": "🔑",
+    "flavorText": "Quantum encryption dongle.",
+    "image": "Q-Key.png"
+  }
+]

@@ -102,44 +102,45 @@ const TradingPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
                     {/* Asset Card */}
-                    <div className="md:col-span-1">
-                        <div className={`glass-panel p-8 rounded-2xl h-full relative overflow-hidden flex flex-col items-center text-center ${r.glow}`}>
+                    <div className="md:col-span-1 flex flex-col gap-6">
+                        <div className={`glass-panel p-8 rounded-2xl h-full relative overflow-hidden flex flex-col items-center text-center ${r.glow} ${r.bg} ${['disruptive', 'unicorn'].includes(r.id) ? 'shine-effect' : ''}`}>
                             <div className="relative z-10 w-full flex flex-col items-center">
                                 <div className="flex items-center gap-2 mb-6">
                                     <RarityIcon iconName={r.icon} className={r.color} />
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900 border ${r.color} ${r.border}`}>{r.label}</span>
                                 </div>
 
-                                <div className="w-24 h-24 bg-slate-800 rounded-2xl shadow-inner border border-slate-700 flex items-center justify-center text-5xl mb-6 relative">
-                                    {currentProduct.icon}
+                                <div className="w-64 h-64 bg-slate-800 rounded-2xl shadow-inner border border-slate-700 flex items-center justify-center mb-6 relative">
+                                    <img src={currentProduct.image} alt={currentProduct.name} className="max-w-full max-h-full object-contain" />
                                     <div className="absolute inset-0 bg-indigo-500/10 rounded-2xl"></div>
                                 </div>
 
                                 <h2 className="text-2xl font-bold text-white mb-2 leading-tight">{currentProduct.name}</h2>
                                 <p className="text-xs text-slate-400 mb-4 italic px-4">"{currentProduct.desc}"</p>
                                 <p className="font-mono text-3xl font-bold text-indigo-400 mb-6">{formatMoney(currentProduct.currentPrice)}</p>
-
-                                <div className="w-full space-y-4 text-left bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                                    <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase">Multiplier Rate</span>
-                                            <span className="text-[10px] font-bold text-slate-300 font-mono">x{r.mult.toFixed(1)}</span>
-                                        </div>
-                                        <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                                            <div className="h-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)] transition-all duration-500" style={{ width: `${currentProduct.volatility * 100}%` }}></div>
-                                        </div>
+                            </div>
+                        </div>
+                        <div className="glass-panel p-4 rounded-2xl">
+                            <div className="w-full space-y-4 text-left">
+                                <div>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Multiplier Rate</span>
+                                        <span className="text-[10px] font-bold text-slate-300 font-mono">x{r.mult.toFixed(1)}</span>
                                     </div>
-                                    <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-[10px] font-bold text-slate-500 uppercase">Momentum</span>
-                                                <HelpCircle
-                                                    className="w-3 h-3 text-slate-500 hover:text-indigo-400 cursor-pointer transition-colors"
-                                                    onClick={() => setShowMomentumHelp(true)}
-                                                />
-                                            </div>
-                                            <span className={`text-[10px] font-bold ${momColor}`}>{momText}</span>
+                                    <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                        <div className="h-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)] transition-all duration-500" style={{ width: `${currentProduct.volatility * 100}%` }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-[10px] font-bold text-slate-500 uppercase">Momentum</span>
+                                            <HelpCircle
+                                                className="w-3 h-3 text-slate-500 hover:text-indigo-400 cursor-pointer transition-colors"
+                                                onClick={() => setShowMomentumHelp(true)}
+                                            />
                                         </div>
+                                        <span className={`text-[10px] font-bold ${momColor}`}>{momText}</span>
                                     </div>
                                 </div>
                             </div>
@@ -157,22 +158,36 @@ const TradingPage = () => {
 
                                 {/* Duration */}
                                 <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800">
-                                    <div className="flex justify-between mb-4">
+                                    <div className="flex justify-between items-center mb-4">
                                         <label className="text-xs font-bold text-slate-500 uppercase">Horizon</label>
-                                        <span className="font-mono text-indigo-400 font-bold bg-indigo-500/10 px-2 py-1 rounded text-sm border border-indigo-500/20">{duration} Days</span>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                value={duration}
+                                                onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
+                                                className="w-24 p-1 bg-slate-800 border border-slate-600 rounded-lg font-mono text-sm text-white text-center focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all hide-number-arrows"
+                                            />
+                                            <span className="text-xs text-slate-500">Days</span>
+                                        </div>
                                     </div>
                                     <input
                                         type="range"
                                         min="30"
                                         max="365"
-                                        step="5"
+                                        step="1"
                                         value={duration}
                                         onChange={(e) => setDuration(parseInt(e.target.value))}
-                                        className="w-full accent-indigo-600"
+                                        className="w-full custom-slider"
                                     />
                                     <div className="flex justify-between mt-2 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                                        <span>Short Term</span>
-                                        <span>Long Term</span>
+                                        <span>30 Days</span>
+                                        <span>365 Days</span>
+                                    </div>
+                                    <div className="flex justify-center gap-2 mt-4">
+                                        <button onClick={() => setDuration(30)} className="text-xs font-bold bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-1 px-3 rounded-full transition-colors">30D</button>
+                                        <button onClick={() => setDuration(90)} className="text-xs font-bold bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-1 px-3 rounded-full transition-colors">90D</button>
+                                        <button onClick={() => setDuration(182)} className="text-xs font-bold bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-1 px-3 rounded-full transition-colors">6M</button>
+                                        <button onClick={() => setDuration(365)} className="text-xs font-bold bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-1 px-3 rounded-full transition-colors">1Y</button>
                                     </div>
                                 </div>
 
@@ -192,7 +207,7 @@ const TradingPage = () => {
                                             min="1"
                                             value={units}
                                             onChange={(e) => setUnits(parseInt(e.target.value) || 0)}
-                                            className="flex-grow p-3 bg-slate-800 border border-slate-600 rounded-lg font-mono text-lg text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                                            className="flex-grow p-3 bg-slate-800 border border-slate-600 rounded-lg font-mono text-lg text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all hide-number-arrows"
                                         />
                                         <button
                                             onClick={() => setUnits(affordableUnits > 0 ? affordableUnits : 1)}
@@ -242,15 +257,24 @@ const TradingPage = () => {
                                 What is Momentum?
                             </h3>
                             <p className="text-slate-300 mb-4 leading-relaxed text-sm text-left">
-                                <strong className="text-indigo-400">Momentum</strong> indicates the current market trend for an asset:
+                                <strong className="text-indigo-400">Momentum</strong> is a predictive indicator of an asset's short-term price direction. It's calculated based on recent price changes.
                             </p>
-                            <div className="text-left space-y-2 mb-6 text-sm">
-                                <p className="text-slate-300"><span className="text-emerald-400 font-bold">• Upward:</span> Asset trending up (momentum &gt; 1.02)</p>
-                                <p className="text-slate-300"><span className="text-slate-400 font-bold">• Neutral:</span> Stable trend (0.98 - 1.02)</p>
-                                <p className="text-slate-300"><span className="text-red-400 font-bold">• Downward:</span> Asset trending down (momentum &lt; 0.98)</p>
+                            <div className="text-left space-y-3 mb-6 text-sm">
+                                <div>
+                                    <p className="text-emerald-400 font-bold">• Upward (momentum &gt; 1.02)</p>
+                                    <p className="text-slate-300 text-xs pl-4">Indicates strong positive sentiment. The asset price is likely to continue increasing in the near future. This is a good sign for potential growth.</p>
+                                </div>
+                                <div>
+                                    <p className="text-slate-400 font-bold">• Neutral (0.98 - 1.02)</p>
+                                    <p className="text-slate-300 text-xs pl-4">The asset is stable, with no strong trend in either direction. Price movement is expected to be minimal.</p>
+                                </div>
+                                <div>
+                                    <p className="text-red-400 font-bold">• Downward (momentum &lt; 0.98)</p>
+                                    <p className="text-slate-300 text-xs pl-4">Indicates strong negative sentiment. The asset price is likely to continue decreasing. Caution is advised.</p>
+                                </div>
                             </div>
                             <p className="text-slate-400 text-xs italic mb-6">
-                                Higher momentum assets may have stronger price movements during simulation.
+                                While momentum is a useful guide, it's not a guarantee of future performance. Market conditions can change rapidly.
                             </p>
                             <button
                                 onClick={() => setShowMomentumHelp(false)}

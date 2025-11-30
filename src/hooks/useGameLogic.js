@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useReducer } from 'react';
-import { RARITY, TIERS } from '@/constants';
-import { itemNames, icons, flavorTexts } from '@/constants';
+import { RARITY, TIERS, PROFILES } from '@/constants';
+import items from '@/data/items.json';
 import { formatMoney } from '@/utils';
 import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
 
@@ -10,6 +10,35 @@ const useGameLogic = () => {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
+
+                // Data migration for activeProducts to include image
+                if (parsed.activeProducts && parsed.activeProducts.length > 0) {
+                    parsed.activeProducts = parsed.activeProducts.map(p => {
+                        if (!p.image) {
+                            const itemData = items.find(item => item.name === p.name);
+                            if (itemData) {
+                                return {
+                                    ...p,
+                                    image: `assets/items/${itemData.image}`
+                                };
+                            }
+                        }
+                        return p;
+                    });
+                }
+
+                // Data migration for profileIcon
+                let profileIcon = PROFILES[0].image; // default to just the filename
+                if (parsed.profileIcon) {
+                    if (parsed.profileIcon.includes('/')) {
+                        // It's a path, so strip it to get the filename
+                        profileIcon = parsed.profileIcon.split('/').pop();
+                    } else {
+                        // It's already just a filename
+                        profileIcon = parsed.profileIcon;
+                    }
+                }
+
                 // Ensure all necessary properties exist, provide defaults if missing
                 return {
                     balance: parsed.balance || 10000,
@@ -34,7 +63,8 @@ const useGameLogic = () => {
                     rerollCostMultiplier: parsed.rerollCostMultiplier || 5,
                     rerollBasePrice: parsed.rerollBasePrice || 0,
                     rerollCount: parsed.rerollCount || 0,
-                    profileIcon: parsed.profileIcon || '👤',
+                    profileIcon: profileIcon,
+                    username: parsed.username || 'OPERATOR_ID',
                 };
             } catch (e) {
                 console.error("Save file corrupted, starting new game.", e);
@@ -63,7 +93,8 @@ const useGameLogic = () => {
             rerollCostMultiplier: 5, // Starting at 5%
             rerollBasePrice: 0, // Base price for rerolls this turn
             rerollCount: 0, // Number of rerolls this turn
-            profileIcon: '👤',
+            profileIcon: PROFILES[0].image,
+            username: 'OPERATOR_ID',
         };
     });
 
@@ -81,6 +112,10 @@ const useGameLogic = () => {
     // Update profile icon
     const updateProfileIcon = useCallback((icon) => {
         setState(prevState => ({ ...prevState, profileIcon: icon }));
+    }, []);
+
+    const updateUsername = useCallback((name) => {
+        setState(prevState => ({ ...prevState, username: name }));
     }, []);
 
     // Save game state to localStorage
@@ -127,10 +162,10 @@ localStorage.removeItem('marketPulseSave_v3');
         else if (rand < 0.50) { climate = 'Recession'; momentumBias = 0.98; volatilityMult = 1.2; }
         else if (rand < 0.70) { climate = 'Turbulent'; volatilityMult = 1.5; }
 
-        const shuffled = [...itemNames.map((name, i) => ({
-            id: `p${i}`, name, icon: icons[i] || '📦',
+        const shuffled = [...items.map((item, i) => ({
+            id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
             basePrice: Math.floor(Math.random() * 500) + 20,
-            desc: flavorTexts[i] || "Revolutionary tech."
+            desc: item.flavorText || "Revolutionary tech."
         }))].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 10);
 
@@ -197,10 +232,10 @@ localStorage.removeItem('marketPulseSave_v3');
             else if (climate === 'Recession') { momentumBias = 0.98; volatilityMult = 1.2; }
             else if (climate === 'Turbulent') { volatilityMult = 1.5; }
 
-            const shuffled = [...itemNames.map((name, i) => ({
-                id: `p${i}`, name, icon: icons[i] || '📦',
+            const shuffled = [...items.map((item, i) => ({
+                id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
                 basePrice: Math.floor(Math.random() * 500) + 20,
-                desc: flavorTexts[i] || "Revolutionary tech."
+                desc: item.flavorText || "Revolutionary tech."
             }))].sort(() => 0.5 - Math.random());
             const selected = shuffled.slice(0, 10);
 
@@ -447,6 +482,7 @@ localStorage.removeItem('marketPulseSave_v3');
         previousBalanceRef,
         toggleLoadingOverlay,
         updateProfileIcon,
+        updateUsername,
     };
 };
 

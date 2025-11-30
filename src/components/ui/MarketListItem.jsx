@@ -31,7 +31,9 @@ const MarketListItem = ({ product, onClick, index }) => {
             onClick={() => onClick(product)}
         >
             <div className="flex items-center gap-4">
-                <div className="text-2xl">{product.icon}</div>
+                <div className="w-12 h-12 flex items-center justify-center">
+                    <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                </div>
                 <div>
                     <h3 className="text-sm font-bold text-white group-hover:text-indigo-400">{product.name}</h3>
                     <p className="text-[10px] text-slate-500 italic hidden sm:block">{product.desc}</p>

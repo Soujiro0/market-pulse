@@ -3,17 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
 import { Play, Pause, CheckCircle } from 'lucide-react';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SimulationPage = () => {
     const {
         state,
         simulationState,
         dispatchSimulation,
-        updateChartType,
         finishSimulation,
         hideResultOverlay,
         nextTurn,
@@ -22,7 +21,7 @@ const SimulationPage = () => {
     } = useGame();
     const navigate = useNavigate();
 
-    const { currentProduct, duration, units, investmentAmount, chartType, simulationResult, showSimulationResultOverlay } = state;
+    const { currentProduct, duration, units, investmentAmount, simulationResult, showSimulationResultOverlay } = state;
     const { speed, isPaused, isFinished } = simulationState;
 
     const [currentDay, setCurrentDay] = useState(0);
@@ -61,14 +60,31 @@ const SimulationPage = () => {
         setCurrentPrice(currentProduct.currentPrice);
         setCurrentDay(0);
 
-        setChartData({
+    setChartData({
             labels: [],
             datasets: [{
                 label: 'Price',
                 data: [],
                 borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderWidth: 2, pointRadius: 0, fill: true, tension: 0.2
+                borderWidth: 2, pointRadius: 0,
+                fill: {
+                    target: { value: currentProduct.currentPrice },
+                    above: 'rgba(16, 185, 129, 0.1)',
+                    below: 'rgba(239, 68, 68, 0.1)'
+                },
+                tension: 0.2,
+                segment: {
+                    borderColor: ctx => {
+                        const value = ctx.p1.parsed.y;
+                        const entryPrice = currentProduct.currentPrice;
+                        return value > entryPrice ? '#10b981' : '#ef4444'; // Green for above, Red for below
+                    },
+                    backgroundColor: ctx => {
+                        const value = ctx.p1.parsed.y;
+                        const entryPrice = currentProduct.currentPrice;
+                        return value > entryPrice ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                    }
+                }
             }, {
                 label: 'Entry', data: [], borderColor: '#64748b', borderDash: [5, 5], borderWidth: 1, pointRadius: 0, fill: false
             }]
@@ -101,16 +117,12 @@ const SimulationPage = () => {
                 }
                 
                 const finalPrice = prices[totalDays];
-                const newBorderColor = finalPrice >= currentProduct.currentPrice ? '#34d399' : '#f87171';
-                const newBackgroundColor = finalPrice >= currentProduct.currentPrice ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
                 
                 setChartData(prevChartData => ({
                     labels: [...prevChartData.labels, ...allLabels],
                     datasets: [{
                         ...prevChartData.datasets[0],
                         data: [...prevChartData.datasets[0].data, ...allPriceData],
-                        borderColor: newBorderColor,
-                        backgroundColor: newBackgroundColor,
                     }, {
                         ...prevChartData.datasets[1],
                         data: [...prevChartData.datasets[1].data, ...allEntryData],
@@ -147,16 +159,11 @@ const SimulationPage = () => {
                 const newPriceData = [...prevChartData.datasets[0].data, price];
                 const newEntryData = [...prevChartData.datasets[1].data, currentProduct.currentPrice];
 
-                const newBorderColor = price >= currentProduct.currentPrice ? '#34d399' : '#f87171';
-                const newBackgroundColor = price >= currentProduct.currentPrice ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-
                 return {
                     labels: newLabels,
                     datasets: [{
                         ...prevChartData.datasets[0],
                         data: newPriceData,
-                        borderColor: newBorderColor,
-                        backgroundColor: newBackgroundColor,
                     }, {
                         ...prevChartData.datasets[1],
                         data: newEntryData,
@@ -216,31 +223,32 @@ const SimulationPage = () => {
             {/* Full Screen HUD */}
             <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-20 pointer-events-none">
                 {/* Left HUD */}
-                <div className="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg">
-                    <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Active Asset</div>
-                    <div id="sim-product-name" className="text-xl font-mono text-indigo-400 font-bold">{currentProduct.name}</div>
-                    <div className="flex items-center gap-2 mt-2">
-                        <div className={`w-2 h-2 rounded-full ${isFinished ? 'bg-slate-600' : 'bg-red-500 animate-pulse'}`}></div>
-                        <span className={`text-[10px] font-bold uppercase ${isFinished ? 'text-slate-500' : 'text-red-500'}`}>{isFinished ? 'Offline' : 'Live Feed'}</span>
+                <div className="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg flex items-center gap-4">
+                    <img src={currentProduct.image} alt={currentProduct.name} className="w-16 h-16 rounded-lg bg-slate-800 p-1" />
+                    <div>
+                        <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Active Asset</div>
+                        <div id="sim-product-name" className="text-xl font-mono text-indigo-400 font-bold">{currentProduct.name}</div>
+                        <div className="text-xs text-slate-400 font-mono mt-1">Units: {units}</div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <div className={`w-2 h-2 rounded-full ${isFinished ? 'bg-slate-600' : 'bg-red-500 animate-pulse'}`}></div>
+                            <span className={`text-[10px] font-bold uppercase ${isFinished ? 'text-slate-500' : 'text-red-500'}`}>{isFinished ? 'Offline' : 'Live Feed'}</span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Right HUD */}
                 <div className="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg text-right min-w-[200px]">
-                    <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Current Valuation</div>
+                    <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Current Price</div>
                     <div className={`text-3xl font-mono font-bold ${currentPrice >= currentProduct.currentPrice ? 'text-emerald-400' : 'text-red-400'}`}>{formatMoney(currentPrice)}</div>
-                    <div className={`text-lg font-mono font-bold mt-1 ${profit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>{profit >= 0 ? '+' : ''}{formatMoney(profit)}</div>
+                    <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1 mt-2">Profit</div>
+                    <div className={`text-lg font-mono font-bold ${profit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>{profit >= 0 ? '+' : ''}{formatMoney(profit)}</div>
                 </div>
             </div>
 
             {/* Chart Area (Full Screen) */}
             <div className="flex-grow w-full h-full relative">
                 <div className="chart-container w-full h-full">
-                    {chartType === 'line' ? (
-                        <Line data={chartData} options={chartOptions} ref={chartInstanceRef} />
-                    ) : (
-                        <Bar data={chartData} options={chartOptions} ref={chartInstanceRef} />
-                    )}
+                    <Line data={chartData} options={chartOptions} ref={chartInstanceRef} />
                 </div>
             </div>
 
@@ -252,17 +260,6 @@ const SimulationPage = () => {
                         <div>
                             <span className="block text-[10px] text-slate-500 font-mono uppercase">T-Time</span>
                             <span className="font-mono text-white font-bold text-lg">{currentDay}</span>
-                        </div>
-                        <div className="hidden sm:block">
-                            <select
-                                id="chart-type-selector"
-                                onChange={(e) => updateChartType(e.target.value)}
-                                value={chartType}
-                                className="bg-slate-800 border border-slate-700 text-slate-400 text-xs rounded focus:border-indigo-500 block p-1 outline-none font-mono"
-                            >
-                                <option value="line">LINE</option>
-                                <option value="bar">BAR</option>
-                            </select>
                         </div>
                     </div>
 

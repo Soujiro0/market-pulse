@@ -22,8 +22,6 @@ const MarketCard = ({ product, onClick, index }) => {
                       r.label === 'High-Risk' ? 'animate-glow-disruptive' :
                       r.label === 'Moonshot' ? 'animate-glow-unicorn' : '';
     
-    const sparkleClass = (r.label === 'High-Risk' || r.label === 'Moonshot') ? 'animate-sparkle' : '';
-
     const shiningClass = (r.id === 'unicorn' || r.id === 'disruptive') ? 'shine-effect' : '';
     const glowPulseClass = r.id === 'unicorn' ? 'animate-glow-pulse' : '';
 
@@ -42,7 +40,9 @@ const MarketCard = ({ product, onClick, index }) => {
                     </span>
                 </div>
                 <div className="flex flex-col items-center text-center my-4">
-                    <div className={`text-6xl mb-3 filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300 ${sparkleClass}`}>{product.icon}</div>
+                    <div className={`w-32 h-32 mb-3 flex items-center justify-center`}>
+                        <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                    </div>
                     <h3 className="text-lg font-bold text-white leading-tight mb-1 shadow-black drop-shadow-md">{product.name}</h3>
                     <p className="text-[10px] text-slate-300 italic h-8 overflow-hidden leading-tight opacity-80 px-2 line-clamp-2">{product.desc}</p>
                 </div>

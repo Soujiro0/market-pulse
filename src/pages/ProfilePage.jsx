@@ -1,33 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
-import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User } from 'lucide-react';
-import { TIERS, CLIMATES, RARITY, PROFILE_ICONS } from '@/constants';
+import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User, Edit } from 'lucide-react';
+import { TIERS, CLIMATES, RARITY } from '@/constants';
+import PROFILES from '@/data/profiles.json';
+
+const EditProfileModal = ({ isOpen, onClose, currentUsername, currentIcon, onSave }) => {
+    const [username, setUsername] = useState(currentUsername);
+    const [icon, setIcon] = useState(currentIcon);
+
+    useEffect(() => {
+        setUsername(currentUsername);
+        setIcon(currentIcon);
+    }, [isOpen, currentUsername, currentIcon]);
+
+    if (!isOpen) return null;
+
+    const handleSave = () => {
+        onSave(username, icon);
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+            <div className="bg-slate-900 rounded-xl shadow-2xl max-w-lg w-full p-8 border border-indigo-700 relative animate-bounce-in">
+                <h3 className="text-2xl font-bold text-white mb-6 text-center">Edit Profile</h3>
+
+                <div className="space-y-6">
+                    <div>
+                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Username</label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg font-mono text-lg text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Avatar</label>
+                        <div className="grid grid-cols-6 md:grid-cols-8 gap-3">
+                            {PROFILES.map((p) => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => setIcon(p.image)}
+                                    className={`aspect-square rounded-xl flex items-center justify-center transition-all hover:scale-110 ${icon === p.image
+                                            ? 'ring-2 ring-indigo-400 shadow-lg shadow-indigo-500/50'
+                                            : 'border border-slate-700'
+                                        }`}
+                                >
+                                    <img src={`/market-pulse/assets/profiles/${p.image}`} alt={p.name} className="w-full h-full object-cover rounded-lg" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex gap-3 mt-8">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-slate-700 hover:bg-slate-600 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="flex-1 py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-indigo-600 hover:bg-indigo-500 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const ProfilePage = () => {
-    const { state, resetData, updateProfileIcon } = useGame();
+    const { state, resetData, updateProfileIcon, updateUsername } = useGame();
     const navigate = useNavigate();
-    const { history, xp, tierIndex, rank, profileIcon } = state;
+    const { history, xp, tierIndex, rank, profileIcon, username } = state;
 
     const [currentPage, setCurrentPage] = useState(1);
     const [showResetModal, setShowResetModal] = useState(false);
     const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
     const [confirmText, setConfirmText] = useState('');
-    const [showAvatarCatalog, setShowAvatarCatalog] = useState(false);
-    const [showConfirmChange, setShowConfirmChange] = useState(false);
-    const [selectedIcon, setSelectedIcon] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
     const itemsPerPage = 10;
 
-    const handleIconSelect = (icon) => {
-        setSelectedIcon(icon);
-        setShowConfirmChange(true);
-    };
-
-    const handleConfirmIconChange = () => {
-        updateProfileIcon(selectedIcon);
-        setShowConfirmChange(false);
-        setSelectedIcon(null);
+    const handleSaveProfile = (newUsername, newIcon) => {
+        updateUsername(newUsername);
+        updateProfileIcon(newIcon);
     };
 
     const totalWins = history.filter(h => h.profit > 0).length;
@@ -64,29 +127,27 @@ const ProfilePage = () => {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
                     <div className="flex flex-col items-center gap-4 z-10">
                         <div className="relative z-10">
-                        <div 
-                            id="profile-tier-icon" 
-                            className="w-24 h-24 rounded-full bg-indigo-600 border-4 border-indigo-400 flex items-center justify-center text-5xl shadow-xl shadow-indigo-500/40"
-                        >
-                            {profileIcon}
-                        </div>
-                        <div id="profile-tier-badge" className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full border-2 border-slate-900 shadow-lg animate-pulse">
-                            Rank {rank}
+                            <div
+                                id="profile-tier-icon"
+                                className="w-24 h-24 rounded-full bg-slate-800 border-4 border-indigo-400 flex items-center justify-center shadow-xl shadow-indigo-500/40 overflow-hidden"
+                            >
+                                <img src={`/market-pulse/assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" />
+                            </div>
+                            <div id="profile-tier-badge" className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full border-2 border-slate-900 shadow-lg animate-pulse">
+                                Rank {rank}
+                            </div>
                         </div>
                     </div>
-                    <button
-                            onClick={() => setShowAvatarCatalog(!showAvatarCatalog)}
-                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-lg transition-all"
-                        >
-                            {showAvatarCatalog ? 'Hide' : 'Change Avatar'}
-                        </button>
-                    </div>
-                    
+
                     <div className="flex-grow">
-                        <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                            OPERATOR_ID <span id="profile-tier-name" className="text-sm font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">{tierName.toUpperCase()}</span>
-                        </h2>
-                        <div className="mt-4">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                                {username} <span id="profile-tier-name" className="text-sm font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">{tierName.toUpperCase()}</span>
+                            </h2>
+                            <button onClick={() => setShowEditModal(true)} className="p-2 rounded-full bg-slate-700/50 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors">
+                                <Edit className="w-4 h-4" />
+                            </button>
+                        </div>                        <div className="mt-4">
                             <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">
                                 <span>Progress to Next Rank</span>
                                 <span id="profile-xp-text">{currentRankXP} / {xpPerRank} XP</span>
@@ -96,32 +157,6 @@ const ProfilePage = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                                {/* Avatar Catalog */}
-                <div className="glass-panel p-6 rounded-xl">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                            <User className="w-5 h-5 text-indigo-400" /> Avatar Catalog
-                        </h3>
-                    </div>
-                    {showAvatarCatalog && (
-                        <div className="grid grid-cols-6 md:grid-cols-12 gap-3 animate-slide-up mt-6">
-                            {PROFILE_ICONS.map((icon) => (
-                                <button
-                                    key={icon}
-                                    onClick={() => handleIconSelect(icon)}
-                                    className={`aspect-square rounded-xl flex items-center justify-center text-4xl transition-all hover:scale-110 ${
-                                        profileIcon === icon 
-                                            ? 'bg-indigo-600 ring-2 ring-indigo-400 shadow-lg shadow-indigo-500/50' 
-                                            : 'bg-slate-800 hover:bg-slate-700 border border-slate-700'
-                                    }`}
-                                >
-                                    {icon}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
                 {/* Stats Grid */}
@@ -309,41 +344,13 @@ const ProfilePage = () => {
 
             </div>
 
-            {/* Icon Change Confirmation Modal */}
-            {showConfirmChange && (
-                <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
-                    <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-8 border border-indigo-700 relative animate-bounce-in">
-                        <div className="text-center">
-                            <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-indigo-600 border-4 border-indigo-400 flex items-center justify-center text-5xl">
-                                {selectedIcon}
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-3">
-                                Change Profile Avatar?
-                            </h3>
-                            <p className="text-slate-300 mb-6 leading-relaxed text-sm">
-                                Are you sure you want to change your profile icon to this avatar?
-                            </p>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => {
-                                        setShowConfirmChange(false);
-                                        setSelectedIcon(null);
-                                    }}
-                                    className="flex-1 py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-slate-700 hover:bg-slate-600 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleConfirmIconChange}
-                                    className="flex-1 py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-indigo-600 hover:bg-indigo-500 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
-                                >
-                                    Confirm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <EditProfileModal
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                currentUsername={username}
+                currentIcon={profileIcon}
+                onSave={handleSaveProfile}
+            />
 
             {/* Reset Confirmation Modal */}
             {showResetModal && (
