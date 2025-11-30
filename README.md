@@ -1,6 +1,6 @@
 # Market Pulse
 
-![Vite Logo](public/vite.svg)
+![Market Pulse Logo](public/assets/Market%20Pulse%20Logo.png)
 
 ## Description
 A real-time stock market simulation game built with React.
@@ -14,11 +14,11 @@ To set up the project locally, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/market-pulse-react.git
+   git clone https://github.com/Soujiro0/market-pulse
    ```
 2. Navigate to the project directory:
    ```bash
-   cd market-pulse-react
+   cd market-pulse
    ```
 3. Install dependencies:
    ```bash
