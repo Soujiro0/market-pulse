@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useGame } from './contexts/GameContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -6,9 +7,24 @@ import LoadingOverlay from './components/ui/LoadingOverlay';
 import AlertModal from './components/ui/AlertModal';
 import LoanModal from './components/ui/LoanModal';
 
+const titleMap = {
+    '/': 'Market Pulse - Home',
+    '/profile': 'Market Pulse - Profile',
+    '/market': 'Market Pulse - Market',
+    '/trading': 'Market Pulse - Trading',
+    '/simulation': 'Market Pulse - Simulation',
+    '/help': 'Market Pulse - Help',
+};
+
 function App() {
     const { state, closeAlertModal } = useGame();
     const location = useLocation();
+
+    useEffect(() => {
+        const baseTitle = 'Market Pulse';
+        const pageTitle = titleMap[location.pathname] || baseTitle;
+        document.title = pageTitle;
+    }, [location.pathname]);
 
     const showHeaderAndFooter = location.pathname !== '/simulation';
 

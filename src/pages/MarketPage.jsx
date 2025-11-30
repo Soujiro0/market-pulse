@@ -5,10 +5,17 @@ import MarketListItem from '@/components/ui/MarketListItem';
 import { Globe, Landmark, LayoutGrid, List, DollarSign, RefreshCw, TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
 import { formatMoney } from '@/utils';
 import { CLIMATES } from '@/constants';
+import { useState } from 'react';
 
 const MarketPage = () => {
     const { state, toggleMarketView, setCurrentProduct, toggleLoanModal, payLoan, rerollMarket } = useGame();
     const navigate = useNavigate();
+    const [marketKey, setMarketKey] = useState(1);
+
+    const handleRerollMarket = () => {
+        rerollMarket();
+        setMarketKey(prevKey => prevKey + 1);
+    };
 
     const handleProductClick = (product) => {
         setCurrentProduct(product);
@@ -80,7 +87,7 @@ const MarketPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={rerollMarket}
+                                onClick={handleRerollMarket}
                                 disabled={!canReroll}
                                 className={`px-4 py-2 rounded font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
                                     canReroll
@@ -167,12 +174,12 @@ const MarketPage = () => {
             </div>
 
             {/* Enhanced Product Grid/List Container */}
-            <div id="product-grid" className={state.marketViewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-3"}>
-                {state.activeProducts.map(product => (
+            <div key={marketKey} id="product-grid" className={state.marketViewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-3"}>
+                {state.activeProducts.map((product, index) => (
                     state.marketViewMode === 'grid' ? (
-                        <MarketCard key={product.id} product={product} onClick={handleProductClick} />
+                        <MarketCard key={product.id} product={product} onClick={handleProductClick} index={index} />
                     ) : (
-                        <MarketListItem key={product.id} product={product} onClick={handleProductClick} />
+                        <MarketListItem key={product.id} product={product} onClick={handleProductClick} index={index} />
                     )
                 ))}
             </div>

@@ -12,7 +12,7 @@ const RarityIcon = ({ iconName, className }) => {
     }
 };
 
-const MarketCard = ({ product, onClick }) => {
+const MarketCard = ({ product, onClick, index }) => {
     const r = product.rarity;
     const hypeColor = product.hype > 50 ? 'bg-emerald-500' : 'bg-orange-500';
     
@@ -24,9 +24,15 @@ const MarketCard = ({ product, onClick }) => {
     
     const sparkleClass = (r.label === 'High-Risk' || r.label === 'Moonshot') ? 'animate-sparkle' : '';
 
+    const shiningClass = (r.id === 'unicorn' || r.id === 'disruptive') ? 'shine-effect' : '';
+    const glowPulseClass = r.id === 'unicorn' ? 'animate-glow-pulse' : '';
+
+    const animationDelay = `${index * 50}ms`;
+
     return (
         <div
-            className={`relative rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border overflow-hidden flex flex-col group cursor-pointer ${r.glow} ${r.bg} ${glowClass}`}
+            className={`relative rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border overflow-hidden flex flex-col group cursor-pointer ${r.glow} ${r.bg} ${glowClass} animate-roll-in ${shiningClass} ${glowPulseClass}`}
+            style={{ animationDelay }}
             onClick={() => onClick(product)}
         >
             <div className="p-5 flex-1 relative z-10">

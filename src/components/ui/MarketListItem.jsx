@@ -12,13 +12,22 @@ const RarityIcon = ({ iconName, className }) => {
     }
 };
 
-const MarketListItem = ({ product, onClick }) => {
+const MarketListItem = ({ product, onClick, index }) => {
     const r = product.rarity;
+
+    const shiningClass = (r.id === 'unicorn' || r.id === 'disruptive') ? 'shine-effect' : '';
+    const glowPulseClass = r.id === 'unicorn' ? 'animate-glow-pulse' : '';
+
+    const animationDelay = `${index * 50}ms`;
 
     return (
         <div
-            className={`relative bg-slate-800 rounded-lg shadow-sm hover:bg-slate-700 transition-all duration-200 border border-slate-700 flex items-center justify-between p-4 cursor-pointer group ${r.glow}`}
-            style={{ borderLeftWidth: "4px", borderLeftColor: r.id === 'unicorn' ? '#eab308' : (r.id === 'disruptive' ? '#a855f7' : (r.id === 'emerging' ? '#3b82f6' : '#334155')) }}
+            className={`relative bg-slate-800 rounded-lg shadow-sm hover:bg-slate-700 transition-all duration-200 border border-slate-700 flex items-center justify-between p-4 cursor-pointer group ${r.glow} animate-roll-in ${shiningClass} ${glowPulseClass}`}
+            style={{ 
+                borderLeftWidth: "4px", 
+                borderLeftColor: r.id === 'unicorn' ? '#eab308' : (r.id === 'disruptive' ? '#a855f7' : (r.id === 'emerging' ? '#3b82f6' : '#334155')),
+                animationDelay 
+            }}
             onClick={() => onClick(product)}
         >
             <div className="flex items-center gap-4">
