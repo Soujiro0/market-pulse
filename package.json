@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "npm run build && cd dist && git init && git checkout -b gh-pages && git add . && git commit -m 'Deploy' && git push -f git@github.com:Soujiro0/market-pulse.git gh-pages"
+    "predeploy": "npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",

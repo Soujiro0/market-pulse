@@ -49,6 +49,8 @@ function App() {
                 type={state.alertModal?.type || 'info'}
             />
             <LoanModal />
+
+        <img src="" alt="" />
         </div>
     );
 }
