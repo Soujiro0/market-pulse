@@ -63,6 +63,7 @@ const useGameLogic = () => {
                     rerollCostMultiplier: parsed.rerollCostMultiplier || 5,
                     rerollBasePrice: parsed.rerollBasePrice || 0,
                     rerollCount: parsed.rerollCount || 0,
+                    rerollLimit: parsed.rerollLimit !== undefined ? parsed.rerollLimit : 5,
                     profileIcon: profileIcon,
                     username: parsed.username || 'OPERATOR_ID',
                 };
@@ -93,6 +94,7 @@ const useGameLogic = () => {
             rerollCostMultiplier: 5, // Starting at 5%
             rerollBasePrice: 0, // Base price for rerolls this turn
             rerollCount: 0, // Number of rerolls this turn
+            rerollLimit: 5, // Number of rerolls available
             profileIcon: PROFILES[0].image,
             username: 'OPERATOR_ID',
         };
@@ -198,6 +200,14 @@ localStorage.removeItem('marketPulseSave_v3');
     // Reroll Market (keeps climate, refreshes products)
     const rerollMarket = useCallback(() => {
         setState(prevState => {
+            // Check if reroll limit is reached
+            if (prevState.rerollLimit <= 0) {
+                return {
+                    ...prevState,
+                    alertModal: { isOpen: true, title: 'Reroll Limit Reached', message: 'You have reached your reroll limit for this period. The limit will reset in a few turns.', type: 'error' }
+                };
+            }
+
             // Check if balance is negative
             if (prevState.balance <= 0) {
                 return {
@@ -269,6 +279,7 @@ localStorage.removeItem('marketPulseSave_v3');
                 activeProducts: newActiveProducts,
                 rerollBasePrice: basePrice, // Store the base price for this turn
                 rerollCount: prevState.rerollCount + 1, // Increment reroll count
+                rerollLimit: prevState.rerollLimit - 1, // Decrement reroll limit
             };
         });
     }, []);
@@ -325,13 +336,13 @@ localStorage.removeItem('marketPulseSave_v3');
                 if (overdueTurns >= 10) {
                     return {
                         ...prevState,
-                        balance: prevState.balance - prevState.loan.amount,
+                        balance: prevState.balance - prevState.loan.amount, // Balance goes negative if insufficient
                         loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
-                        alertModal: { isOpen: true, title: 'LOAN DEFAULT', message: 'Assets Seized! The bank has liquidated your capital to cover the debt.', type: 'error' }
+                        alertModal: { isOpen: true, title: 'LOAN DEFAULT', message: 'Assets Seized! The bank has liquidated your capital to cover the debt, resulting in a negative balance if insufficient.', type: 'error' }
                     };
                 } else {
-                    // Late Penalty: Increase debt by 10%
-                    const penalty = Math.floor(prevState.loan.amount * 0.10);
+                    // Late Penalty: Increase debt by 50%
+                    const penalty = Math.floor(prevState.loan.amount * 0.50);
                     return {
                         ...prevState,
                         loan: { ...prevState.loan, amount: prevState.loan.amount + penalty },
@@ -432,13 +443,19 @@ localStorage.removeItem('marketPulseSave_v3');
     }, []);
 
     const nextTurn = useCallback(() => {
-        setState(prevState => ({ 
-            ...prevState, 
-            turn: prevState.turn + 1, 
-            rerollCostMultiplier: 5, // Reset multiplier
-            rerollBasePrice: 0, // Reset base price
-            rerollCount: 0 // Reset reroll count
-        }));
+        setState(prevState => {
+            const newTurn = prevState.turn + 1;
+            const newRerollLimit = newTurn % 5 === 0 ? 5 : prevState.rerollLimit;
+
+            return {
+                ...prevState,
+                turn: newTurn,
+                rerollCostMultiplier: 5, // Reset multiplier
+                rerollBasePrice: 0, // Reset base price
+                rerollCount: 0, // Reset reroll count
+                rerollLimit: newRerollLimit, // Reset reroll limit every 5 turns
+            };
+        });
         checkLoanStatus();
         randomizeMarket();
     }, [checkLoanStatus, randomizeMarket]);

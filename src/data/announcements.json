@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "title": "Patch v1.1.0 - The Phoenix Update",
+        "date": "2025-11-28",
+        "content": "Major rebalancing of item volatility. New \"Phoenix\" profile unlocked for players who have recovered from a major loss. Various bug fixes and performance improvements.",
+        "tag": "Patch Notes"
+    },
+    {
+        "id": 2,
+        "title": "Major Update: The Loan System",
+        "date": "2025-11-20",
+        "content": "Introducing the ability to take out loans from the bank. Be careful with interest rates and due dates!",
+        "tag": "New Feature"
+    },
+    {
+        "id": 3,
+        "title": "Scheduled Maintenance",
+        "date": "2025-12-05",
+        "content": "The market will be down for scheduled maintenance on Dec 5th from 02:00 to 04:00 UTC. We apologize for any inconvenience.",
+        "tag": "Notice"
+    },
+    {
+        "id": 4,
+        "title": "Minor Bug Fixes",
+        "date": "2025-11-15",
+        "content": "Addressed several minor bugs related to UI display and data synchronization.",
+        "tag": "Patch Notes"
+    },
+    {
+        "id": 5,
+        "title": "New Item: Quantum Toaster",
+        "date": "2025-11-10",
+        "content": "A revolutionary new item now available in the market. Experience breakfast like never before!",
+        "tag": "New Feature"
+    },
+    {
+        "id": 6,
+        "title": "Server Upgrade Complete",
+        "date": "2025-11-01",
+        "content": "Our servers have been successfully upgraded, leading to improved performance and stability.",
+        "tag": "Notice"
+    }
+]

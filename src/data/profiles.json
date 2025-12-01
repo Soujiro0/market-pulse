@@ -11,104 +11,104 @@
     "name": "The Suit",
     "icon": "🧑‍💼",
     "flavorText": "All business, all the time. Numbers are their native language.",
-    "image": "profile_1.png"
+    "image": "profile_1.webp"
   },
   {
     "id": 2,
     "name": "The Hero",
     "icon": "🦸",
     "flavorText": "High risk, high reward. Always goes for the big play.",
-    "image": "profile_2.png"
+    "image": "profile_2.webp"
   },
   {
     "id": 3,
     "name": "The Bot",
     "icon": "🤖",
     "flavorText": "Executes trades with cold, hard logic. Emotion is a variable.",
-    "image": "profile_3.png"
+    "image": "profile_3.webp"
   },
   {
     "id": 4,
     "name": "The Glitch",
     "icon": "👾",
     "flavorText": "Exploits market inefficiencies. Thrives in chaos.",
-    "image": "profile_4.png"
+    "image": "profile_4.webp"
   },
   {
     "id": 5,
     "name": "The Gamer",
     "icon": "🎮",
     "flavorText": "Sees the market as one big MMO. Here for the high score.",
-    "image": "profile_5.png"
+    "image": "profile_5.webp"
   },
   {
     "id": 6,
     "name": "The Rocketeer",
     "icon": "🚀",
     "flavorText": "To the moon! Believes in every investment.",
-    "image": "profile_6.png"
+    "image": "profile_6.webp"
   },
   {
     "id": 7,
     "name": "The Flash",
     "icon": "⚡",
     "flavorText": "High-frequency trader. In and out before you blink.",
-    "image": "profile_7.png"
+    "image": "profile_7.webp"
   },
   {
     "id": 8,
     "name": "Diamond Hands",
     "icon": "💎",
     "flavorText": "Never sells. Never surrenders.",
-    "image": "profile_8.png"
+    "image": "profile_8.webp"
   },
   {
     "id": 9,
     "name": "The Phoenix",
     "icon": "🔥",
     "flavorText": "Rises from the ashes of every bad trade, stronger than before.",
-    "image": "profile_9.png"
+    "image": "profile_9.webp"
   },
   {
     "id": 10,
     "name": "The Star",
     "icon": "🌟",
     "flavorText": "A media darling. Moves markets with a single tweet.",
-    "image": "profile_10.png"
+    "image": "profile_10.webp"
   },
   {
     "id": 11,
     "name": "The Monarch",
     "icon": "👑",
     "flavorText": "Old money. Their portfolio has a royal lineage.",
-    "image": "profile_11.png"
+    "image": "profile_11.webp"
   },
   {
     "id": 12,
     "name": "The Veteran",
     "icon": "🎖️",
     "flavorText": "Seen it all. Bear markets, bull markets, you name it.",
-    "image": "profile_12.png"
+    "image": "profile_12.webp"
   },
   {
     "id": 13,
     "name": "The Oracle",
     "icon": "🔮",
     "flavorText": "Seems to know what the market will do before it does.",
-    "image": "profile_13.png"
+    "image": "profile_13.webp"
   },
   {
     "id": 14,
     "name": "The Ghost",
     "icon": "👻",
     "flavorText": "An anonymous whale. Their trades move in silence.",
-    "image": "profile_14.png"
+    "image": "profile_14.webp"
   },
   {
     "id": 15,
     "name": "The Architect",
     "icon": "🏛️",
     "flavorText": "Builds portfolios like monuments, meant to last for ages.",
-    "image": "profile_15.png"
+    "image": "profile_15.webp"
   }
 ]
