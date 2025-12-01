@@ -160,9 +160,9 @@ localStorage.removeItem('marketPulseSave_v3');
         let climate = 'Stable';
         let momentumBias = 1.0, volatilityMult = 1.0;
 
-        if (rand < 0.25) { climate = 'Expansion'; momentumBias = 1.02; volatilityMult = 0.8; }
-        else if (rand < 0.50) { climate = 'Recession'; momentumBias = 0.98; volatilityMult = 1.2; }
-        else if (rand < 0.70) { climate = 'Turbulent'; volatilityMult = 1.5; }
+        if (rand < 0.25) { climate = 'Expansion'; momentumBias = 1.05; volatilityMult = 0.7; }
+        else if (rand < 0.50) { climate = 'Recession'; momentumBias = 0.95; volatilityMult = 1.4; }
+        else if (rand < 0.70) { climate = 'Turbulent'; volatilityMult = 2.0; }
 
         const shuffled = [...items.map((item, i) => ({
             id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
@@ -181,9 +181,9 @@ localStorage.removeItem('marketPulseSave_v3');
             const priceVariation = 0.8 + (Math.random() * 0.4);
             const currentPrice = tpl.basePrice * rarity.mult * priceVariation;
 
-            let baseVol = 0.1 + Math.random() * 0.9;
-            if (rarity.id === 'unicorn') baseVol = 0.8 + (Math.random() * 0.2);
-            let finalVol = Math.min(1.0, baseVol * volatilityMult);
+            let baseVol = 0.2 + Math.random() * 1.3;
+            if (rarity.id === 'unicorn') baseVol = 1.0 + (Math.random() * 0.5);
+            let finalVol = baseVol * volatilityMult;
 
             let baseMom = 0.9 + (Math.random() * 0.2);
             if (climate === 'Expansion') baseMom += 0.02;
@@ -238,9 +238,9 @@ localStorage.removeItem('marketPulseSave_v3');
             const climate = prevState.marketClimate;
             let momentumBias = 1.0, volatilityMult = 1.0;
             
-            if (climate === 'Expansion') { momentumBias = 1.02; volatilityMult = 0.8; }
-            else if (climate === 'Recession') { momentumBias = 0.98; volatilityMult = 1.2; }
-            else if (climate === 'Turbulent') { volatilityMult = 1.5; }
+            if (climate === 'Expansion') { momentumBias = 1.05; volatilityMult = 0.7; }
+            else if (climate === 'Recession') { momentumBias = 0.95; volatilityMult = 1.4; }
+            else if (climate === 'Turbulent') { volatilityMult = 2.0; }
 
             const shuffled = [...items.map((item, i) => ({
                 id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
@@ -259,9 +259,9 @@ localStorage.removeItem('marketPulseSave_v3');
                 const priceVariation = 0.8 + (Math.random() * 0.4);
                 const currentPrice = tpl.basePrice * rarity.mult * priceVariation;
 
-                let baseVol = 0.1 + Math.random() * 0.9;
-                if (rarity.id === 'unicorn') baseVol = 0.8 + (Math.random() * 0.2);
-                let finalVol = Math.min(1.0, baseVol * volatilityMult);
+                let baseVol = 0.2 + Math.random() * 1.3;
+                if (rarity.id === 'unicorn') baseVol = 1.0 + (Math.random() * 0.5);
+                let finalVol = baseVol * volatilityMult;
 
                 let baseMom = 0.9 + (Math.random() * 0.2);
                 if (climate === 'Expansion') baseMom += 0.02;

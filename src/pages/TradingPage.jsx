@@ -103,7 +103,7 @@ const TradingPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
                     {/* Asset Card */}
                     <div className="md:col-span-1 flex flex-col gap-6">
-                        <div className={`glass-panel p-8 rounded-2xl h-full relative overflow-hidden flex flex-col items-center text-center ${r.glow} ${r.bg} ${['disruptive', 'unicorn'].includes(r.id) ? 'shine-effect' : ''}`}>
+                        <div className={`glass-panel p-8 rounded-2xl h-fit relative overflow-hidden flex flex-col items-center text-center ${r.glow} ${r.bg} ${['disruptive', 'unicorn'].includes(r.id) ? 'shine-effect' : ''}`}>
                             <div className="relative z-10 w-full flex flex-col items-center">
                                 <div className="flex items-center gap-2 mb-6">
                                     <RarityIcon iconName={r.icon} className={r.color} />
@@ -228,8 +228,35 @@ const TradingPage = () => {
                                         <p className="font-mono font-bold text-white text-xl">{formatMoney(costBasis)}</p>
                                     </div>
                                     <div className="p-4 border border-slate-700 bg-slate-800/30 rounded-xl">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Projected Net</p>
-                                        <p className={`font-mono font-bold text-xl ${projectedNet < 0 ? 'text-red-500' : 'text-slate-400'}`}>{formatMoney(projectedNet)}</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Current Balance</p>
+                                        <p className={`font-mono font-bold text-xl ${balance < 0 ? 'text-red-500' : 'text-emerald-400'}`}>{formatMoney(balance)}</p>
+                                    </div>
+                                </div>
+
+                                {/* Calculation Breakdown */}
+                                <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800">
+                                    <h4 className="text-sm font-bold text-slate-400 mb-3 font-mono uppercase">Projected Output (10% Price Increase)</h4>
+                                    <div className="space-y-2 text-xs">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Entry Price:</span>
+                                            <span className="font-mono text-slate-300">{formatMoney(currentProduct.currentPrice)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Projected Exit Price (10%):</span>
+                                            <span className="font-mono text-emerald-400">{formatMoney(currentProduct.currentPrice * 1.1)}</span>
+                                        </div>
+                                        <div className="flex justify-between border-t border-slate-700 pt-2 mt-2">
+                                            <span className="text-slate-500 font-bold">Projected Profit per Unit (10%):</span>
+                                            <span className="font-mono text-emerald-400 font-bold">{formatMoney(currentProduct.currentPrice * 0.1)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500">Total Units:</span>
+                                            <span className="font-mono text-slate-300">{units}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm border-t border-slate-700 pt-2 mt-2">
+                                            <span className="text-slate-400 font-bold">Total Projected Profit (10%):</span>
+                                            <span className="font-mono text-emerald-400 font-bold">{formatMoney(currentProduct.currentPrice * 0.1 * units)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
