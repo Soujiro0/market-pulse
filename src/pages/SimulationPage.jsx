@@ -5,6 +5,7 @@ import { formatMoney } from '@/utils';
 import { Play, Pause, CheckCircle } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import GenericModal from '@/components/ui/GenericModal';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -18,6 +19,7 @@ const SimulationPage = () => {
         nextTurn,
         chartInstanceRef,
         simTimeoutRef,
+        pullOut,
     } = useGame();
     const navigate = useNavigate();
 
@@ -28,6 +30,9 @@ const SimulationPage = () => {
     const [currentPrice, setCurrentPrice] = useState(currentProduct?.currentPrice || 0);
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [isSkipping, setIsSkipping] = useState(false);
+    const [showPullOutModal, setShowPullOutModal] = useState(false);
+    const [peakPrice, setPeakPrice] = useState(currentProduct?.currentPrice || 0);
+    const [lowestPrice, setLowestPrice] = useState(currentProduct?.currentPrice || 0);
 
     const pricesRef = useRef([]);
     const currentDayRef = useRef(0);
@@ -59,6 +64,8 @@ const SimulationPage = () => {
         pricesRef.current = prices;
         setCurrentPrice(currentProduct.currentPrice);
         setCurrentDay(0);
+        setPeakPrice(currentProduct.currentPrice);
+        setLowestPrice(currentProduct.currentPrice);
 
     setChartData({
             labels: [],
@@ -110,10 +117,16 @@ const SimulationPage = () => {
                 const allPriceData = [];
                 const allEntryData = [];
                 
+                let currentPeak = peakPrice;
+                let currentLowest = lowestPrice;
+
                 for (let i = currentDayIndex; i <= totalDays; i++) {
+                    const price = prices[i];
                     allLabels.push(i);
-                    allPriceData.push(prices[i]);
+                    allPriceData.push(price);
                     allEntryData.push(currentProduct.currentPrice);
+                    currentPeak = Math.max(currentPeak, price);
+                    currentLowest = Math.min(currentLowest, price);
                 }
                 
                 const finalPrice = prices[totalDays];
@@ -132,7 +145,9 @@ const SimulationPage = () => {
                 currentDayRef.current = totalDays;
                 setCurrentDay(totalDays);
                 setCurrentPrice(finalPrice);
-                finishSimulation(finalPrice, investmentAmount, units, currentProduct);
+                setPeakPrice(currentPeak);
+                setLowestPrice(currentLowest);
+                finishSimulation(finalPrice, investmentAmount, units, currentProduct, currentPeak, currentLowest);
                 return;
             }
 
@@ -144,13 +159,15 @@ const SimulationPage = () => {
 
             // Check if simulation is complete
             if (currentDayIndex >= prices.length) {
-                finishSimulation(prices[prices.length - 1], investmentAmount, units, currentProduct);
+                finishSimulation(prices[prices.length - 1], investmentAmount, units, currentProduct, peakPrice, lowestPrice);
                 return;
             }
 
             // Normal step - update one day
             const price = prices[currentDayIndex];
             setCurrentPrice(price);
+            setPeakPrice(prev => Math.max(prev, price));
+            setLowestPrice(prev => Math.min(prev, price));
             currentDayRef.current = currentDayIndex;
             setCurrentDay(currentDayIndex);
 
@@ -199,6 +216,29 @@ const SimulationPage = () => {
             setIsSkipping(true);
         }
     }, [simulationState.isFinished]);
+
+    const handlePullOut = useCallback(() => {
+        if (!simulationState.isFinished) {
+            if (!isPaused) {
+                dispatchSimulation({ type: 'TOGGLE_PAUSE' });
+            }
+            setShowPullOutModal(true);
+        }
+    }, [simulationState.isFinished, isPaused, dispatchSimulation]);
+
+    const handleCancelPullOut = useCallback(() => {
+        setShowPullOutModal(false);
+        // Only unpause if it was paused by the modal
+        if (isPaused) {
+            dispatchSimulation({ type: 'TOGGLE_PAUSE' });
+        }
+    }, [isPaused, dispatchSimulation]);
+
+    const handleConfirmPullOut = useCallback(() => {
+        pullOut(currentPrice, investmentAmount, units, currentProduct, peakPrice, lowestPrice);
+        dispatchSimulation({ type: 'PULL_OUT' });
+        setShowPullOutModal(false);
+    }, [pullOut, currentPrice, investmentAmount, units, currentProduct, peakPrice, lowestPrice, dispatchSimulation]);
 
     if (!currentProduct) {
         return null; // Should not happen if routed correctly
@@ -284,6 +324,7 @@ const SimulationPage = () => {
                             </button>
                             <div className="h-6 w-px bg-slate-700 mx-2"></div>
                             <button onClick={handleSkip} className="px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-indigo-500/30 transition-all">{"SKIP >>"}</button>
+                            <button onClick={handlePullOut} className="px-4 py-2 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-red-500/30 transition-all">{"PULL OUT"}</button>
                         </div>
                     ) : (
                         /* Post-Sim Controls */
@@ -323,11 +364,15 @@ const SimulationPage = () => {
                                     <span className="font-mono font-bold text-white text-lg">{formatMoney(simulationResult.initialInvestment)}</span>
                                 </div>
                                 <div className="flex justify-between mb-4 border-b border-slate-800 pb-4">
-                                    <span className="text-slate-500 text-sm uppercase font-bold tracking-wider">Exit Valuation</span>
-                                    <span className="font-mono font-bold text-white text-lg">{formatMoney(simulationResult.finalValue)}</span>
+                                    <span className="text-slate-500 text-sm uppercase font-bold tracking-wider">Peak Value</span>
+                                    <span className="font-mono font-bold text-white text-lg">{formatMoney(simulationResult.peakPrice)}</span>
+                                </div>
+                                <div className="flex justify-between mb-4 border-b border-slate-800 pb-4">
+                                    <span className="text-slate-500 text-sm uppercase font-bold tracking-wider">Lowest Value</span>
+                                    <span className="font-mono font-bold text-white text-lg">{formatMoney(simulationResult.lowestPrice)}</span>
                                 </div>
                                 <div className="flex justify-between pt-2">
-                                    <span className="font-bold text-slate-400 text-sm uppercase tracking-wider">Net P/L</span>
+                                    <span className="font-bold text-slate-400 text-sm uppercase tracking-wider">Profit</span>
                                     <span className={`font-mono font-bold text-2xl ${simulationResult.profit >= 0 ? 'text-emerald-400' : 'text-red-500'}`}>
                                         {simulationResult.profit >= 0 ? '+' : ''}{formatMoney(simulationResult.profit)}
                                     </span>
@@ -346,6 +391,28 @@ const SimulationPage = () => {
                     </div>
                 </div>
             )}
+
+            {/* Pull Out Confirmation Modal */}
+            <GenericModal
+                isOpen={showPullOutModal}
+                onClose={handleCancelPullOut}
+                title="Confirm Pull Out"
+            >
+                <div className="text-center">
+                    <p className="text-slate-300 mb-4">Are you sure you want to pull out of the simulation early?</p>
+                    <p className="text-slate-400 text-sm mb-2">Current Profit: <span className={`font-bold ${profit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{formatMoney(profit)}</span></p>
+                    <p className="text-slate-400 text-sm mb-4">A 25% fee will be applied to your profit.</p>
+                    <p className="text-slate-300 text-lg font-bold">Profit after fee: <span className={`font-bold ${profit * 0.75 >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{formatMoney(profit * 0.75)}</span></p>
+                    <div className="flex gap-4 mt-6">
+                        <button onClick={handleCancelPullOut} className="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors">
+                            Continue Simulation
+                        </button>
+                        <button onClick={handleConfirmPullOut} className="w-1/2 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg transition-colors">
+                            Pull Out Now
+                        </button>
+                    </div>
+                </div>
+            </GenericModal>
         </div>
     );
 };

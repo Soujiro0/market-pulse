@@ -234,31 +234,7 @@ const TradingPage = () => {
                                 </div>
 
                                 {/* Calculation Breakdown */}
-                                <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-800">
-                                    <h4 className="text-sm font-bold text-slate-400 mb-3 font-mono uppercase">Projected Output (10% Price Increase)</h4>
-                                    <div className="space-y-2 text-xs">
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Entry Price:</span>
-                                            <span className="font-mono text-slate-300">{formatMoney(currentProduct.currentPrice)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Projected Exit Price (10%):</span>
-                                            <span className="font-mono text-emerald-400">{formatMoney(currentProduct.currentPrice * 1.1)}</span>
-                                        </div>
-                                        <div className="flex justify-between border-t border-slate-700 pt-2 mt-2">
-                                            <span className="text-slate-500 font-bold">Projected Profit per Unit (10%):</span>
-                                            <span className="font-mono text-emerald-400 font-bold">{formatMoney(currentProduct.currentPrice * 0.1)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500">Total Units:</span>
-                                            <span className="font-mono text-slate-300">{units}</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm border-t border-slate-700 pt-2 mt-2">
-                                            <span className="text-slate-400 font-bold">Total Projected Profit (10%):</span>
-                                            <span className="font-mono text-emerald-400 font-bold">{formatMoney(currentProduct.currentPrice * 0.1 * units)}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* Removed Projected Output (10% Price Increase) section as requested */}
                             </div>
 
                             <button

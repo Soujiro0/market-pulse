@@ -69,7 +69,7 @@ const LoanBankModal = ({ isOpen, onClose, state, toggleLoanModal, payLoan, toggl
                             <button
                                 onClick={handlePayLoan}
                                 disabled={state.turn < state.loan.dueTurn}
-                                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white text-lg font-bold rounded-lg transition-colors mt-4 uppercase tracking-wider flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/50"
+                                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white text-lg font-bold rounded-lg transition-colors mt-4 uppercase tracking-wider flex items-center justify-center gap-3 shadow-lg"
                             >
                                 <CheckCircle className="w-6 h-6" />
                                 Settle Debt

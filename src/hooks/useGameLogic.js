@@ -66,6 +66,7 @@ const useGameLogic = () => {
                     rerollLimit: parsed.rerollLimit !== undefined ? parsed.rerollLimit : 5,
                     profileIcon: profileIcon,
                     username: parsed.username || 'OPERATOR_ID',
+                    hasPulledOut: parsed.hasPulledOut || false, // New state for pull out system
                 };
             } catch (e) {
                 console.error("Save file corrupted, starting new game.", e);
@@ -97,6 +98,7 @@ const useGameLogic = () => {
             rerollLimit: 5, // Number of rerolls available
             profileIcon: PROFILES[0].image,
             username: 'OPERATOR_ID',
+            hasPulledOut: false, // New state for pull out system
         };
     });
 
@@ -379,16 +381,25 @@ localStorage.removeItem('marketPulseSave_v3');
         }
     }, []);
 
-    const finishSimulation = useCallback((finalPrice, initialInvestment, units, currentProduct) => {
+    const finishSimulation = useCallback((finalPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice) => {
         dispatchSimulation({ type: 'FINISH' });
         const finalValue = finalPrice * units;
         const profit = finalValue - initialInvestment;
 
         setState(prevState => {
-            // Add XP (50 base + 1 per $100 profit)
+            let newBalance = prevState.balance;
             let earnedXp = 50;
-            if (profit > 0) {
-                earnedXp += Math.floor(profit / 100);
+
+            if (!prevState.hasPulledOut) { // Only add profit if not pulled out early
+                newBalance += finalValue;
+                if (profit > 0) {
+                    earnedXp += Math.floor(profit / 100);
+                }
+            } else {
+                // If pulled out, profit was already added (minus fee), so just update XP if any
+                if (profit > 0) { // Use original profit for XP calculation
+                    earnedXp += Math.floor(profit / 100);
+                }
             }
 
             const newHistory = [...prevState.history, {
@@ -419,7 +430,7 @@ localStorage.removeItem('marketPulseSave_v3');
 
             return {
                 ...prevState,
-                balance: prevState.balance + finalValue,
+                balance: newBalance,
                 history: newHistory,
                 xp: prevState.xp + earnedXp,
                 tierIndex: newTierIndex,
@@ -429,7 +440,72 @@ localStorage.removeItem('marketPulseSave_v3');
                     finalValue,
                     profit,
                     productName: currentProduct.name,
+                    peakPrice,
+                    lowestPrice,
                 },
+                hasPulledOut: false, // Reset for next simulation
+            };
+        });
+    }, []);
+
+    const pullOut = useCallback((currentPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice) => {
+        const finalValue = currentPrice * units;
+        let profit = finalValue - initialInvestment;
+        let adjustedProfit = profit;
+
+        if (profit > 0) {
+            adjustedProfit = profit * 0.75; // 25% fee on profit
+        }
+
+        setState(prevState => {
+            // Add XP (50 base + 1 per $100 profit) - use original profit for XP
+            let earnedXp = 50;
+            if (profit > 0) {
+                earnedXp += Math.floor(profit / 100);
+            }
+
+            const newHistory = [...prevState.history, {
+                turn: prevState.turn,
+                productName: currentProduct.name,
+                rarityLabel: currentProduct.rarity.label,
+                rarityBg: currentProduct.rarity.bg,
+                rarityColor: currentProduct.rarity.color,
+                rarityId: currentProduct.rarity.id,
+                rarityIcon: currentProduct.rarity.icon,
+                profit: adjustedProfit, // Store adjusted profit in history
+                units: units,
+                buyPrice: initialInvestment / units,
+                sellPrice: currentPrice,
+                climate: prevState.marketClimate
+            }];
+
+            const xpPerRank = 1000;
+            const totalRanks = Math.floor((prevState.xp + earnedXp) / xpPerRank);
+
+            let newTierIndex = Math.floor(totalRanks / 5);
+            let newRank = (totalRanks % 5) + 1;
+
+            if (newTierIndex >= TIERS.length) {
+                newTierIndex = TIERS.length - 1;
+                newRank = 5;
+            }
+
+            return {
+                ...prevState,
+                balance: prevState.balance + adjustedProfit,
+                history: newHistory,
+                xp: prevState.xp + earnedXp,
+                tierIndex: newTierIndex,
+                rank: newRank,
+                simulationResult: {
+                    initialInvestment,
+                    finalValue: currentPrice * units, // Final value at pull out
+                    profit: adjustedProfit, // Adjusted profit
+                    productName: currentProduct.name,
+                    peakPrice,
+                    lowestPrice,
+                },
+                hasPulledOut: true,
             };
         });
     }, []);
@@ -500,6 +576,7 @@ localStorage.removeItem('marketPulseSave_v3');
         toggleLoadingOverlay,
         updateProfileIcon,
         updateUsername,
+        pullOut,
     };
 };
 

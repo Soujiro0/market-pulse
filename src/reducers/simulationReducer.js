@@ -2,6 +2,7 @@ export const initialSimulationState = {
     speed: 1,
     isPaused: false,
     isFinished: false,
+    hasPulledOut: false,
 };
 
 export const simulationReducer = (state, action) => {
@@ -12,6 +13,8 @@ export const simulationReducer = (state, action) => {
             return { ...state, isPaused: !state.isPaused };
         case 'FINISH':
             return { ...state, isFinished: true };
+        case 'PULL_OUT':
+            return { ...state, isFinished: true, hasPulledOut: true };
         case 'RESET':
             return initialSimulationState;
         default:
