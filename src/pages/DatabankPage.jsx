@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import items from '@/data/items.json';
 import ranks from '@/data/ranks.json';
-import { CLIMATES, RARITY } from '@/constants';
-import { Box, Zap, Star, Crown, TrendingUp, TrendingDown, Minus, Activity, Package, BarChart, Cloud, Gem, X } from 'lucide-react';
+import { CLIMATES, RARITY, MARKET_EVENTS } from '@/constants';
+import { Box, Zap, Star, Crown, TrendingUp, TrendingDown, Minus, Activity, Package, BarChart, Cloud, Gem, X, Megaphone } from 'lucide-react';
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {
@@ -101,7 +101,7 @@ const RanksSection = () => {
                             {tierRanks.map(rank => (
                                 <div key={rank.image} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center gap-2">
                                     <div className="w-16 h-16">
-                                        <img src={`/assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" />
+                                        <img src={`assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" />
                                     </div>
                                     <span className="font-bold text-white text-sm">{rank.name} {rank.level}</span>
                                 </div>
@@ -149,6 +149,26 @@ const RaritiesSection = () => (
     </div>
 );
 
+const MarketEventsSection = () => (
+    <div className="glass-panel p-6 rounded-xl animate-fade-in">
+        <h2 className="text-2xl font-bold text-indigo-400 mb-4">Market Events</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.values(MARKET_EVENTS).map(event => (
+                <div key={event.name} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex items-start gap-4">
+                    <div className="text-2xl mt-1">{event.icon}</div>
+                    <div>
+                        <h3 className="font-bold text-white">{event.name}</h3>
+                        <p className="text-sm text-slate-400">{event.description}</p>
+                        <div className="mt-2 text-xs text-slate-500">
+                            <span>Climate: {event.climate}</span> | <span>Rarity: {event.rarity}</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
 
 const DatabankPage = () => {
     const navigate = useNavigate();
@@ -160,6 +180,7 @@ const DatabankPage = () => {
         ranks: { label: 'Tiers', icon: BarChart, component: <RanksSection /> },
         climates: { label: 'Climates', icon: Cloud, component: <ClimatesSection /> },
         rarities: { label: 'Rarities', icon: Gem, component: <RaritiesSection /> },
+        events: { label: 'Events', icon: Megaphone, component: <MarketEventsSection /> },
     };
 
     return (
@@ -172,7 +193,7 @@ const DatabankPage = () => {
 
                 <h1 className="text-3xl font-bold text-white tracking-tight">Databank</h1>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                     {Object.entries(sections).map(([key, { label, icon }]) => (
                         <SectionButton
                             key={key}
