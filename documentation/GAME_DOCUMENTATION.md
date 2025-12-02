@@ -28,7 +28,7 @@ The game operates on a turn-based system with a real-time simulation phase.
 **Simulate (Live Feed):**
 * Watch the price action unfold on a live chart.
 * **Controls**: Pause, Speed Up (1x, 2x, 4x), or Skip to the end.
-* **Constraint**: You cannot exit a trade early. You must wait for the Horizon to complete.
+* **Early Exit**: You can choose to exit a trade early, but a 25% fee will be applied to any profits.
 
 **Liquidate:**
 * Positions close automatically at the end of the Horizon.
@@ -54,10 +54,10 @@ Every asset belongs to a specific tier that dictates its volatility and potentia
 
 **Market Climates**
 Global conditions that affect all assets for the current turn.
-*   **Bull Market (Trending Up)**: Lower volatility, positive momentum bias.
-*   **Bear Market (Trending Down)**: Higher volatility, negative momentum bias.
-*   **Neutral**: Balanced market conditions.
-*   **Volatile**: Extreme price swings in both directions.
+*   **Expansion**: Lower volatility, positive momentum bias.
+*   **Recession**: Higher volatility, negative momentum bias.
+*   **Stable**: Balanced market conditions.
+*   **Turbulent**: Extreme price swings in both directions.
 
 ### 1.4 Strategic Advice (Tips)
 
@@ -109,9 +109,9 @@ A facility to provide liquidity when insolvent or to leverage capital for massiv
 ### 3.2 Core Algorithms
 
 **Asset Generation Logic**
-*   Base Price: `Random(20, 520)`
+*   Base Price: `Random(20, 519)`
 *   Price Calculation: `Base Price * Rarity Multiplier * Random_Variation`
-*   Volatility: `(Random(0.1, 1.0) * Climate_Vol_Modifier)`
+*   Volatility: `(Random(0.2, 1.5) * Climate_Vol_Modifier)`
 *   Momentum: `(Random(0.9, 1.1) + Climate_Bias_Modifier)`
 
 **Simulation Algorithm (Random Walk)**
@@ -144,6 +144,7 @@ New_Price = Current_Price * (1 + Percent_Change);
     Revenue = Final_Market_Price * Units_Held
     New_Balance = Current_Balance + Revenue
     Net_Profit = Revenue - Cost_Basis
+    // If early exit (pullOut), 25% fee applied to profit: adjustedProfit = profit * 0.75
     ```
 
 3.  **Loan Calculations**
@@ -166,9 +167,10 @@ const RARITY = {
 ```
 
 **Climate Config:**
-*   Bull: Momentum +0.02, Volatility 0.8x
-*   Bear: Momentum -0.02, Volatility 1.2x
-*   Volatile: Momentum 0.0, Volatility 1.5x
+*   **Expansion**: Momentum +0.05, Volatility 0.7x
+*   **Recession**: Momentum -0.05, Volatility 1.4x
+*   **Turbulent**: Momentum 0.0, Volatility 2.0x
+*   **Stable**: Momentum 0.0, Volatility 1.0x
 
 ## Section 4: Visual Design System
 
