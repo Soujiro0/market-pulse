@@ -122,6 +122,14 @@ const useGameLogic = () => {
         setState(prevState => ({ ...prevState, username: name }));
     }, []);
 
+    const addMoney = useCallback((amount) => {
+        setState(prevState => ({ ...prevState, balance: prevState.balance + amount }));
+    }, []);
+
+    const setBalance = useCallback((amount) => {
+        setState(prevState => ({ ...prevState, balance: amount }));
+    }, []);
+
     // Save game state to localStorage
     const saveGame = useCallback(() => {
         localStorage.setItem('marketPulseSave_v3', JSON.stringify(state));
@@ -577,6 +585,8 @@ localStorage.removeItem('marketPulseSave_v3');
         updateProfileIcon,
         updateUsername,
         pullOut,
+        addMoney,
+        setBalance,
     };
 };
 

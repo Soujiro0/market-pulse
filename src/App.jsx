@@ -7,6 +7,7 @@ import LoadingOverlay from './components/ui/LoadingOverlay';
 import AlertModal from './components/ui/AlertModal';
 import LoanModal from './components/ui/LoanModal';
 import TerminalModal from './components/ui/TerminalModal';
+import { formatMoney } from './utils';
 
 const titleMap = {
     '/': 'Market Pulse - Home',
@@ -18,7 +19,7 @@ const titleMap = {
 };
 
 function App() {
-    const { state, closeAlertModal, addXp, resetData, randomizeMarket, setState } = useGame();
+    const { state, closeAlertModal, addXp, resetData, randomizeMarket, setState, addMoney, setBalance } = useGame();
     const location = useLocation();
     const [showTerminal, setShowTerminal] = useState(false);
 
@@ -59,12 +60,8 @@ function App() {
             case 'add_money':
                 const moneyToAdd = parseInt(args[0]);
                 if (!isNaN(moneyToAdd)) {
-                    let newBalance;
-                    setState(prevState => {
-                        newBalance = prevState.balance + moneyToAdd;
-                        return { ...prevState, balance: newBalance };
-                    });
-                    response = `Added ${formatMoney(moneyToAdd)}. New balance: ${formatMoney(newBalance)}`;
+                    addMoney(moneyToAdd);
+                    response = `Added ${formatMoney(moneyToAdd)}. New balance: ${formatMoney(state.balance + moneyToAdd)}`;
                 } else {
                     response = 'Usage: add_money <amount>';
                 }
@@ -90,7 +87,7 @@ function App() {
             case 'set_balance':
                 const newBalance = parseInt(args[0]);
                 if (!isNaN(newBalance)) {
-                    setState(prevState => ({ ...prevState, balance: newBalance }));
+                    setBalance(newBalance);
                     response = `Balance set to: ${formatMoney(newBalance)}`;
                 } else {
                     response = 'Usage: set_balance <amount>';
@@ -100,7 +97,7 @@ function App() {
                 response = `Unknown command: ${command}. Type 'help' for a list of commands.`;
         }
         respond(response);
-    }, [addXp, resetData, randomizeMarket, setState, state.balance, state.xp]);
+    }, [addXp, resetData, randomizeMarket, addMoney, setBalance, state.balance, state.xp]);
 
     const showHeaderAndFooter = location.pathname !== '/simulation';
 
