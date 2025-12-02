@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
 import { Play, Activity, DollarSign, Zap, User, BookOpen, Database, Megaphone } from 'lucide-react';
-import { TIERS } from '@/constants';
+import ranks from '@/data/ranks.json';
 import Announcements from '@/components/ui/Announcements';
 import GenericModal from '@/components/ui/GenericModal';
 import AnnouncementDetailModal from '@/components/ui/AnnouncementDetailModal';
@@ -21,12 +21,13 @@ const HomePage = () => {
     const closeDetailModal = () => {
         setSelectedAnnouncement(null);
     };
-    const { balance, turn, history, xp, tierIndex, rank, loan, profileIcon } = state;
+    const { balance, turn, history, xp, rankId, loan, profileIcon } = state;
 
     const totalWins = history.filter(h => h.profit > 0).length;
     const totalLosses = history.filter(h => h.profit < 0).length;
 
-    const tierName = TIERS[tierIndex];
+    const currentRank = ranks[rankId];
+    const tierName = currentRank.name;
     const xpPerRank = 1000;
     const currentRankXP = xp % xpPerRank;
     const xpProgress = (currentRankXP / xpPerRank) * 100;
@@ -50,7 +51,7 @@ const HomePage = () => {
                                         <img src={`/market-pulse/assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-sm font-bold px-3 py-1 rounded-full border-2 border-slate-900 shadow-lg pointer-events-none">
-                                        Rank {rank}
+                                        Rank {currentRank.level}
                                     </div>
                                 </div>
                                 <div className="flex-1 text-center md:text-left">

@@ -78,7 +78,4 @@ export const RARITY = {
 
 import PROFILES from '@/data/profiles.json';
 
-export const TIERS = ["Intern", "Analyst", "Associate", "Trader", "Broker", 
-    "Manager", "Director", "VP", "Executive", "Chairman"];
-
 export { PROFILES };

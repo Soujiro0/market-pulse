@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useReducer } from 'react';
-import { MARKET_EVENTS, RARITY, TIERS, PROFILES } from '@/constants';
+import { MARKET_EVENTS, RARITY, PROFILES } from '@/constants';
 import items from '@/data/items.json';
+import ranks from '@/data/ranks.json';
 import { formatMoney } from '@/utils';
 import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
 
@@ -54,8 +55,7 @@ const useGameLogic = () => {
                     loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
                     chartType: parsed.chartType || 'line',
                     xp: parsed.xp || 0,
-                    tierIndex: parsed.tierIndex || 0,
-                    rank: parsed.rank || 1,
+                    rankId: parsed.rankId || 0,
                     showLoadingOverlay: false,
                     simulationResult: null,
                     showSimulationResultOverlay: false,
@@ -91,8 +91,7 @@ const useGameLogic = () => {
             loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
             chartType: 'line',
             xp: 0,
-            tierIndex: 0,
-            rank: 1,
+            rankId: 0,
             showLoadingOverlay: false,
             simulationResult: null, // New state for simulation results
             showSimulationResultOverlay: false, // New state for showing result overlay
@@ -157,17 +156,13 @@ localStorage.removeItem('marketPulseSave_v3');
         setState(prevState => {
             const newXp = prevState.xp + amount;
             const xpPerRank = 1000;
-            const totalRanks = Math.floor(newXp / xpPerRank);
+            let newRankId = Math.floor(newXp / xpPerRank);
 
-            let newTierIndex = Math.floor(totalRanks / 5);
-            let newRank = (totalRanks % 5) + 1;
-
-            if (newTierIndex >= TIERS.length) {
-                newTierIndex = TIERS.length - 1;
-                newRank = 5;
+            if (newRankId >= ranks.length) {
+                newRankId = ranks.length - 1;
             }
 
-            return { ...prevState, xp: newXp, tierIndex: newTierIndex, rank: newRank };
+            return { ...prevState, xp: newXp, rankId: newRankId };
         });
     }, []);
 
@@ -330,7 +325,8 @@ localStorage.removeItem('marketPulseSave_v3');
                 loan: { active: true, amount: totalDue, dueTurn: prevState.turn + term, interestRate: rate },
                 showLoanModal: false,
             }));
-        } else {
+        }
+        else {
             setState(prevState => ({
                 ...prevState,
                 alertModal: { isOpen: true, title: 'Invalid Loan Amount', message: 'The maximum loan amount is $50,000. Please enter a valid amount.', type: 'error' }
@@ -456,23 +452,19 @@ localStorage.removeItem('marketPulseSave_v3');
             }];
 
             const xpPerRank = 1000;
-            const totalRanks = Math.floor((prevState.xp + earnedXp) / xpPerRank);
+            const newXp = prevState.xp + earnedXp;
+            let newRankId = Math.floor(newXp / xpPerRank);
 
-            let newTierIndex = Math.floor(totalRanks / 5);
-            let newRank = (totalRanks % 5) + 1;
-
-            if (newTierIndex >= TIERS.length) {
-                newTierIndex = TIERS.length - 1;
-                newRank = 5;
+            if (newRankId >= ranks.length) {
+                newRankId = ranks.length - 1;
             }
 
             return {
                 ...prevState,
                 balance: newBalance,
                 history: newHistory,
-                xp: prevState.xp + earnedXp,
-                tierIndex: newTierIndex,
-                rank: newRank,
+                xp: newXp,
+                rankId: newRankId,
                 simulationResult: {
                     initialInvestment,
                     finalValue,
@@ -518,23 +510,19 @@ localStorage.removeItem('marketPulseSave_v3');
             }];
 
             const xpPerRank = 1000;
-            const totalRanks = Math.floor((prevState.xp + earnedXp) / xpPerRank);
+            const newXp = prevState.xp + earnedXp;
+            let newRankId = Math.floor(newXp / xpPerRank);
 
-            let newTierIndex = Math.floor(totalRanks / 5);
-            let newRank = (totalRanks % 5) + 1;
-
-            if (newTierIndex >= TIERS.length) {
-                newTierIndex = TIERS.length - 1;
-                newRank = 5;
+            if (newRankId >= ranks.length) {
+                newRankId = ranks.length - 1;
             }
 
             return {
                 ...prevState,
                 balance: prevState.balance + adjustedProfit,
                 history: newHistory,
-                xp: prevState.xp + earnedXp,
-                tierIndex: newTierIndex,
-                rank: newRank,
+                xp: newXp,
+                rankId: newRankId,
                 simulationResult: {
                     initialInvestment,
                     finalValue: currentPrice * units, // Final value at pull out

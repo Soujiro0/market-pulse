@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
 import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User, Edit } from 'lucide-react';
-import { TIERS, CLIMATES, RARITY } from '@/constants';
+import { CLIMATES, RARITY } from '@/constants';
+import ranks from '@/data/ranks.json';
 import PROFILES from '@/data/profiles.json';
+import RanksModal from '@/components/ui/RanksModal';
 
 const EditProfileModal = ({ isOpen, onClose, currentUsername, currentIcon, onSave }) => {
     const [username, setUsername] = useState(currentUsername);
@@ -79,13 +81,14 @@ const EditProfileModal = ({ isOpen, onClose, currentUsername, currentIcon, onSav
 const ProfilePage = () => {
     const { state, resetData, updateProfileIcon, updateUsername } = useGame();
     const navigate = useNavigate();
-    const { history, xp, tierIndex, rank, profileIcon, username } = state;
+    const { history, xp, rankId, profileIcon, username } = state;
 
     const [currentPage, setCurrentPage] = useState(1);
     const [showResetModal, setShowResetModal] = useState(false);
     const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
     const [confirmText, setConfirmText] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
+    const [isRanksModalOpen, setIsRanksModalOpen] = useState(false);
     const itemsPerPage = 10;
 
     const handleSaveProfile = (newUsername, newIcon) => {
@@ -97,7 +100,8 @@ const ProfilePage = () => {
     const winRate = history.length > 0 ? Math.round((totalWins / history.length) * 100) : 0;
     const totalPL = history.reduce((acc, h) => acc + h.profit, 0);
 
-    const tierName = TIERS[tierIndex];
+    const currentRank = ranks[rankId];
+    const tierName = currentRank.name;
     const xpPerRank = 1000;
     const currentRankXP = xp % xpPerRank;
 
@@ -131,10 +135,10 @@ const ProfilePage = () => {
                                 id="profile-tier-icon"
                                 className="w-24 h-24 rounded-full bg-slate-800 border-4 border-indigo-400 flex items-center justify-center shadow-xl shadow-indigo-500/40 overflow-hidden"
                             >
-                                <img src={`/market-pulse/assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" />
+                                <img src={`assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" />
                             </div>
                             <div id="profile-tier-badge" className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full border-2 border-slate-900 shadow-lg animate-pulse">
-                                Rank {rank}
+                                Rank {currentRank.level}
                             </div>
                         </div>
                     </div>
@@ -147,13 +151,19 @@ const ProfilePage = () => {
                             <button onClick={() => setShowEditModal(true)} className="p-2 rounded-full bg-slate-700/50 hover:bg-slate-600 text-slate-300 hover:text-white transition-colors">
                                 <Edit className="w-4 h-4" />
                             </button>
-                        </div>                        <div className="mt-4">
-                            <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">
-                                <span>Progress to Next Rank</span>
-                                <span id="profile-xp-text">{currentRankXP} / {xpPerRank} XP</span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                <div id="profile-xp-bar" className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                        </div>
+                        <div className="mt-4 flex items-center gap-4">
+                            <button onClick={() => setIsRanksModalOpen(true)} className="w-12 h-12 hover:scale-110 transition-transform">
+                                <img src={`assets/ranks/${currentRank.image}`} alt={currentRank.name} className="w-full h-full object-contain" />
+                            </button>
+                            <div className="flex-grow">
+                                <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">
+                                    <span>Progress to Next Rank</span>
+                                    <span id="profile-xp-text">{currentRankXP} / {xpPerRank} XP</span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                    <div id="profile-xp-bar" className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -350,6 +360,12 @@ const ProfilePage = () => {
                 currentUsername={username}
                 currentIcon={profileIcon}
                 onSave={handleSaveProfile}
+            />
+
+            <RanksModal
+                isOpen={isRanksModalOpen}
+                onClose={() => setIsRanksModalOpen(false)}
+                currentRankId={rankId}
             />
 
             {/* Reset Confirmation Modal */}

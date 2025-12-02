@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import items from '@/data/items.json';
-import { TIERS, CLIMATES, RARITY } from '@/constants';
+import ranks from '@/data/ranks.json';
+import { CLIMATES, RARITY } from '@/constants';
 import { Box, Zap, Star, Crown, TrendingUp, TrendingDown, Minus, Activity, Package, BarChart, Cloud, Gem, X } from 'lucide-react';
 
 const RarityIcon = ({ iconName, className }) => {
@@ -80,19 +81,38 @@ const ItemsSection = ({ onItemSelected }) => (
     </div>
 );
 
-const RanksSection = () => (
-    <div className="glass-panel p-6 rounded-xl animate-fade-in">
-        <h2 className="text-2xl font-bold text-indigo-400 mb-4">Corporate Tiers</h2>
-        <ul className="space-y-2">
-            {TIERS.map((tier, index) => (
-                <li key={tier} className="bg-slate-800/50 p-3 rounded-md border border-slate-700">
-                    <span className="font-mono text-slate-400 mr-2">{index + 1}.</span>
-                    <span className="font-bold text-white">{tier}</span>
-                </li>
-            ))}
-        </ul>
-    </div>
-);
+const RanksSection = () => {
+    const groupedRanks = ranks.reduce((acc, rank) => {
+        if (!acc[rank.name]) {
+            acc[rank.name] = [];
+        }
+        acc[rank.name].push(rank);
+        return acc;
+    }, {});
+
+    return (
+        <div className="glass-panel p-6 rounded-xl animate-fade-in">
+            <h2 className="text-2xl font-bold text-indigo-400 mb-4">Corporate Tiers</h2>
+            <div className="space-y-4">
+                {Object.entries(groupedRanks).map(([tierName, tierRanks]) => (
+                    <div key={tierName}>
+                        <h3 className="font-bold text-white text-lg mb-2">{tierName}</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {tierRanks.map(rank => (
+                                <div key={rank.image} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center gap-2">
+                                    <div className="w-16 h-16">
+                                        <img src={`/assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" />
+                                    </div>
+                                    <span className="font-bold text-white text-sm">{rank.name} {rank.level}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const ClimatesSection = () => (
     <div className="glass-panel p-6 rounded-xl animate-fade-in">
