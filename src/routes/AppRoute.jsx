@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import App from '../App';
-import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage } from '@/pages';
+import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage, PlaytestStatsPage } from '@/pages';
 
 const AppRoutes = () => {
     return (
@@ -13,6 +13,7 @@ const AppRoutes = () => {
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="help" element={<HelpPage />} />
                 <Route path="databank" element={<DatabankPage />} />
+                <Route path="stats/playtest" element={<PlaytestStatsPage />} />
             </Route>
         </Routes>
     );

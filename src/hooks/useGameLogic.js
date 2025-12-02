@@ -324,6 +324,7 @@ localStorage.removeItem('marketPulseSave_v3');
                 balance: prevState.balance + amount,
                 loan: { active: true, amount: totalDue, dueTurn: prevState.turn + term, interestRate: rate },
                 showLoanModal: false,
+                history: [...prevState.history, { type: 'loan', action: 'take', amount, turn: prevState.turn }],
             }));
         }
         else {
@@ -341,6 +342,7 @@ localStorage.removeItem('marketPulseSave_v3');
                     ...prevState,
                     balance: prevState.balance - prevState.loan.amount,
                     loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
+                    history: [...prevState.history, { type: 'loan', action: 'pay', amount: prevState.loan.amount, turn: prevState.turn }],
                 };
             } else {
                 return {

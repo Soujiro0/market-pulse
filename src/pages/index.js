@@ -5,5 +5,6 @@ import SimulationPage from './SimulationPage'; // Import the actual SimulationPa
 import ProfilePage from './ProfilePage'; // Import the actual ProfilePage
 import HelpPage from './HelpPage'; // Import the actual HelpPage
 import DatabankPage from './DatabankPage'; // Import the actual DatabankPage
+import PlaytestStatsPage from './PlaytestStatsPage'; // Import the actual PlaytestStatsPage
 
-export { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage }; // Export all actual pages
+export { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage, PlaytestStatsPage }; // Export all actual pages
