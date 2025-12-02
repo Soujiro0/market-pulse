@@ -138,12 +138,66 @@ const HelpPage = () => {
             </div>
         </section>,
 
-        // Page 6: Loan Bank
+        // Page 6: Market Events
+        <section key="market-events">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-yellow-400" /> Market Events
+            </h3>
+            <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-base">
+                <p className="mb-4">Every 5 years (turns), a random global event may occur, overriding the standard market climate and introducing unique modifiers. These events create new opportunities and risks.</p>
+                <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-5 gap-4 font-bold text-slate-400 border-b border-slate-700 pb-2">
+                        <span>Event</span>
+                        <span className="col-span-2">Description</span>
+                        <span>Duration</span>
+                        <span>Effect</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-yellow-400">🚀 Golden Age</span>
+                        <span className="col-span-2 text-slate-400">A rare period of rapid growth.</span>
+                        <span>2 Turns</span>
+                        <span className="text-emerald-400">2x Profit</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-emerald-400">📈 Market Boom</span>
+                        <span className="col-span-2 text-slate-400">Sustained period of growth.</span>
+                        <span>5 Turns</span>
+                        <span className="text-slate-400">Expansion Climate</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-slate-400">🌊 Calm Waters</span>
+                        <span className="col-span-2 text-slate-400">Predictable and stable conditions.</span>
+                        <span>5 Turns</span>
+                        <span className="text-slate-400">Stable Climate</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-red-400">📉 Economic Downturn</span>
+                        <span className="col-span-2 text-slate-400">Challenging period of contraction.</span>
+                        <span>5 Turns</span>
+                        <span className="text-slate-400">Recession Climate</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-orange-400">🌪️ Wild Ride</span>
+                        <span className="col-span-2 text-slate-400">Extreme volatility and unpredictable swings.</span>
+                        <span>5 Turns</span>
+                        <span className="text-slate-400">Turbulent Climate</span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 items-center">
+                        <span className="font-bold text-red-600">💀 Great Depression</span>
+                        <span className="col-span-2 text-slate-400">A severe recession where losses are magnified.</span>
+                        <span>10 Turns</span>
+                        <span className="text-red-500">2x Loss</span>
+                    </div>
+                </div>
+            </div>
+        </section>,
+
+        // Page 7: Loan Bank
         <section key="loan-bank">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-indigo-400" /> Loan Bank
             </h3>
-            <div className="bg-red-950/10 p-6 rounded-xl border border-red-900/30 text-base space-y-4">
+            <div className="bg-red-950/10 p-6 rounded-xl border border-red-900/30 text-sm space-y-4">
                 <p className="text-slate-300">The Loan Bank provides liquidity when you are insolvent or wish to leverage capital for massive trades.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                     <div className="p-3 bg-red-900/20 rounded border border-red-900/30">
@@ -162,43 +216,43 @@ const HelpPage = () => {
             </div>
         </section>,
 
-        // Page 7: FAQs (Part 1)
+        // Page 8: FAQs (Part 1)
         <section key="faqs-part1">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-indigo-400" /> Frequently Asked Questions (1/2)
             </h3>
             <div className="space-y-4">
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">How do I make money?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">How do I make money?</h4>
                     <p className="text-sm text-slate-400">Purchase assets from Global Ventures, hold them for your chosen duration (Horizon), and profit when prices increase during simulation. Higher classification assets (Disruptive, Unicorn) offer greater multipliers but with increased volatility.</p>
                 </div>
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">What happens if I go negative?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">What happens if I go negative?</h4>
                     <p className="text-sm text-slate-400">You can trade while in debt (Overdraft), but you're limited to purchasing 1 unit at a time. Use the Loan Bank to get back to positive liquidity, but remember loans have interest and must be repaid within the agreed timeframe.</p>
                 </div>
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">Can I refresh the market?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">Can I refresh the market?</h4>
                     <p className="text-sm text-slate-400">Yes! Click the Refresh button in Global Ventures to reroll available assets. The cost starts at 5% of your balance at the start of each turn and increases by 1% per additional reroll. Climate remains the same when refreshing.</p>
                 </div>
             </div>
         </section>,
 
-        // Page 8: FAQs (Part 2)
+        // Page 9: FAQs (Part 2)
         <section key="faqs-part2">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-indigo-400" /> Frequently Asked Questions (2/2)
             </h3>
             <div className="space-y-4">
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">How do I advance to the next turn?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">How do I advance to the next turn?</h4>
                     <p className="text-sm text-slate-400">Complete a trade by selecting an asset, configuring your order (Horizon and Volume), executing the trade, and watching the simulation. Once finished, you'll automatically advance to the next turn with fresh market opportunities.</p>
                 </div>
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">What's the difference between Climate and Momentum?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">What's the difference between Climate and Momentum?</h4>
                     <p className="text-sm text-slate-400"><strong>Market Climate</strong> affects all assets globally (Expansion, Recession, Stable, Turbulent). <strong>Momentum</strong> is specific to each individual asset showing its current trend (Upward, Neutral, Downward).</p>
                 </div>
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
-                    <h4 className="font-bold text-indigo-400 text-base mb-2">How do I level up?</h4>
+                    <h4 className="font-bold text-indigo-400 text-sm mb-2">How do I level up?</h4>
                     <p className="text-sm text-slate-400">Complete trades to earn XP. Profitable trades give bonus XP. Progress through 10 tiers (Intern to Chairman), each with 5 ranks. Check your Profile page to see your current rank and XP progress.</p>
                 </div>
             </div>

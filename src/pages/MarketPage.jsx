@@ -242,6 +242,18 @@ const MarketPage = () => {
                                     </div>
                                 </div>
                             </div>
+                            {state.marketEvent && (
+                                <div className="ml-6 pl-6 border-l border-slate-700">
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Active Event</p>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{state.marketEvent.icon}</span>
+                                        <div>
+                                            <p className="font-mono text-lg font-bold text-yellow-400 animate-pulse">{state.marketEvent.name}</p>
+                                            <p className="text-xs text-slate-400">{state.eventTurnsLeft} years remaining</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

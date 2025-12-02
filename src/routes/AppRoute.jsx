@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import App from '@/App';
+import App from '../App';
 import { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage } from '@/pages';
 
 const AppRoutes = () => {

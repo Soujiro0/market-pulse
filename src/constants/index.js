@@ -1,3 +1,67 @@
+
+export const MARKET_EVENTS = {
+    GOLDEN_AGE: {
+        name: "Golden Age of Expansion",
+        description: "A rare period of rapid growth! All profits are doubled.",
+        duration: 2,
+        climate: 'Expansion',
+        profitMultiplier: 2,
+        lossMultiplier: 1,
+        icon: '🚀',
+        rarity: 'rare'
+    },
+    MARKET_BOOM: {
+        name: "Market Boom",
+        description: "The market is experiencing a sustained period of growth.",
+        duration: 5,
+        climate: 'Expansion',
+        profitMultiplier: 1,
+        lossMultiplier: 1,
+        icon: '📈',
+        rarity: 'common'
+    },
+    CALM_WATERS: {
+        name: "Calm Waters",
+        description: "A period of predictable and stable market conditions.",
+        duration: 5,
+        climate: 'Stable',
+        profitMultiplier: 1,
+        lossMultiplier: 1,
+        icon: '🌊',
+        rarity: 'common'
+    },
+    ECONOMIC_DOWNTURN: {
+        name: "Economic Downturn",
+        description: "The market is facing a challenging period of contraction.",
+        duration: 5,
+        climate: 'Recession',
+        profitMultiplier: 1,
+        lossMultiplier: 1,
+        icon: '📉',
+        rarity: 'common'
+    },
+    WILD_RIDE: {
+        name: "Wild Ride",
+        description: "Extreme volatility and unpredictable market swings.",
+        duration: 5,
+        climate: 'Turbulent',
+        profitMultiplier: 1,
+        lossMultiplier: 1,
+        icon: '🌪️',
+        rarity: 'common'
+    },
+    GREAT_DEPRESSION: {
+        name: "Great Depression",
+        description: "A severe recession where losses are magnified.",
+        duration: 10,
+        climate: 'Recession',
+        profitMultiplier: 1,
+        lossMultiplier: 2,
+        icon: '💀',
+        rarity: 'uncommon'
+    }
+};
+
 export const CLIMATES = {
     'Expansion': { icon: 'trending-up', color: 'text-emerald-400' },
     'Recession': { icon: 'trending-down', color: 'text-red-400' },

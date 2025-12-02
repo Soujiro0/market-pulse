@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useReducer } from 'react';
-import { RARITY, TIERS, PROFILES } from '@/constants';
+import { MARKET_EVENTS, RARITY, TIERS, PROFILES } from '@/constants';
 import items from '@/data/items.json';
 import { formatMoney } from '@/utils';
 import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
@@ -67,6 +67,11 @@ const useGameLogic = () => {
                     profileIcon: profileIcon,
                     username: parsed.username || 'OPERATOR_ID',
                     hasPulledOut: parsed.hasPulledOut || false, // New state for pull out system
+                    marketEvent: parsed.marketEvent || null,
+                    eventTurnsLeft: parsed.eventTurnsLeft || 0,
+                    showEventModal: parsed.showEventModal || false,
+                    finishedEvent: parsed.finishedEvent || null,
+                    showFinishedEventModal: parsed.showFinishedEventModal || false,
                 };
             } catch (e) {
                 console.error("Save file corrupted, starting new game.", e);
@@ -99,6 +104,12 @@ const useGameLogic = () => {
             profileIcon: PROFILES[0].image,
             username: 'OPERATOR_ID',
             hasPulledOut: false, // New state for pull out system
+            marketEvent: null,
+            eventTurnsLeft: 0,
+            newEvent: null,
+            showEventModal: false,
+            finishedEvent: null,
+            showFinishedEventModal: false,
         };
     });
 
@@ -166,45 +177,53 @@ localStorage.removeItem('marketPulseSave_v3');
 
     // Market Logic
     const randomizeMarket = useCallback(() => {
-        const rand = Math.random();
-        let climate = 'Stable';
-        let momentumBias = 1.0, volatilityMult = 1.0;
+        setState(prevState => {
+            let climate = prevState.marketEvent ? prevState.marketEvent.climate : 'Stable';
+            let momentumBias = 1.0, volatilityMult = 1.0;
 
-        if (rand < 0.25) { climate = 'Expansion'; momentumBias = 1.05; volatilityMult = 0.7; }
-        else if (rand < 0.50) { climate = 'Recession'; momentumBias = 0.95; volatilityMult = 1.4; }
-        else if (rand < 0.70) { climate = 'Turbulent'; volatilityMult = 2.0; }
+            if (!prevState.marketEvent) {
+                const rand = Math.random();
+                if (rand < 0.25) { climate = 'Expansion'; }
+                else if (rand < 0.50) { climate = 'Recession'; }
+                else if (rand < 0.70) { climate = 'Turbulent'; }
+            }
 
-        const shuffled = [...items.map((item, i) => ({
-            id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
-            basePrice: Math.floor(Math.random() * 500) + 20,
-            desc: item.flavorText || "Revolutionary tech."
-        }))].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 10);
+            if (climate === 'Expansion') { momentumBias = 1.05; volatilityMult = 0.7; }
+            else if (climate === 'Recession') { momentumBias = 0.95; volatilityMult = 1.4; }
+            else if (climate === 'Turbulent') { volatilityMult = 2.0; }
 
-        const newActiveProducts = selected.map(tpl => {
-            const rRoll = Math.random();
-            let rarity = RARITY.STANDARD;
-            if (rRoll > 0.95) rarity = RARITY.UNICORN;
-            else if (rRoll > 0.85) rarity = RARITY.DISRUPTIVE;
-            else if (rRoll > 0.60) rarity = RARITY.EMERGING;
+            const shuffled = [...items.map((item, i) => ({
+                id: `p${i}`, name: item.name, image: `assets/items/${item.image}`,
+                basePrice: Math.floor(Math.random() * 500) + 20,
+                desc: item.flavorText || "Revolutionary tech."
+            }))].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 10);
 
-            const priceVariation = 0.8 + (Math.random() * 0.4);
-            const currentPrice = tpl.basePrice * rarity.mult * priceVariation;
+            const newActiveProducts = selected.map(tpl => {
+                const rRoll = Math.random();
+                let rarity = RARITY.STANDARD;
+                if (rRoll > 0.95) rarity = RARITY.UNICORN;
+                else if (rRoll > 0.85) rarity = RARITY.DISRUPTIVE;
+                else if (rRoll > 0.60) rarity = RARITY.EMERGING;
 
-            let baseVol = 0.2 + Math.random() * 1.3;
-            if (rarity.id === 'unicorn') baseVol = 1.0 + (Math.random() * 0.5);
-            let finalVol = baseVol * volatilityMult;
+                const priceVariation = 0.8 + (Math.random() * 0.4);
+                const currentPrice = tpl.basePrice * rarity.mult * priceVariation;
 
-            let baseMom = 0.9 + (Math.random() * 0.2);
-            if (climate === 'Expansion') baseMom += 0.02;
-            if (climate === 'Recession') baseMom -= 0.02;
+                let baseVol = 0.2 + Math.random() * 1.3;
+                if (rarity.id === 'unicorn') baseVol = 1.0 + (Math.random() * 0.5);
+                let finalVol = baseVol * volatilityMult;
 
-            return {
-                ...tpl, currentPrice, volatility: finalVol, momentum: baseMom, rarity,
-                hype: Math.floor(Math.random() * 100)
-            };
+                let baseMom = 0.9 + (Math.random() * 0.2);
+                if (climate === 'Expansion') baseMom += 0.02;
+                if (climate === 'Recession') baseMom -= 0.02;
+
+                return {
+                    ...tpl, currentPrice, volatility: finalVol, momentum: baseMom, rarity,
+                    hype: Math.floor(Math.random() * 100)
+                };
+            });
+            return { ...prevState, marketClimate: climate, activeProducts: newActiveProducts };
         });
-        setState(prevState => ({ ...prevState, marketClimate: climate, activeProducts: newActiveProducts }));
     }, []);
 
     // Reroll Market (keeps climate, refreshes products)
@@ -391,24 +410,34 @@ localStorage.removeItem('marketPulseSave_v3');
 
     const finishSimulation = useCallback((finalPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice) => {
         dispatchSimulation({ type: 'FINISH' });
-        const finalValue = finalPrice * units;
-        const profit = finalValue - initialInvestment;
-
+        
         setState(prevState => {
+            let profit = (finalPrice * units) - initialInvestment;
+            
+            // Apply event multipliers
+            if (prevState.marketEvent) {
+                if (profit > 0 && prevState.marketEvent.profitMultiplier) {
+                    profit *= prevState.marketEvent.profitMultiplier;
+                } else if (profit < 0 && prevState.marketEvent.lossMultiplier) {
+                    profit *= prevState.marketEvent.lossMultiplier;
+                }
+            }
+
             let newBalance = prevState.balance;
             let earnedXp = 50;
 
-            if (!prevState.hasPulledOut) { // Only add profit if not pulled out early
-                newBalance += finalValue;
+            if (!prevState.hasPulledOut) {
+                newBalance += (initialInvestment + profit); // Recalculate final value based on modified profit
                 if (profit > 0) {
                     earnedXp += Math.floor(profit / 100);
                 }
             } else {
-                // If pulled out, profit was already added (minus fee), so just update XP if any
-                if (profit > 0) { // Use original profit for XP calculation
+                if (profit > 0) {
                     earnedXp += Math.floor(profit / 100);
                 }
             }
+
+            const finalValue = initialInvestment + profit;
 
             const newHistory = [...prevState.history, {
                 turn: prevState.turn,
@@ -422,7 +451,8 @@ localStorage.removeItem('marketPulseSave_v3');
                 units: units,
                 buyPrice: initialInvestment / units,
                 sellPrice: finalPrice,
-                climate: prevState.marketClimate
+                climate: prevState.marketClimate,
+                event: prevState.marketEvent ? prevState.marketEvent.name : null
             }];
 
             const xpPerRank = 1000;
@@ -451,7 +481,7 @@ localStorage.removeItem('marketPulseSave_v3');
                     peakPrice,
                     lowestPrice,
                 },
-                hasPulledOut: false, // Reset for next simulation
+                hasPulledOut: false,
             };
         });
     }, []);
@@ -529,20 +559,97 @@ localStorage.removeItem('marketPulseSave_v3');
     const nextTurn = useCallback(() => {
         setState(prevState => {
             const newTurn = prevState.turn + 1;
-            const newRerollLimit = newTurn % 5 === 0 ? 5 : prevState.rerollLimit;
+            let newRerollLimit = prevState.rerollLimit;
+            if (newTurn % 5 === 0) {
+                newRerollLimit = 5;
+            }
+
+            let currentEvent = prevState.marketEvent;
+            let turnsLeft = prevState.eventTurnsLeft;
+            let finishedEvent = null;
+            let showFinishedModal = false;
+
+            // Decrease event timer
+            if (turnsLeft > 0) {
+                turnsLeft--;
+            }
+
+            // If event ends, clear it and trigger finished modal
+            if (prevState.marketEvent && turnsLeft === 0) {
+                finishedEvent = prevState.marketEvent;
+                showFinishedModal = true;
+                currentEvent = null;
+            }
+
+            // Every 5 turns, check for a new event, but not if one just finished
+            if (newTurn % 5 === 0 && !currentEvent && !finishedEvent) {
+                const rand = Math.random();
+                const eventKeys = Object.keys(MARKET_EVENTS);
+                let chosenEventKey;
+
+                if (rand < 0.05) { // 5% chance for Golden Age
+                    chosenEventKey = 'GOLDEN_AGE';
+                } else {
+                    const commonEvents = eventKeys.filter(k => MARKET_EVENTS[k].rarity === 'common');
+                    const uncommonEvents = eventKeys.filter(k => MARKET_EVENTS[k].rarity === 'uncommon');
+                    
+                    const regularRand = Math.random();
+                    if (regularRand < 0.8) { // 80% chance for a common event
+                        chosenEventKey = commonEvents[Math.floor(Math.random() * commonEvents.length)];
+                    } else { // 20% chance for an uncommon event
+                        chosenEventKey = uncommonEvents[Math.floor(Math.random() * uncommonEvents.length)];
+                    }
+                }
+                
+                currentEvent = MARKET_EVENTS[chosenEventKey];
+                turnsLeft = currentEvent.duration;
+                
+                return {
+                    ...prevState,
+                    turn: newTurn,
+                    rerollCostMultiplier: 5,
+                    rerollBasePrice: 0,
+                    rerollCount: 0,
+                    rerollLimit: newRerollLimit,
+                    marketEvent: currentEvent,
+                    eventTurnsLeft: turnsLeft,
+                    newEvent: currentEvent, // Set the new event to trigger modal
+                    showEventModal: true, // Show the modal
+                };
+            }
 
             return {
                 ...prevState,
                 turn: newTurn,
-                rerollCostMultiplier: 5, // Reset multiplier
-                rerollBasePrice: 0, // Reset base price
-                rerollCount: 0, // Reset reroll count
-                rerollLimit: newRerollLimit, // Reset reroll limit every 5 turns
+                rerollCostMultiplier: 5,
+                rerollBasePrice: 0,
+                rerollCount: 0,
+                rerollLimit: newRerollLimit,
+                marketEvent: currentEvent,
+                eventTurnsLeft: turnsLeft,
+                finishedEvent: finishedEvent,
+                showFinishedEventModal: showFinishedModal,
             };
         });
         checkLoanStatus();
         randomizeMarket();
     }, [checkLoanStatus, randomizeMarket]);
+
+    const closeEventModal = useCallback(() => {
+        setState(prevState => ({
+            ...prevState,
+            showEventModal: false,
+            newEvent: null,
+        }));
+    }, []);
+
+    const closeFinishedEventModal = useCallback(() => {
+        setState(prevState => ({
+            ...prevState,
+            showFinishedEventModal: false,
+            finishedEvent: null,
+        }));
+    }, []);
 
     // Initial load and market randomization
     useEffect(() => {
@@ -587,6 +694,8 @@ localStorage.removeItem('marketPulseSave_v3');
         pullOut,
         addMoney,
         setBalance,
+        closeEventModal,
+        closeFinishedEventModal,
     };
 };
 

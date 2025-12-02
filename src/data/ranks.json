@@ -1,0 +1,252 @@
+[
+  {
+    "name": "Intern",
+    "level": 1,
+    "image": "Intern 1.webp"
+  },
+  {
+    "name": "Intern",
+    "level": 2,
+    "image": "Intern 2.webp"
+  },
+  {
+    "name": "Intern",
+    "level": 3,
+    "image": "Intern 3.webp"
+  },
+  {
+    "name": "Intern",
+    "level": 4,
+    "image": "Intern 4.webp"
+  },
+  {
+    "name": "Intern",
+    "level": 5,
+    "image": "Intern 5.webp"
+  },
+  {
+    "name": "Analyst",
+    "level": 1,
+    "image": "Analyst 1.webp"
+  },
+  {
+    "name": "Analyst",
+    "level": 2,
+    "image": "Analyst 2.webp"
+  },
+  {
+    "name": "Analyst",
+    "level": 3,
+    "image": "Analyst 3.webp"
+  },
+  {
+    "name": "Analyst",
+    "level": 4,
+    "image": "Analyst 4.webp"
+  },
+  {
+    "name": "Analyst",
+    "level": 5,
+    "image": "Analyst 5.webp"
+  },
+  {
+    "name": "Associate",
+    "level": 1,
+    "image": "Associate 1.webp"
+  },
+  {
+    "name": "Associate",
+    "level": 2,
+    "image": "Associate 2.webp"
+  },
+  {
+    "name": "Associate",
+    "level": 3,
+    "image": "Associate 3.webp"
+  },
+  {
+    "name": "Associate",
+    "level": 4,
+    "image": "Associate 4.webp"
+  },
+  {
+    "name": "Associate",
+    "level": 5,
+    "image": "Associate 5.webp"
+  },
+  {
+    "name": "Trader",
+    "level": 1,
+    "image": "Trader 1.webp"
+  },
+  {
+    "name": "Trader",
+    "level": 2,
+    "image": "Trader 2.webp"
+  },
+  {
+    "name": "Trader",
+    "level": 3,
+    "image": "Trader 3.webp"
+  },
+  {
+    "name": "Trader",
+    "level": 4,
+    "image": "Trader 4.webp"
+  },
+  {
+    "name": "Trader",
+    "level": 5,
+    "image": "Trader 5.webp"
+  },
+  {
+    "name": "Broker",
+    "level": 1,
+    "image": "Broker 1.webp"
+  },
+  {
+    "name": "Broker",
+    "level": 2,
+    "image": "Broker 2.webp"
+  },
+  {
+    "name": "Broker",
+    "level": 3,
+    "image": "Broker 3.webp"
+  },
+  {
+    "name": "Broker",
+    "level": 4,
+    "image": "Broker 4.webp"
+  },
+  {
+    "name": "Broker",
+    "level": 5,
+    "image": "Broker 5.webp"
+  },
+  {
+    "name": "Manager",
+    "level": 1,
+    "image": "Manager 1.webp"
+  },
+  {
+    "name": "Manager",
+    "level": 2,
+    "image": "Manager 2.webp"
+  },
+  {
+    "name": "Manager",
+    "level": 3,
+    "image": "Manager 3.webp"
+  },
+  {
+    "name": "Manager",
+    "level": 4,
+    "image": "Manager 4.webp"
+  },
+  {
+    "name": "Manager",
+    "level": 5,
+    "image": "Manager 5.webp"
+  },
+  {
+    "name": "Director",
+    "level": 1,
+    "image": "Director 1.webp"
+  },
+  {
+    "name": "Director",
+    "level": 2,
+    "image": "Director 2.webp"
+  },
+  {
+    "name": "Director",
+    "level": 3,
+    "image": "Director 3.webp"
+  },
+  {
+    "name": "Director",
+    "level": 4,
+    "image": "Director 4.webp"
+  },
+  {
+    "name": "Director",
+    "level": 5,
+    "image": "Director 5.webp"
+  },
+  {
+    "name": "VP",
+    "level": 1,
+    "image": "VP 1.webp"
+  },
+  {
+    "name": "VP",
+    "level": 2,
+    "image": "VP 2.webp"
+  },
+  {
+    "name": "VP",
+    "level": 3,
+    "image": "VP 3.webp"
+  },
+  {
+    "name": "VP",
+    "level": 4,
+    "image": "VP 4.webp"
+  },
+  {
+    "name": "VP",
+    "level": 5,
+    "image": "VP 5.webp"
+  },
+  {
+    "name": "Executive",
+    "level": 1,
+    "image": "Executive 1.webp"
+  },
+  {
+    "name": "Executive",
+    "level": 2,
+    "image": "Executive 2.webp"
+  },
+  {
+    "name": "Executive",
+    "level": 3,
+    "image": "Executive 3.webp"
+  },
+  {
+    "name": "Executive",
+    "level": 4,
+    "image": "Executive 4.webp"
+  },
+  {
+    "name": "Executive",
+    "level": 5,
+    "image": "Executive 5.webp"
+  },
+  {
+    "name": "Chairman",
+    "level": 1,
+    "image": "Chairman 1.webp"
+  },
+  {
+    "name": "Chairman",
+    "level": 2,
+    "image": "Chairman 2.webp"
+  },
+  {
+    "name": "Chairman",
+    "level": 3,
+    "image": "Chairman 3.webp"
+  },
+  {
+    "name": "Chairman",
+    "level": 4,
+    "image": "Chairman 4.webp"
+  },
+  {
+    "name": "Chairman",
+    "level": 5,
+    "image": "Chairman 5.webp"
+  }
+]

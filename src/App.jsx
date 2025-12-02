@@ -7,6 +7,8 @@ import LoadingOverlay from './components/ui/LoadingOverlay';
 import AlertModal from './components/ui/AlertModal';
 import LoanModal from './components/ui/LoanModal';
 import TerminalModal from './components/ui/TerminalModal';
+import EventModal from './components/ui/EventModal'; // Import EventModal
+import FinishedEventModal from './components/ui/FinishedEventModal'; // Import FinishedEventModal
 import { formatMoney } from './utils';
 
 const titleMap = {
@@ -19,7 +21,7 @@ const titleMap = {
 };
 
 function App() {
-    const { state, closeAlertModal, addXp, resetData, randomizeMarket, setState, addMoney, setBalance } = useGame();
+    const { state, closeAlertModal, addXp, resetData, randomizeMarket, addMoney, setBalance, closeEventModal, closeFinishedEventModal, nextTurn } = useGame();
     const location = useLocation();
     const [showTerminal, setShowTerminal] = useState(false);
 
@@ -55,7 +57,8 @@ function App() {
 - add_xp <amount>: Add experience points.
 - reset_game: Reset all game data.
 - randomize_market: Randomize the market immediately.
-- set_balance <amount>: Set your balance to a specific amount.`;
+- set_balance <amount>: Set your balance to a specific amount.
+- skip_year <amount>: Skip a specified number of years (turns).`;
                 break;
             case 'add_money':
                 const moneyToAdd = parseInt(args[0]);
@@ -93,11 +96,22 @@ function App() {
                     response = 'Usage: set_balance <amount>';
                 }
                 break;
+            case 'skip_year':
+                const yearsToSkip = parseInt(args[0]);
+                if (!isNaN(yearsToSkip) && yearsToSkip > 0) {
+                    for (let i = 0; i < yearsToSkip; i++) {
+                        nextTurn();
+                    }
+                    response = `Skipped ${yearsToSkip} year(s). Current year: ${state.turn + yearsToSkip}`;
+                } else {
+                    response = 'Usage: skip_year <amount> (amount must be a positive number)';
+                }
+                break;
             default:
                 response = `Unknown command: ${command}. Type 'help' for a list of commands.`;
         }
         respond(response);
-    }, [addXp, resetData, randomizeMarket, addMoney, setBalance, state.balance, state.xp]);
+    }, [addXp, resetData, randomizeMarket, addMoney, setBalance, state.balance, state.xp, state.turn, nextTurn]);
 
     const showHeaderAndFooter = location.pathname !== '/simulation';
 
@@ -114,7 +128,7 @@ function App() {
             {showHeaderAndFooter && <Footer />}
 
             <LoadingOverlay isLoading={state.showLoadingOverlay} />
-            <AlertModal 
+            <AlertModal
                 isOpen={state.alertModal?.isOpen || false}
                 onClose={closeAlertModal}
                 title={state.alertModal?.title || ''}
@@ -124,7 +138,23 @@ function App() {
             <LoanModal />
             <TerminalModal isOpen={showTerminal} onClose={() => setShowTerminal(false)} onCommand={handleTerminalCommand} />
 
-        <img src="" alt="" />
+            {/* Event Modal */}
+            {state.showEventModal && state.newEvent && (
+                <EventModal
+                    event={state.newEvent}
+                    onClose={closeEventModal}
+                />
+            )}
+
+            {/* Finished Event Modal */}
+            {state.showFinishedEventModal && state.finishedEvent && (
+                <FinishedEventModal
+                    event={state.finishedEvent}
+                    onClose={closeFinishedEventModal}
+                />
+            )}
+
+            <img src="" alt="" />
         </div>
     );
 }
