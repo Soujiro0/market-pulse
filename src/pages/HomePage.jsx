@@ -68,7 +68,7 @@ const HomePage = () => {
     const closeDetailModal = () => {
         setSelectedAnnouncement(null);
     };
-    const { balance, turn, history, xp, rankId, loan, profileIcon } = state;
+    const { balance, turn, history, xp, rankId, loan, profileIcon, marketEvent, eventTurnsLeft } = state;
 
     const totalWins = history.filter(h => h.profit > 0).length;
     const totalLosses = history.filter(h => h.profit < 0).length;
@@ -246,6 +246,50 @@ const HomePage = () => {
                                         </div>
                                         <span className="text-red-500 text-xs font-bold px-3 py-1 bg-red-900/30 rounded-full border border-red-900">
                                             {loan.dueTurn - turn} Years Remaining
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Current Market Event */}
+                            {marketEvent && (
+                                <div className={`glass-panel p-5 rounded-2xl border ${
+                                    marketEvent.climate === 'Bullish' ? 'border-green-500/50 bg-green-500/5' :
+                                    marketEvent.climate === 'Bearish' ? 'border-red-500/50 bg-red-500/5' :
+                                    'border-yellow-500/50 bg-yellow-500/5'
+                                }`}>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                marketEvent.climate === 'Bullish' ? 'bg-green-900/30' :
+                                                marketEvent.climate === 'Bearish' ? 'bg-red-900/30' :
+                                                'bg-yellow-900/30'
+                                            }`}>
+                                                <Activity className={`w-5 h-5 ${
+                                                    marketEvent.climate === 'Bullish' ? 'text-green-400' :
+                                                    marketEvent.climate === 'Bearish' ? 'text-red-400' :
+                                                    'text-yellow-400'
+                                                } animate-pulse`} />
+                                            </div>
+                                            <div>
+                                                <p className={`font-bold text-sm uppercase ${
+                                                    marketEvent.climate === 'Bullish' ? 'text-green-400' :
+                                                    marketEvent.climate === 'Bearish' ? 'text-red-400' :
+                                                    'text-yellow-400'
+                                                }`}>
+                                                    {marketEvent.climate} Market Event
+                                                </p>
+                                                <p className="text-slate-400 text-xs mt-1">
+                                                    {marketEvent.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                                            marketEvent.climate === 'Bullish' ? 'text-green-400 bg-green-900/30 border-green-900' :
+                                            marketEvent.climate === 'Bearish' ? 'text-red-400 bg-red-900/30 border-red-900' :
+                                            'text-yellow-400 bg-yellow-900/30 border-yellow-900'
+                                        }`}>
+                                            {eventTurnsLeft} Years Left
                                         </span>
                                     </div>
                                 </div>
