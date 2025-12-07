@@ -5,7 +5,7 @@ import { GameProvider } from './contexts/GameContext'
 import { BrowserRouter } from 'react-router-dom'
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter basename='market-pulse'>
+  <BrowserRouter>
     <GameProvider>
       <AppRoutes /> {/* Render AppRoutes */}
     </GameProvider>
