@@ -1,5 +1,8 @@
 # Market Pulse: Restructured Data Documentation
 
+**Version**: 0.0.1-build.20251207.1  
+**Last Updated**: December 7, 2025
+
 This document outlines the new restructured data format, separating player data from game state data.
 
 ## Overview

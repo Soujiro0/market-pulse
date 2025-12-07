@@ -1,5 +1,8 @@
 # Market Pulse
 
+**Version**: 0.0.1-build.20251207.1  
+**Last Updated**: December 7, 2025
+
 ![Market Pulse Logo](public/assets/Market%20Pulse%20Logo.png)
 
 ## Description
