@@ -1,9 +1,9 @@
 # Market Pulse: Comprehensive Documentation
 
-**Version**: 0.0.1-build.20251203.4
+**Version**: 0.0.1-build.20251207.1
 **Platform**: Web (Single Page Application)
 **Genre**: Strategic Business Simulation
-**Last Updated**: December 7, 2024
+**Last Updated**: December 7, 2025
 
 ---
 
@@ -213,13 +213,75 @@ Climb the corporate ladder by earning XP through successful trades.
 
 ---
 
-### 1.8 Strategic Advice (Tips)
+### 1.8 Profile Page & Data Management
+
+The Profile page provides comprehensive statistics, history tracking, and data management tools.
+
+#### **Statistics Overview**
+- **Win Rate**: Percentage of profitable trades
+- **Total Turns**: Number of completed transactions
+- **Net Lifetime P/L**: Total profit/loss across all trades
+- **Rank Progress**: Visual XP bar showing progress to next rank
+
+#### **Transaction History**
+View detailed logs of all completed trades with pagination:
+- Year (Turn number)
+- Asset name
+- Asset class (rarity tier)
+- Market climate
+- Volume (units traded)
+- Buy/Sell prices
+- Profit/Loss
+
+#### **Profile Customization**
+- Edit username
+- Choose from 8 avatar icons
+- Changes saved automatically
+
+#### **Data Management (Export/Import)**
+
+**Export Player Data**
+- Creates an encrypted backup of your complete game progress
+- Includes all player stats, transaction history, and game state
+- Data is encrypted using AES encryption to prevent tampering
+- Downloaded as `.json` file with timestamp
+- Use case: Backup before major updates, share progress, or play across devices
+
+**Import Player Data**
+- Restore previously exported save files
+- Automatic validation and decryption
+- Version compatibility checking
+- Error handling for corrupted or tampered files
+- Page auto-refreshes after successful import
+
+**Security Features:**
+- All exported data is AES-encrypted with a secret key
+- Prevents manual editing of save files
+- Import fails if data has been modified or corrupted
+- Clear error messages for troubleshooting
+
+**Common Import Errors:**
+- "Invalid save file" - File is corrupted or tampered with
+- "Invalid save file format" - Missing required data fields
+- "Incompatible version" - Save from different game version
+- "File content corrupted" - File cannot be read properly
+
+#### **Danger Zone (Reset Data)**
+- Permanently deletes all game progress
+- Two-step confirmation required
+- Must type "DELETE" to confirm
+- Cannot be undone
+
+---
+
+### 1.9 Strategic Advice (Tips)
 
 #### **For Beginners**
 1. **Start Conservative**: Focus on Standard and Emerging tier assets
 2. **Watch the Climate**: Expansion favors long positions, Recession favors quick exits
 3. **Don't Overextend**: Avoid massive debt in early game
 4. **Use Events**: Market events can multiply your gains - time your big trades accordingly
+5. **Backup Your Progress**: Export your data regularly to prevent loss
 
 #### **Advanced Strategies**
 1. **Event Arbitrage**: Take loans during favorable events (Tech Boom, AI Revolution)
@@ -245,6 +307,7 @@ Climb the corporate ladder by earning XP through successful trades.
 - **Styling**: Tailwind CSS 4.1.17
 - **Charts**: Chart.js 4.5.1 + React-ChartJS-2 5.3.1
 - **Icons**: Lucide React 0.555.0
+- **Encryption**: crypto-js (AES encryption for save files)
 - **Build Tool**: Vite (Rolldown) 7.2.5
 
 #### **State Management**
@@ -311,6 +374,52 @@ if (oldData && !playerData && !gameStateData) {
   };
 }
 ```
+
+#### **Data Export/Import System**
+
+**Export Format (Encrypted):**
+```json
+{
+  "version": "v4",
+  "timestamp": "2025-12-07T12:34:56.789Z",
+  "player": { /* player data object */ },
+  "gameState": { /* game state data object */ }
+}
+```
+
+**Encryption Process:**
+1. Data is serialized to JSON string
+2. AES encryption applied with secret key
+3. Encrypted string saved to `.json` file
+4. Filename: `market-pulse-save-{timestamp}.json`
+
+**Import Process:**
+1. File content read as text
+2. AES decryption with secret key
+3. JSON parsing and validation
+4. Version compatibility check
+5. Data structure validation
+6. State update if all checks pass
+
+**Error Handling:**
+```javascript
+// Import validation
+if (!jsonData) {
+  throw new Error('Decryption failed');
+}
+if (!parsedData.player || !parsedData.gameState) {
+  throw new Error('Invalid data structure');
+}
+if (parsedData.version !== 'v4') {
+  throw new Error('Incompatible version');
+}
+```
+
+**Utility Functions:**
+- `exportPlayerData(playerData, gameStateData)` - Returns `{success, error?}`
+- `importPlayerData(encryptedData)` - Returns `{success, data?, error?}`
+
+Located in: `/src/utils/playerData.js`
 
 ---
 
@@ -828,7 +937,27 @@ Located at `src/pages/data.json` - contains a realistic mid-game state for testi
 
 ## Section 4: Version History
 
-### v0.0.1-build.20251203.4 (Current)
+### v0.0.1-build.20251207.1 (Current)
+**Major Changes:**
+- ✅ Added encrypted export/import functionality for player data
+- ✅ Implemented AES encryption for save file protection
+- ✅ Added data management UI to Profile page
+- ✅ Created comprehensive error handling for import failures
+
+**New Features:**
+- Export player data as encrypted JSON backup
+- Import player data from encrypted backup files
+- Data tampering prevention via encryption
+- User-friendly error modals for import issues
+- Profile page data management section
+
+**Security Enhancements:**
+- AES encryption for all exported data
+- Import validation and version checking
+- Protection against save file manipulation
+- Clear error messages for corrupted files
+
+### v0.0.1-build.20251203.4
 **Major Changes:**
 - ✅ Separated player data from game state in localStorage
 - ✅ Removed component-specific state from persistence layer
@@ -962,5 +1091,5 @@ totalCost = baseCost * rerollCostMultiplier
 **End of Documentation**
 
 *For support or contributions, visit the project repository*
-*Last Updated: December 7, 2024*
-*Version: 0.0.1-build.20251203.4*
+*Last Updated: December 7, 2025*
+*Version: 0.0.1-build.20251207.1*

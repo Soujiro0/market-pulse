@@ -107,6 +107,74 @@ When loading old saves (`marketPulseSave_v3`), the system will automatically:
 3. Save in the new format
 4. Delete the old save
 
+## Export/Import Data Structure
+
+When exporting data through the Profile page, the system creates an encrypted JSON file with the following structure (before encryption):
+
+```json
+{
+  "version": "v4",
+  "timestamp": "2025-12-07T12:34:56.789Z",
+  "player": {
+    "balance": 10000,
+    "xp": 0,
+    "rankId": 0,
+    "profileIcon": "profile_0.webp",
+    "username": "OPERATOR_ID",
+    "history": [],
+    "loan": {
+      "active": false,
+      "amount": 0,
+      "dueTurn": 0,
+      "interestRate": 0.05
+    }
+  },
+  "gameState": {
+    "turn": 1,
+    "marketViewMode": "grid",
+    "marketClimate": "Stable",
+    "activeProducts": [],
+    "currentProduct": null,
+    "investmentAmount": 0,
+    "units": 0,
+    "duration": 0,
+    "chartType": "line",
+    "rerollCostMultiplier": 5,
+    "rerollBasePrice": 0,
+    "rerollCount": 0,
+    "rerollLimit": 5,
+    "hasPulledOut": false,
+    "marketEvent": null,
+    "eventTurnsLeft": 0
+  }
+}
+```
+
+### Export/Import Properties
+
+- `version` (string): Save file version identifier ("v4")
+- `timestamp` (string): ISO 8601 timestamp of when the save was created
+- `player` (object): Complete player data snapshot
+- `gameState` (object): Complete game state snapshot
+
+### Security
+
+- All exported data is encrypted using **AES encryption** via crypto-js
+- Prevents tampering or manual editing of save files
+- Import process validates:
+  - Successful decryption
+  - Valid JSON structure
+  - Presence of required fields (player, gameState)
+  - Compatible version number
+
+### Error Handling
+
+Import failures return descriptive error messages:
+- **"Invalid save file"** - Decryption failed (corrupted or tampered)
+- **"Invalid save file format"** - Missing required data fields
+- **"Incompatible version"** - Save from different game version
+- **"File content corrupted"** - JSON parsing failed
+
 ## Benefits
 
 1. **Better Organization**: Clear separation of concerns
@@ -114,3 +182,6 @@ When loading old saves (`marketPulseSave_v3`), the system will automatically:
 3. **Cleaner Persistence**: Only game-relevant data is saved
 4. **Improved Performance**: Smaller localStorage entries
 5. **Better Testing**: Easier to mock player vs game state
+6. **Data Security**: Encrypted backups prevent save manipulation
+7. **Cross-Device Play**: Export and import saves across different devices
+8. **Backup & Recovery**: Safe backups before updates or experiments
