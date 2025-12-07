@@ -1,118 +1,116 @@
-# Market Pulse: Data Structure Documentation
+# Market Pulse: Restructured Data Documentation
 
-This document outlines the primary JSON-formatted data structures used in the Market Pulse game. The main state is managed within the `useGameLogic` hook and stored in `localStorage` under the key `marketPulseSave_v3`.
+This document outlines the new restructured data format, separating player data from game state data.
 
-## Main Game State (`state` object)
+## Overview
 
-This is the root object that holds all persistent game data.
+The data has been reorganized into two main categories:
+1. **Player Data** - Information specific to the player
+2. **Game State Data** - Current game state and market information
+
+Component-specific states (modals, overlays, etc.) have been moved to individual components.
+
+## Player Data
+
+Stored under `marketPulseSave_player_v4` in localStorage:
 
 ```json
 {
   "balance": 10000,
-  "turn": 1,
-  "marketViewMode": "grid",
-  "marketClimate": "Neutral",
-  "activeProducts": [],
-  "currentProduct": null,
-  "investmentAmount": 0,
-  "units": 0,
-  "duration": 0,
+  "xp": 0,
+  "rankId": 0,
+  "profileIcon": "profile_0.webp",
+  "username": "OPERATOR_ID",
   "history": [],
   "loan": {
     "active": false,
     "amount": 0,
     "dueTurn": 0,
     "interestRate": 0.05
-  },
+  }
+}
+```
+
+### Player Data Properties
+
+- `balance` (number): Player's current money
+- `xp` (number): Player's experience points
+- `rankId` (number): Current rank/tier index
+- `profileIcon` (string): Profile icon filename
+- `username` (string): Player's username
+- `history` (array): Array of trade history entries
+- `loan` (object): Current loan information
+
+## Game State Data
+
+Stored under `marketPulseSave_gameState_v4` in localStorage:
+
+```json
+{
+  "turn": 1,
+  "marketViewMode": "grid",
+  "marketClimate": "Stable",
+  "activeProducts": [],
+  "currentProduct": null,
+  "investmentAmount": 0,
+  "units": 0,
+  "duration": 0,
   "chartType": "line",
-  "xp": 0,
-  "tierIndex": 0,
-  "rank": 1,
-  "showLoadingOverlay": false,
-  "simulationResult": null,
-  "showSimulationResultOverlay": false,
-  "showLoanModal": false
+  "rerollCostMultiplier": 5,
+  "rerollBasePrice": 0,
+  "rerollCount": 0,
+  "rerollLimit": 5,
+  "hasPulledOut": false,
+  "marketEvent": null,
+  "eventTurnsLeft": 0
 }
 ```
 
-### State Properties
+### Game State Properties
 
--   `balance` (Number): The player's current cash on hand. Can be negative (debt).
--   `turn` (Number): The current turn number of the game.
--   `marketViewMode` (String): The current view mode for the market page. Can be `'grid'` or `'list'`.
--   `marketClimate` (String): The current global market climate. (e.g., `'Bull Market'`, `'Bear Market'`, `'Neutral'`, `'Volatile'`).
--   `activeProducts` (Array): An array of `Product` objects currently available in the market.
--   `currentProduct` (Object | null): The `Product` object selected for trading.
--   `investmentAmount` (Number): The total cost basis for the current trade.
--   `units` (Number): The number of units selected for the current trade.
--   `duration` (Number): The number of days (horizon) selected for the current trade.
--   `history` (Array): An array of `HistoryEntry` objects, logging all completed trades.
--   `loan` (Object): A `Loan` object representing the player's current debt status.
--   `chartType` (String): The preferred chart type for the simulation view. Can be `'line'` or `'bar'`.
--   `xp` (Number): The player's total experience points.
--   `tierIndex` (Number): The index of the player's current career tier (from the `TIERS` constant).
--   `rank` (Number): The player's current rank within their tier (1-5).
--   `showLoadingOverlay` (Boolean): Controls the visibility of the global loading overlay.
--   `simulationResult` (Object | null): An object containing the results of the last simulation.
--   `showSimulationResultOverlay` (Boolean): Controls the visibility of the simulation result overlay.
--   `showLoanModal` (Boolean): Controls the visibility of the loan modal.
+- `turn` (number): Current turn/year in the game
+- `marketViewMode` (string): "grid" or "list" view mode
+- `marketClimate` (string): Current market climate ("Stable", "Expansion", "Recession", "Turbulent")
+- `activeProducts` (array): Array of products currently available in the market
+- `currentProduct` (object|null): Product currently being traded
+- `investmentAmount` (number): Amount invested in current trade
+- `units` (number): Number of units purchased
+- `duration` (number): Duration for simulation
+- `chartType` (string): Chart display type ("line", "bar", etc.)
+- `rerollCostMultiplier` (number): Multiplier for reroll costs
+- `rerollBasePrice` (number): Base price for rerolls this turn
+- `rerollCount` (number): Number of rerolls used this turn
+- `rerollLimit` (number): Maximum rerolls available
+- `hasPulledOut` (boolean): Whether player has pulled out of investment
+- `marketEvent` (object|null): Current active market event
+- `eventTurnsLeft` (number): Turns remaining for current event
 
-## `Product` Object
+## Component-Specific States (Not Persisted)
 
-Represents a single tradable asset in the market.
+These states are now managed within their respective components and are not saved to localStorage:
 
-```json
-{
-  "id": "p0",
-  "name": "Quantum Toaster",
-  "icon": "🍞",
-  "basePrice": 120,
-  "desc": "Browns bread using quantum tunneling.",
-  "currentPrice": 135.50,
-  "volatility": 0.85,
-  "momentum": 1.01,
-  "rarity": {
-    "id": "standard",
-    "label": "Standard",
-    "mult": 1,
-    "color": "text-slate-400",
-    "bg": "bg-standard",
-    "border": "card-base",
-    "icon": "box",
-    "glow": "card-base"
-  },
-  "hype": 75
-}
-```
+- `showLoadingOverlay` - Moved to App.jsx
+- `showSimulationResultOverlay` - Moved to SimulationPage.jsx
+- `simulationResult` - Moved to SimulationPage.jsx
+- `alertModal` - Moved to App.jsx
+- `showLoanModal` - Moved to LoanModal.jsx
+- `showEventModal` - Moved to App.jsx
+- `showFinishedEventModal` - Moved to App.jsx
+- `newEvent` - Moved to App.jsx
+- `finishedEvent` - Moved to App.jsx
 
-## `HistoryEntry` Object
+## Migration
 
-Represents a single completed trade in the player's history.
+When loading old saves (`marketPulseSave_v3`), the system will automatically:
+1. Split data into player and game state
+2. Remove component-specific states
+3. Save in the new format
+4. Delete the old save
 
-```json
-{
-  "turn": 5,
-  "productName": "Quantum Toaster",
-  "rarityLabel": "Standard",
-  "rarityId": "standard",
-  "rarityIcon": "box",
-  "profit": 500.25,
-  "units": 10,
-  "buyPrice": 135.50,
-  "sellPrice": 185.52,
-  "climate": "Bull Market"
-}
-```
+## Benefits
 
-## `Loan` Object
-
-Represents the player's loan status.
-
-```json
-{
-  "active": true,
-  "amount": 5250,
-  "dueTurn": 15,
-  "interestRate": 0.05
-}
-```
+1. **Better Organization**: Clear separation of concerns
+2. **Easier Maintenance**: Component states are where they're used
+3. **Cleaner Persistence**: Only game-relevant data is saved
+4. **Improved Performance**: Smaller localStorage entries
+5. **Better Testing**: Easier to mock player vs game state

@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useGame } from './contexts/GameContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -21,9 +21,56 @@ const titleMap = {
 };
 
 function App() {
-    const { state, closeAlertModal, addXp, resetData, randomizeMarket, addMoney, setBalance, closeEventModal, closeFinishedEventModal, nextTurn } = useGame();
+    const { state, addXp, resetData, randomizeMarket, addMoney, setBalance, nextTurn } = useGame();
     const location = useLocation();
     const [showTerminal, setShowTerminal] = useState(false);
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+    const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
+    const [showEventModal, setShowEventModal] = useState(false);
+    const [currentEvent, setCurrentEvent] = useState(null);
+    const [showFinishedEventModal, setShowFinishedEventModal] = useState(false);
+    const [finishedEvent, setFinishedEvent] = useState(null);
+    
+    // Track previous event state to detect changes
+    const prevEventRef = useRef(state.marketEvent);
+    const prevTurnRef = useRef(state.turn);
+
+    // Detect new events
+    useEffect(() => {
+        const prevEvent = prevEventRef.current;
+        const currentEvent = state.marketEvent;
+        const prevTurn = prevTurnRef.current;
+        const currentTurn = state.turn;
+
+        // New event started
+        if (!prevEvent && currentEvent && currentTurn > prevTurn) {
+            setCurrentEvent(currentEvent);
+            setShowEventModal(true);
+        }
+
+        // Event ended
+        if (prevEvent && !currentEvent && state.eventTurnsLeft === 0 && currentTurn > prevTurn) {
+            setFinishedEvent(prevEvent);
+            setShowFinishedEventModal(true);
+        }
+
+        prevEventRef.current = currentEvent;
+        prevTurnRef.current = currentTurn;
+    }, [state.marketEvent, state.eventTurnsLeft, state.turn]);
+
+    const closeAlertModal = useCallback(() => {
+        setAlertModal({ isOpen: false, title: '', message: '', type: 'info' });
+    }, []);
+
+    const closeEventModal = useCallback(() => {
+        setShowEventModal(false);
+        setCurrentEvent(null);
+    }, []);
+
+    const closeFinishedEventModal = useCallback(() => {
+        setShowFinishedEventModal(false);
+        setFinishedEvent(null);
+    }, []);
 
     useEffect(() => {
         const baseTitle = 'Market Pulse';
@@ -127,29 +174,31 @@ function App() {
 
             {showHeaderAndFooter && <Footer />}
 
-            <LoadingOverlay isLoading={state.showLoadingOverlay} />
+            <LoadingOverlay isLoading={showLoadingOverlay} />
             <AlertModal
-                isOpen={state.alertModal?.isOpen || false}
+                isOpen={alertModal.isOpen}
                 onClose={closeAlertModal}
-                title={state.alertModal?.title || ''}
-                message={state.alertModal?.message || ''}
-                type={state.alertModal?.type || 'info'}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
             />
-            <LoanModal />
+            <LoanModal 
+                showAlert={(title, message, type) => setAlertModal({ isOpen: true, title, message, type })}
+            />
             <TerminalModal isOpen={showTerminal} onClose={() => setShowTerminal(false)} onCommand={handleTerminalCommand} />
 
             {/* Event Modal */}
-            {state.showEventModal && state.newEvent && (
+            {showEventModal && currentEvent && (
                 <EventModal
-                    event={state.newEvent}
+                    event={currentEvent}
                     onClose={closeEventModal}
                 />
             )}
 
             {/* Finished Event Modal */}
-            {state.showFinishedEventModal && state.finishedEvent && (
+            {showFinishedEventModal && finishedEvent && (
                 <FinishedEventModal
-                    event={state.finishedEvent}
+                    event={finishedEvent}
                     onClose={closeFinishedEventModal}
                 />
             )}

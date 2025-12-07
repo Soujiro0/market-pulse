@@ -1,8 +1,11 @@
 # Market Pulse: Comprehensive Documentation
 
-**Version**: 2.8.2
+**Version**: 0.0.1-build.20251203.4
 **Platform**: Web (Single Page Application)
 **Genre**: Strategic Business Simulation
+**Last Updated**: December 7, 2024
+
+---
 
 ## Section 1: Player's Guide (User Manual)
 
@@ -14,183 +17,629 @@ Market Pulse is a high-stakes financial strategy game where players assume the r
 
 The game operates on a turn-based system with a real-time simulation phase.
 
-**Analyze (The Feed):**
-* Review 10 randomized Global Ventures (assets) generated each turn.
-* Assess value based on Price, Rarity Tier, Hype (Demand), and the global Market Climate.
-* Toggle between Grid View and List View for different data perspectives.
+#### **Analyze (The Feed)**
+* Review 10 randomized Global Ventures (assets) generated each turn
+* Assess value based on Price, Rarity Tier, Hype (Demand), and the global Market Climate
+* Toggle between Grid View and List View for different data perspectives
+* **New:** Use the Reroll feature to refresh the market (costs increase with turn number, 5 rerolls max per turn)
 
-**Commit (The Desk):**
-* Select an asset to enter the Trading Desk.
-* **Set Horizon**: Choose how long to hold the asset (30-365 days). Longer holds offer higher risk/reward.
-* **Set Volume**: Choose how many units to buy.
-* **Overdraft Strategy**: You can purchase more units than your cash allows, pushing your balance into negative (Debt). This leverages potential gains but increases bankruptcy risk.
+#### **Commit (The Desk)**
+* Select an asset to enter the Trading Desk
+* **Set Horizon**: Choose how long to hold the asset (30-365 days). Longer holds offer higher risk/reward
+* **Set Volume**: Choose how many units to buy
+* **Overdraft Strategy**: You can purchase more units than your cash allows, pushing your balance into negative (Debt). This leverages potential gains but increases bankruptcy risk
 
-**Simulate (Live Feed):**
-* Watch the price action unfold on a live chart.
-* **Controls**: Pause, Speed Up (1x, 2x, 4x), or Skip to the end.
-* **Early Exit**: You can choose to exit a trade early, but a 25% fee will be applied to any profits.
+#### **Simulate (Live Feed)**
+* Watch the price action unfold on a live chart
+* **Controls**: Pause, Speed Up (1x, 2x, 4x), or Skip to the end
+* **Early Exit**: You can choose to exit a trade early
+  - **Fee Structure**: 25% fee applies ONLY to profits (not losses)
+  - If trading at a loss, you can exit without penalty
+  - Formula: `adjustedProfit = Math.max(0, profit * 0.75)`
 
-**Liquidate:**
-* Positions close automatically at the end of the Horizon.
-* Profit/Loss is realized immediately.
-* XP is awarded based on trade performance.
+#### **Liquidate**
+* Positions close automatically at the end of the Horizon
+* Profit/Loss is realized immediately
+* XP is awarded based on trade performance
+* **XP Formula**: `50 + Math.max(0, Math.floor(profit / 100))`
+
+---
 
 ### 1.3 Game Elements
 
-**Resources**
-* **Liquidity**: Your cash on hand. Can be negative.
-* **XP (Experience)**: Gained by trading. Unlocks new Ranks.
-* **Turn**: Advances by 1 after every completed trade.
+#### **Resources**
+* **Liquidity**: Your cash on hand. Can be negative (triggers loan warnings)
+* **XP (Experience)**: Gained by trading. Unlocks new Ranks
+* **Turn**: Advances by 1 after every completed trade
 
-**Asset Classes (Rarity)**
+#### **Asset Classes (Rarity)**
 Every asset belongs to a specific tier that dictates its volatility and potential return.
 
-| Icon | Tier Name | Characteristics | Multiplier |
-|---|---|---|---|
-| 📦 | Standard | Low volatility, stable, safe. | 1.0x |
-| ⚡ | Emerging | Growth potential, moderate risk. | 1.5x |
-| ⭐ | Disruptive | High volatility, market movers. | 3.0x |
-| 👑 | Unicorn | Extreme risk/reward. The "1%". | 10.0x |
+| Icon | Tier Name | Rarity ID | Characteristics | Volatility Multiplier |
+|------|-----------|-----------|-----------------|----------------------|
+| 📦 | Standard | `standard` | Low volatility, stable, safe | 1.0x |
+| ⚡ | Emerging | `emerging` | Growth potential, moderate risk | 1.5x |
+| ⭐ | Disruptive | `disruptive` | High volatility, market movers | 3.0x |
+| 👑 | Unicorn | `unicorn` | Extreme risk/reward. The "1%" | 10.0x |
 
-**Market Climates**
+**Rarity Drop Rates:**
+- Standard: 60%
+- Emerging: 25%
+- Disruptive: 12%
+- Unicorn: 3%
+
+#### **Market Climates**
 Global conditions that affect all assets for the current turn.
-*   **Expansion**: Lower volatility, positive momentum bias.
-*   **Recession**: Higher volatility, negative momentum bias.
-*   **Stable**: Balanced market conditions.
-*   **Turbulent**: Extreme price swings in both directions.
 
-### 1.4 Strategic Advice (Tips)
+| Climate | Effect | Volatility | Momentum Bias |
+|---------|--------|------------|---------------|
+| 🌱 **Expansion** | Bull market conditions | Lower | Positive (+5% to +15%) |
+| 📉 **Recession** | Bear market conditions | Higher | Negative (-10% to -5%) |
+| ⚖️ **Stable** | Balanced market | Normal | Neutral (-2% to +2%) |
+| 🌪️ **Turbulent** | Extreme swings | Extreme | Chaotic (-15% to +15%) |
 
-*   **Leverage Debt Wisely**: Taking loans early can boost your buying power for safe, Standard tier assets. But beware of compound interest—always check the total repayment before signing.
-*   **Match Horizon to Rarity**:
-    *   Standard/Emerging: Good for short-term flips (30-60 days).
-    *   Unicorns: Require long horizons (200+ days) to realize their massive 10x potential, as they are extremely volatile in the short term.
-*   **Climate Awareness**:
-    *   In a Bull Market, be aggressive. Most assets drift upwards.
-    *   In a Bear Market, trade small volumes or sit out turns to preserve capital.
+**Climate Probabilities:**
+- Stable: 40%
+- Expansion: 25%
+- Recession: 25%
+- Turbulent: 10%
 
-## Section 2: Advanced Mechanics
+---
 
-### 2.1 The Leveling System (Career Ladder)
+### 1.4 Market Events System
 
-Progression is measured by your Corporate Tier. There are 10 Tiers, and each Tier consists of 5 Ranks.
-*   **XP Requirement**: 1000 XP to advance 1 Rank.
-*   **Promotion**: Advancing 5 Ranks promotes you to the next Tier.
+**New in v0.0.1:** Random market events can occur that dramatically affect trading outcomes.
 
-**Tier List:**
-1.  Intern
-2.  Analyst
-3.  Associate
-4.  Trader
-5.  Broker
-6.  Manager
-7.  Director
-8.  VP
-9.  Executive
-10. Chairman
+#### **Event Structure**
+- **Duration**: Events last 3-10 turns
+- **Effects**: Modify profit/loss multipliers
+- **Visibility**: Active event displayed in UI with countdown
+- **Persistence**: Events continue even if you switch products
 
-### 2.2 Corporate Finance (The Loan Bank)
+#### **Event Rarity Tiers**
 
-A facility to provide liquidity when insolvent or to leverage capital for massive trades.
-*   **Credit Limit**: $50,000 Maximum Principal.
-*   **Interest Structure**:
-    *   Base Rate: 5% fixed.
-    *   Time Premium: +1% for every 5 turns of loan duration.
-*   **Lock-in**: Loans cannot be repaid before their maturity date.
-*   **Default & Liquidation**: If a loan remains unpaid for 10 turns after its due date, the bank automatically seizes assets to cover the debt (Liquidation), drastically reducing your Net Capital.
+| Rarity | Drop Rate | Typical Effects |
+|--------|-----------|-----------------|
+| Common | 60% | Modest multipliers (0.8x-1.2x) |
+| Uncommon | 25% | Moderate multipliers (0.5x-1.5x) |
+| Rare | 12% | Strong multipliers (0.3x-2x) |
+| Legendary | 3% | Extreme multipliers (0.1x-5x) |
 
-## Section 3: Developer Reference (Technical Manual)
+#### **Example Events**
 
-### 3.1 Technical Architecture
+**Great Depression** (Uncommon, Recession)
+- Duration: 10 turns
+- Profit Multiplier: 1x
+- Loss Multiplier: 2x
+- Effect: Losses are doubled, gains remain normal
 
-**Stack**: React 18, HTML5, Tailwind CSS (Styling), Chart.js (Visualization), Lucide Icons (UI), Vanilla JavaScript (Logic).
-**State Management**: Singleton `MarketGame` class holding balance, turn, activeProducts, loan, xp, history, etc.
+**Tech Boom** (Rare, Expansion)
+- Duration: 8 turns
+- Profit Multiplier: 2x
+- Loss Multiplier: 1x
+- Effect: Gains are doubled, losses remain normal
 
-### 3.2 Core Algorithms
+**AI Revolution** (Legendary, Expansion)
+- Duration: 5 turns
+- Profit Multiplier: 3x
+- Loss Multiplier: 0.5x
+- Effect: Triple gains, halved losses
 
-**Asset Generation Logic**
-*   Base Price: `Random(20, 519)`
-*   Price Calculation: `Base Price * Rarity Multiplier * Random_Variation`
-*   Volatility: `(Random(0.2, 1.5) * Climate_Vol_Modifier)`
-*   Momentum: `(Random(0.9, 1.1) + Climate_Bias_Modifier)`
+**Black Swan Event** (Legendary, Turbulent)
+- Duration: 3 turns
+- Profit Multiplier: 0.5x
+- Loss Multiplier: 3x
+- Effect: Extreme downside risk
 
-**Simulation Algorithm (Random Walk)**
-The price curve is pre-calculated or generated tick-by-tick using a modified random walk:
+---
+
+### 1.5 Loan & Debt System
+
+#### **Going Negative**
+- You can spend more than your balance (overdraft)
+- Automatic loan is triggered when balance < $0
+- Warning modal appears on first negative balance
+
+#### **Loan Terms**
+- **Base Interest Rate**: 5% per turn
+- **Premium Tiers**:
+  - Small Loan (<$10k): No premium (5% total)
+  - Medium Loan ($10k-$50k): +2% premium (7% total)
+  - Large Loan (>$50k): +4% premium (9% total)
+- **Repayment Period**: 20 turns grace period
+- **Compounding**: Interest compounds every turn
+
+#### **Loan Mechanics**
 ```javascript
-Step_Noise = (Math.random() * 2) - 1; // Range -1 to 1
-Volatility_Factor = Product.volatility * 0.05;
-Momentum_Bias = (Product.momentum - 1) * 0.05;
-
-Percent_Change = (Step_Noise * Volatility_Factor) + Momentum_Bias;
-New_Price = Current_Price * (1 + Percent_Change);
+// Interest calculation
+const premium = loanAmount > 50000 ? 0.04 : 
+                loanAmount > 10000 ? 0.02 : 0;
+const totalRate = 0.05 + premium;
+newLoanAmount = loanAmount * (1 + totalRate);
 ```
 
-**XP Calculation Formula**
-*   Base XP: 50 points per completed trade.
-*   Performance Bonus: `Math.floor(Net_Profit / 100)` (Only applied if profit > 0).
-*   Example: A $5,000 profit yields 50 (Base) + 50 (Bonus) = 100 XP.
+#### **Consequences**
+- **Turn 20**: Final warning
+- **Turn 21+**: Game Over (Liquidation)
+- All assets seized, game resets
 
-### 3.3 Transaction Logic (Formulas)
+#### **Loan Management**
+- **Take Loan**: Request additional capital (if loan not active)
+- **Pay Loan**: Repay partial or full amount
+- **Strategic Use**: Leverage loans to multiply gains during favorable events
 
-1.  **Buying (Initialization)**
-    ```
-    Cost_Basis = Unit_Price * Units_Selected
-    New_Balance = Current_Balance - Cost_Basis
-    // Note: New_Balance is allowed to be negative (Overdraft).
-    ```
+---
 
-2.  **Selling (Liquidation)**
-    ```
-    Revenue = Final_Market_Price * Units_Held
-    New_Balance = Current_Balance + Revenue
-    Net_Profit = Revenue - Cost_Basis
-    // If early exit (pullOut), 25% fee applied to profit: adjustedProfit = profit * 0.75
-    ```
+### 1.6 Reroll Market Feature
 
-3.  **Loan Calculations**
-    ```
-    Premium_Rate = Math.floor(Duration_Turns / 5) * 0.01;
-    Total_Interest_Rate = 0.05 + Premium_Rate;
-    Repayment_Amount = Principal * (1 + Total_Interest_Rate);
-    ```
+#### **Functionality**
+- Refresh the 10 available products without completing a trade
+- Useful when no attractive opportunities are present
+- Does not advance turn counter
 
-### 3.4 Configuration Constants
-
-**Rarity Config:**
+#### **Cost Structure**
 ```javascript
-const RARITY = {
-    STANDARD:   { mult: 1.0, color: 'slate', icon: 'box' },
-    EMERGING:   { mult: 1.5, color: 'blue', icon: 'zap' },
-    DISRUPTIVE: { mult: 3.0, color: 'purple', icon: 'star' },
-    UNICORN:    { mult: 10.0, color: 'yellow', icon: 'crown' }
+// Dynamic pricing based on turn progression
+const baseCost = 50 + (turn * 10);
+const totalCost = baseCost * rerollCostMultiplier;
+```
+
+**Example Costs:**
+- Turn 1: $60 (50 + 1*10)
+- Turn 10: $150 (50 + 10*10)
+- Turn 50: $550 (50 + 50*10)
+
+#### **Limitations**
+- Maximum 5 rerolls per turn
+- Counter resets after completing a trade
+- Cannot reroll if balance too low
+
+---
+
+### 1.7 Rank Progression System
+
+Climb the corporate ladder by earning XP through successful trades.
+
+| Rank ID | Title | XP Required | Icon | Unlocks |
+|---------|-------|-------------|------|---------|
+| 0 | Intern | 0 | 🎓 | Base gameplay |
+| 1 | Analyst | 100 | 📊 | Basic analytics |
+| 2 | Associate | 300 | 💼 | Enhanced market view |
+| 3 | Manager | 600 | 🏢 | Advanced strategies |
+| 4 | Director | 1000 | 🎯 | Premium features |
+| 5 | VP | 1500 | 💎 | Executive tools |
+| 6 | SVP | 2100 | 🏆 | Elite status |
+| 7 | Chairman | 3000 | 👑 | Master tier |
+
+---
+
+### 1.8 Strategic Advice (Tips)
+
+#### **For Beginners**
+1. **Start Conservative**: Focus on Standard and Emerging tier assets
+2. **Watch the Climate**: Expansion favors long positions, Recession favors quick exits
+3. **Don't Overextend**: Avoid massive debt in early game
+4. **Use Events**: Market events can multiply your gains - time your big trades accordingly
+
+#### **Advanced Strategies**
+1. **Event Arbitrage**: Take loans during favorable events (Tech Boom, AI Revolution)
+2. **Climate Rotation**: Switch strategies based on market climate
+3. **Rarity Sniping**: Hunt for Unicorns during Expansion climates
+4. **Debt Leverage**: Strategic debt can 10x your returns - but manage risk carefully
+
+#### **Risk Management**
+1. **25% Rule**: Never let debt exceed 25% of expected gains
+2. **Event Timing**: Exit positions before negative events hit
+3. **Diversification**: Don't go all-in on a single asset
+4. **Horizon Matching**: Match holding period to climate stability
+
+---
+
+## Section 2: Technical Documentation
+
+### 2.1 Technical Architecture
+
+#### **Framework & Libraries**
+- **Frontend**: React 18.3.1
+- **Routing**: React Router DOM 6.30.2
+- **Styling**: Tailwind CSS 4.1.17
+- **Charts**: Chart.js 4.5.1 + React-ChartJS-2 5.3.1
+- **Icons**: Lucide React 0.555.0
+- **Build Tool**: Vite (Rolldown) 7.2.5
+
+#### **State Management**
+- **Architecture**: React Context API
+- **Hook**: `useGameLogic` (custom hook)
+- **Persistence**: LocalStorage with dual-key structure
+
+#### **Data Structure (v4)**
+
+**Player Data** (`marketPulseSave_player_v4`):
+```json
+{
+  "balance": 10000,
+  "xp": 0,
+  "rankId": 0,
+  "username": "OPERATOR_ID",
+  "profileIcon": "profile_0.webp",
+  "history": [],
+  "loan": {
+    "active": false,
+    "amount": 0,
+    "dueTurn": 0,
+    "interestRate": 0.05
+  }
 }
 ```
 
-**Climate Config:**
-*   **Expansion**: Momentum +0.05, Volatility 0.7x
-*   **Recession**: Momentum -0.05, Volatility 1.4x
-*   **Turbulent**: Momentum 0.0, Volatility 2.0x
-*   **Stable**: Momentum 0.0, Volatility 1.0x
+**Game State** (`marketPulseSave_gameState_v4`):
+```json
+{
+  "turn": 1,
+  "marketClimate": "Stable",
+  "marketViewMode": "grid",
+  "activeProducts": [],
+  "currentProduct": null,
+  "investmentAmount": 0,
+  "units": 0,
+  "duration": 365,
+  "chartType": "line",
+  "rerollCount": 0,
+  "rerollLimit": 5,
+  "rerollBasePrice": 50,
+  "rerollCostMultiplier": 5,
+  "hasPulledOut": false,
+  "marketEvent": null,
+  "eventTurnsLeft": 0
+}
+```
 
-## Section 4: Visual Design System
-
-**Theme**: "High-Frequency Trading Terminal" / Cyberpunk Finance.
-
-**Color Palette (Dark Mode):**
-*   Backgrounds: Slate 900 (#0f172a), Slate 950 (#020617).
-*   Primary Action: Indigo 500 (#6366f1).
-*   Positive Data: Emerald 400 (#34d399).
-*   Negative Data: Red 500 (#ef4444).
-*   Special: Yellow/Gold for Unicorns, Purple for Disruptive assets.
-
-**Typography:**
-*   UI Text: Inter (Clean Sans-Serif).
-*   Data/Numbers: JetBrains Mono
-
-**Art Style**
-
-JSON Format Context for Art Style
+#### **Version Migration**
+The system automatically migrates old save formats (v1-v3) to v4 on load:
 ```javascript
+// v3 → v4 migration
+if (oldData && !playerData && !gameStateData) {
+  playerData = {
+    balance: oldData.balance,
+    xp: oldData.xp,
+    // ... extract player fields
+  };
+  gameStateData = {
+    turn: oldData.turn,
+    marketClimate: oldData.marketClimate,
+    // ... extract game state fields
+  };
+}
+```
+
+---
+
+### 2.2 Core Game Logic
+
+#### **Price Simulation Algorithm**
+
+```javascript
+// Geometric Brownian Motion with adjustments
+const dt = 1 / 365; // Daily time step
+const drift = (momentum - 1) + climateDrift;
+const randomShock = (Math.random() - 0.5) * volatility * Math.sqrt(dt);
+const priceChange = currentPrice * (drift * dt + randomShock);
+newPrice = Math.max(1, currentPrice + priceChange);
+```
+
+**Momentum Calculation:**
+```javascript
+// Hype influences momentum
+const hypeFactor = (product.hype / 100) * 0.1;
+momentum = baseMomentum + hypeFactor;
+```
+
+**Volatility Modifiers:**
+```javascript
+// Rarity affects volatility
+const rarityMultiplier = {
+  standard: 1.0,
+  emerging: 1.5,
+  disruptive: 3.0,
+  unicorn: 10.0
+};
+adjustedVolatility = baseVolatility * rarityMultiplier[rarity];
+```
+
+#### **Climate Effects**
+
+```javascript
+const climateEffects = {
+  Stable: { volatilityMod: 0, driftRange: [-0.02, 0.02] },
+  Expansion: { volatilityMod: -0.1, driftRange: [0.05, 0.15] },
+  Recession: { volatilityMod: 0.1, driftRange: [-0.10, -0.05] },
+  Turbulent: { volatilityMod: 0.3, driftRange: [-0.15, 0.15] }
+};
+```
+
+#### **Event Multiplier Application**
+
+```javascript
+// Applied at trade completion
+if (marketEvent) {
+  if (profit > 0) {
+    profit *= marketEvent.profitMultiplier;
+  } else {
+    profit *= marketEvent.lossMultiplier;
+  }
+}
+```
+
+---
+
+### 2.3 File Structure
+
+```
+market-pulse/
+├── src/
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── AlertModal.jsx         # Generic alert dialogs
+│   │   │   ├── LoadingOverlay.jsx     # Loading states
+│   │   │   ├── LoanModal.jsx          # Loan confirmation
+│   │   │   ├── LoanBankModal.jsx      # Loan management UI
+│   │   │   └── SimulationResultOverlay.jsx
+│   │   ├── Dashboard.jsx              # Overview panel
+│   │   ├── MarketFeed.jsx             # Product grid/list
+│   │   ├── ProductCard.jsx            # Individual asset card
+│   │   ├── TopBar.jsx                 # Header with stats
+│   │   └── LiveChart.jsx              # Price chart
+│   ├── hooks/
+│   │   └── useGameLogic.js            # Core game state & logic
+│   ├── pages/
+│   │   ├── MarketPage.jsx             # Main market view
+│   │   ├── TradingPage.jsx            # Trade execution
+│   │   ├── SimulationPage.jsx         # Live simulation
+│   │   └── data.json                  # Test save data
+│   ├── App.jsx                        # Root component
+│   ├── main.jsx                       # Entry point
+│   └── index.css                      # Global styles
+├── public/
+│   └── assets/
+│       ├── items/                     # Product images
+│       └── profiles/                  # Profile icons
+├── documentation/
+│   ├── GAME_DOCUMENTATION.md          # This file
+│   ├── DATA_STRUCTURE_NEW.md          # Data schema docs
+│   └── MIGRATION_SUMMARY.md           # v3→v4 migration guide
+└── package.json                       # Dependencies & version
+```
+
+---
+
+### 2.4 Component Responsibilities
+
+#### **App.jsx**
+- Root router configuration
+- Global modal states (alert, loan, loading)
+- GameLogic context provider
+
+#### **MarketPage.jsx**
+- Displays active products (grid/list toggle)
+- Handles reroll market functionality
+- Shows current climate and event status
+- Local alert and loading states
+
+#### **TradingPage.jsx**
+- Investment amount and unit selection
+- Horizon (duration) slider
+- Position entry logic
+- Local loading state for execution
+
+#### **SimulationPage.jsx**
+- Live price chart rendering
+- Simulation controls (play, pause, speed, skip)
+- Early exit functionality
+- Result overlay management
+- Local simulation result state
+
+#### **useGameLogic.js**
+- Central state management hook
+- All game logic functions
+- LocalStorage persistence
+- Save/load/reset operations
+- Turn progression
+- Event generation and management
+
+---
+
+### 2.5 Key Functions Reference
+
+#### **State Management**
+```javascript
+// Load game from localStorage
+const { state, /* functions */ } = useGameLogic();
+
+// Save current state
+saveGame();
+
+// Reset to default state
+resetData();
+```
+
+#### **Market Operations**
+```javascript
+// Generate new products for current turn
+generateProducts();
+
+// Refresh market (costs money)
+rerollMarket(); // Returns { success, error, message }
+
+// Toggle view mode
+toggleMarketView();
+```
+
+#### **Trading Operations**
+```javascript
+// Enter a position
+selectProduct(product);
+setInvestmentAmount(amount);
+setUnits(count);
+setDuration(days);
+startSimulation();
+
+// During simulation
+togglePause();
+changeSpeed(multiplier); // 1, 2, or 4
+skipToEnd();
+pullOut(); // Early exit (returns result)
+
+// Complete trade
+finishSimulation(finalPrice, ...); // Returns result object
+```
+
+#### **Loan Operations**
+```javascript
+// Loan management
+takeLoan(amount); // Returns { success, error, message }
+payLoan(amount);  // Returns { success, error, message }
+checkLoanStatus(); // Auto-called each turn
+```
+
+#### **Progression**
+```javascript
+// Advance to next turn
+nextTurn();
+
+// Check rank up
+checkRankUp();
+```
+
+---
+
+### 2.6 Event System Implementation
+
+#### **Event Pool**
+```javascript
+const EVENT_POOL = [
+  {
+    name: "Tech Boom",
+    rarity: "rare",
+    climate: "Expansion",
+    duration: 8,
+    profitMultiplier: 2,
+    lossMultiplier: 1,
+    icon: "🚀"
+  },
+  // ... 20+ events total
+];
+```
+
+#### **Event Generation**
+```javascript
+// 15% chance per turn
+if (Math.random() < 0.15 && !marketEvent) {
+  const event = selectRandomEvent(); // Rarity-weighted
+  setMarketEvent({
+    ...event,
+    duration: random(3, 10)
+  });
+  setEventTurnsLeft(event.duration);
+}
+```
+
+#### **Event Decay**
+```javascript
+// Each turn
+if (eventTurnsLeft > 0) {
+  eventTurnsLeft--;
+  if (eventTurnsLeft === 0) {
+    clearMarketEvent();
+  }
+}
+```
+
+---
+
+### 2.7 Testing & Debugging
+
+#### **Test Save Data**
+Located at `src/pages/data.json` - contains a realistic mid-game state for testing:
+- Turn 70
+- Active loan
+- Great Depression event active
+- Multiple products in history
+
+#### **Debug Tips**
+1. **State Inspection**: Use React DevTools to inspect `GameLogicContext`
+2. **LocalStorage**: Check Application tab in browser DevTools
+3. **Price Simulation**: Add `console.log` in `startSimulation` loop
+4. **Event Testing**: Temporarily increase event chance to 100%
+
+#### **Common Issues**
+- **Simulation not progressing**: Check if `isPaused` is true
+- **Modal not showing**: Ensure local state is set in component
+- **Loan not triggering**: Verify balance is actually negative
+- **Events not appearing**: Check `eventTurnsLeft` and event generation logic
+
+---
+
+## Section 3: Visual Design System
+
+### 3.1 Design Philosophy
+
+**Theme**: "High-Frequency Trading Terminal" meets Cyberpunk Finance
+
+**Core Pillars:**
+1. **Risk/Reward Balance**: Every decision has meaningful tradeoffs
+2. **Progressive Complexity**: Simple to learn, depth emerges over time
+3. **Skill Expression**: Mastery comes from pattern recognition and timing
+4. **No Pay-to-Win**: Pure skill-based progression
+
+---
+
+### 3.2 Color Palette
+
+**UI Colors:**
+- Background: `#0A0E1A` (Dark Navy)
+- Surface: `#0f172a` (Slate 900)
+- Deep Surface: `#020617` (Slate 950)
+- Primary Accent: `#00D9FF` (Cyan)
+- Secondary: `#6366f1` (Indigo 500)
+
+**Data Colors:**
+- Success/Profit: `#00FF88` (Emerald Green)
+- Warning: `#FFB800` (Amber)
+- Error/Loss: `#FF4747` (Red)
+- Neutral: `#94A3B8` (Slate)
+
+**Rarity Colors:**
+- Standard: `#94A3B8` (Gray/Slate)
+- Emerging: `#60A5FA` (Blue 400)
+- Disruptive: `#A78BFA` (Purple 400)
+- Unicorn: `#FBBF24` (Gold/Yellow 400)
+
+---
+
+### 3.3 Typography
+
+**Font Families:**
+- **UI Text**: Inter (Sans-Serif)
+  - Headings: Bold (600-700 weight)
+  - Body: Regular (400 weight)
+- **Data/Numbers**: JetBrains Mono (Monospace)
+
+**Size Scale:**
+- XS: 0.75rem (12px)
+- SM: 0.875rem (14px)
+- Base: 1rem (16px)
+- LG: 1.125rem (18px)
+- XL: 1.25rem (20px)
+- 2XL: 1.5rem (24px)
+- 3XL: 1.875rem (30px)
+
+---
+
+### 3.4 Art Style System
+
+#### **Asset Art Direction**
+
+```json
 {
   "artStyleContext": {
     "meta": {
@@ -200,10 +649,10 @@ JSON Format Context for Art Style
       "description": "High-contrast 2D vector-style assets with cel-shading. Optimized for sprite sheets with transparent backgrounds."
     },
     "visualPillars": [
-      "Silhouette Isolation": "The object must have a closed, distinct outer boundary to facilitate clean background removal.",
-      "Square Composition": "The subject must fit comfortably within a 1:1 frame without cropping key details.",
-      "Hard-Surface Cartoon": "Sturdy machinery with friendly proportions.",
-      "Cel-Shading": "Hard-edged shadows using a 2-tone or 3-tone system."
+      "Silhouette Isolation: The object must have a closed, distinct outer boundary to facilitate clean background removal.",
+      "Square Composition: The subject must fit comfortably within a 1:1 frame without cropping key details.",
+      "Hard-Surface Cartoon: Sturdy machinery with friendly proportions.",
+      "Cel-Shading: Hard-edged shadows using a 2-tone or 3-tone system."
     ],
     "technicalSpecs": {
       "fileFormat": "PNG (32-bit with Alpha Channel)",
@@ -221,15 +670,297 @@ JSON Format Context for Art Style
       }
     },
     "colorPalette": {
-      "baseMaterials": ["#4F6D7A (Slate)", "#2C3E50 (Dark Grey)", "#D4C4A8 (Beige)"],
-      "accents": ["#F1C40F (Hazard Yellow)", "#E74C3C (Alert Red)"],
-      "energy": ["#00E5FF (Plasma Cyan)", "#D500F9 (Electric Purple)"]
+      "baseMaterials": [
+        "#4F6D7A (Slate)",
+        "#2C3E50 (Dark Grey)",
+        "#D4C4A8 (Beige)"
+      ],
+      "accents": [
+        "#F1C40F (Hazard Yellow)",
+        "#E74C3C (Alert Red)"
+      ],
+      "energy": [
+        "#00E5FF (Plasma Cyan)",
+        "#D500F9 (Electric Purple)"
+      ]
     },
-    "assetSpecifics": {
-      "itemName": "Quantum Toaster",
-      "viewAngle": "Isometric or 3/4 Front View",
-      "cropping": "Full object visible, centered."
+    "lightingModel": {
+      "lightSource": "Top-Left 45° angle",
+      "shadowDirection": "Bottom-Right",
+      "highlightPlacement": "Top surfaces and edges",
+      "ambientOcclusion": "Dark crevices and joints (optional)"
+    },
+    "exampleAssets": [
+      {
+        "itemName": "Quantum Toaster",
+        "viewAngle": "Isometric or 3/4 Front View",
+        "cropping": "Full object visible, centered.",
+        "keyFeatures": [
+          "Visible heating coils with glow effect",
+          "Control panel with illuminated buttons",
+          "Robust metallic body with panel lines",
+          "Bread slots visible from top angle"
+        ]
+      },
+      {
+        "itemName": "VR Headset",
+        "viewAngle": "3/4 Front View",
+        "cropping": "Full headset with straps visible",
+        "keyFeatures": [
+          "Glossy lens surfaces with reflections",
+          "Cushioned face padding",
+          "Adjustment straps with buckles",
+          "LED indicator lights"
+        ]
+      },
+      {
+        "itemName": "Hydroponic Kit",
+        "viewAngle": "Isometric",
+        "cropping": "Full system with plants visible",
+        "keyFeatures": [
+          "Transparent water reservoir",
+          "Growing trays with vegetation",
+          "LED grow lights overhead",
+          "Tubes and pump mechanism"
+        ]
+      }
+    ],
+    "prohibitedElements": [
+      "Photorealistic textures or gradients",
+      "Complex background environments",
+      "Overly detailed mechanical internals (keep it stylized)",
+      "Text labels or UI elements baked into asset",
+      "Multiple light sources causing conflicting shadows"
+    ],
+    "compositionRules": {
+      "rule1": "Object must read clearly at 256x256px thumbnail size",
+      "rule2": "Silhouette should be recognizable at small scale",
+      "rule3": "Color contrast must be sufficient for visibility on dark (#0A0E1A) background",
+      "rule4": "No critical details in corner areas (risk of being cut off)"
+    },
+    "styleCues": {
+      "referenceTitles": [
+        "Overwatch - Character Design (Proportions)",
+        "Team Fortress 2 - Weapon Models (Readability)",
+        "Fortnite - Item Icons (Bold Outlines)",
+        "Valorant - Ability Icons (Graphic Simplicity)"
+      ],
+      "avoidingReferences": [
+        "Realistic product photography",
+        "Blender Cycles photorealism",
+        "Hyper-detailed sci-fi concept art"
+      ]
+    },
+    "implementationNotes": {
+      "assetNaming": "Use descriptive names: 'Quantum_Toaster_Icon_1024.png'",
+      "organizationStructure": "Sort by rarity tier in folder structure",
+      "versionControl": "Keep layered source files (.psd/.ai) separate from exports",
+      "qualityControl": [
+        "Check for aliasing artifacts on edges",
+        "Verify transparency is clean (no semi-transparent halos)",
+        "Test at both 1024px and 256px to ensure scaling quality",
+        "Preview on dark background (#0A0E1A) before finalizing"
+      ]
+    },
+    "futureConsiderations": {
+      "animationReadiness": "Design with potential sprite animation in mind (idle bobbing, glow pulses)",
+      "variantSupport": "Leave room for color variants or upgrade tiers",
+      "UIScaling": "Ensure icons work at multiple sizes (64px, 128px, 256px, 512px)"
     }
   }
 }
 ```
+
+#### **Asset Creation Guidelines**
+
+**Step-by-Step Asset Creation:**
+
+1. **Concept Phase**
+   - Sketch basic silhouette in 1:1 ratio
+   - Define 2-3 key identifying features
+   - Choose base color palette from spec
+
+2. **Vector Creation**
+   - Build in layers: Background → Mid → Foreground
+   - Use thick outer stroke (8-12px black)
+   - Apply 2-tone cel-shading
+
+3. **Lighting & Detail**
+   - Light source from top-left
+   - Highlight edges with 15-20% lighter tint
+   - Shadow areas with 20-30% darker tint
+
+4. **Export & Optimization**
+   - Export at 1024x1024px PNG with alpha
+   - Verify transparent background
+   - Test at 256x256px scale
+   - Preview on dark UI background
+
+5. **Quality Check**
+   - Silhouette readable at thumbnail size?
+   - Colors contrast well with background?
+   - No edge artifacts or halos?
+   - Centered with 5-10% padding?
+
+---
+
+### 3.5 UI Components
+
+#### **Card Design**
+- Border radius: 8px (rounded-lg)
+- Border: 1px solid slate-700/50
+- Shadow: Subtle glow on hover
+- Padding: 16px (p-4)
+
+#### **Buttons**
+- Primary: Cyan background with hover glow
+- Secondary: Slate background with border
+- Danger: Red background for destructive actions
+- Disabled: 50% opacity with no-cursor
+
+#### **Charts**
+- Line color: Cyan (#00D9FF)
+- Grid lines: Slate 700/30
+- Profit area: Green gradient
+- Loss area: Red gradient
+
+---
+
+## Section 4: Version History
+
+### v0.0.1-build.20251203.4 (Current)
+**Major Changes:**
+- ✅ Separated player data from game state in localStorage
+- ✅ Removed component-specific state from persistence layer
+- ✅ Implemented automatic v3→v4 save migration
+- ✅ Fixed simulation result handling and early exit logic
+- ✅ Improved error handling (functions return result objects)
+- ✅ Component-local state management for modals/overlays
+
+**New Features:**
+- Market Events system with duration and multipliers
+- Reroll market functionality
+- Enhanced loan warning system
+- Profile icon selection (8 avatars)
+
+**Bug Fixes:**
+- Fixed finishSimulation returning null
+- Fixed pullOut not capturing result
+- Fixed toggleLoadingOverlay not defined errors
+- Fixed hideResultOverlay not defined errors
+
+### v2.8.2 (Previous)
+- Initial documented version
+- Basic trading mechanics
+- Loan system
+- Rank progression
+
+---
+
+## Section 5: Future Roadmap
+
+### Planned Features
+- [ ] Achievements system
+- [ ] Leaderboards
+- [ ] Daily challenges
+- [ ] Portfolio tracking across multiple assets
+- [ ] Market news feed
+- [ ] Economic indicators dashboard
+- [ ] Tutorial/onboarding flow
+- [ ] Sound effects and music
+- [ ] Mobile responsive design improvements
+
+### Potential Expansions
+- [ ] Multiplayer trading competitions
+- [ ] Asset categories (Tech, Real Estate, Commodities)
+- [ ] Advanced chart indicators (RSI, MACD, Bollinger Bands)
+- [ ] Historical data replay mode
+- [ ] Custom event creator
+
+---
+
+## Appendix A: Complete Event List
+
+| Event Name | Rarity | Climate | Duration | Profit Mult | Loss Mult | Icon |
+|------------|--------|---------|----------|-------------|-----------|------|
+| Tech Boom | Rare | Expansion | 8 | 2x | 1x | 🚀 |
+| Great Depression | Uncommon | Recession | 10 | 1x | 2x | 💀 |
+| AI Revolution | Legendary | Expansion | 5 | 3x | 0.5x | 🤖 |
+| Market Correction | Common | Recession | 5 | 1x | 1.2x | 📉 |
+| Bull Run | Common | Expansion | 6 | 1.3x | 1x | 🐂 |
+| Bear Market | Common | Recession | 7 | 1x | 1.3x | 🐻 |
+| Black Swan Event | Legendary | Turbulent | 3 | 0.5x | 3x | 🦢 |
+| Golden Age | Rare | Expansion | 10 | 1.8x | 0.8x | 🏛️ |
+| Supply Shock | Uncommon | Turbulent | 4 | 1.2x | 1.5x | ⚠️ |
+| Regulatory Approval | Common | Stable | 5 | 1.4x | 1x | ✅ |
+
+*(And 10+ more events)*
+
+---
+
+## Appendix B: Product Database
+
+The game features 50+ unique products across 4 categories:
+- **Technology**: VR Headsets, Quantum Computers, AI Assistants
+- **Finance**: Crypto Wallets, Digital Bonds, NFT Collections
+- **Lifestyle**: Smart Watches, Hydroponic Kits, DNA Test Kits
+- **Industrial**: 3D Printers, Solar Panels, Drones
+
+Each product has:
+- Unique name and description
+- Base price ($50-$800)
+- Random volatility (0.3-2.0)
+- Random momentum (0.85-1.15)
+- Random hype (0-100)
+- Assigned rarity tier
+- Custom sprite asset (256x256px PNG)
+
+---
+
+## Appendix C: Formula Reference
+
+### Price Movement
+```javascript
+newPrice = currentPrice * (1 + drift * dt + volatility * randomShock * sqrt(dt))
+```
+
+### Profit Calculation
+```javascript
+profit = (sellPrice - buyPrice) * units
+if (marketEvent) {
+  profit = profit > 0 
+    ? profit * event.profitMultiplier 
+    : profit * event.lossMultiplier
+}
+```
+
+### Early Exit Penalty
+```javascript
+adjustedProfit = Math.max(0, profit * 0.75)
+```
+
+### XP Gain
+```javascript
+xpGain = 50 + Math.max(0, Math.floor(profit / 100))
+```
+
+### Loan Interest
+```javascript
+premium = loanAmount > 50000 ? 0.04 : (loanAmount > 10000 ? 0.02 : 0)
+interestRate = 0.05 + premium
+newLoanAmount = loanAmount * (1 + interestRate)
+```
+
+### Reroll Cost
+```javascript
+baseCost = 50 + (turn * 10)
+totalCost = baseCost * rerollCostMultiplier
+```
+
+---
+
+**End of Documentation**
+
+*For support or contributions, visit the project repository*
+*Last Updated: December 7, 2024*
+*Version: 0.0.1-build.20251203.4*

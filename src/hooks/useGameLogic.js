@@ -6,12 +6,39 @@ import { formatMoney } from '@/utils';
 import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
 
 const useGameLogic = () => {
-    const [state, setState] = useState(() => {
-        const saved = localStorage.getItem('marketPulseSave_v3');
+    // Helper function to load player data
+    const loadPlayerData = () => {
+        const saved = localStorage.getItem('marketPulseSave_player_v4');
         if (saved) {
             try {
-                const parsed = JSON.parse(saved);
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Player save file corrupted.", e);
+            }
+        }
+        return null;
+    };
 
+    // Helper function to load game state data
+    const loadGameStateData = () => {
+        const saved = localStorage.getItem('marketPulseSave_gameState_v4');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error("Game state save file corrupted.", e);
+            }
+        }
+        return null;
+    };
+
+    // Migration from old save format (v3)
+    const migrateFromV3 = () => {
+        const oldSave = localStorage.getItem('marketPulseSave_v3');
+        if (oldSave) {
+            try {
+                const parsed = JSON.parse(oldSave);
+                
                 // Data migration for activeProducts to include image
                 if (parsed.activeProducts && parsed.activeProducts.length > 0) {
                     parsed.activeProducts = parsed.activeProducts.map(p => {
@@ -29,20 +56,26 @@ const useGameLogic = () => {
                 }
 
                 // Data migration for profileIcon
-                let profileIcon = PROFILES[0].image; // default to just the filename
+                let profileIcon = PROFILES[0].image;
                 if (parsed.profileIcon) {
                     if (parsed.profileIcon.includes('/')) {
-                        // It's a path, so strip it to get the filename
                         profileIcon = parsed.profileIcon.split('/').pop();
                     } else {
-                        // It's already just a filename
                         profileIcon = parsed.profileIcon;
                     }
                 }
 
-                // Ensure all necessary properties exist, provide defaults if missing
-                return {
+                const playerData = {
                     balance: parsed.balance || 10000,
+                    xp: parsed.xp || 0,
+                    rankId: parsed.rankId || 0,
+                    profileIcon: profileIcon,
+                    username: parsed.username || 'OPERATOR_ID',
+                    history: parsed.history || [],
+                    loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 }
+                };
+
+                const gameStateData = {
                     turn: parsed.turn || 1,
                     marketViewMode: parsed.marketViewMode || 'grid',
                     marketClimate: parsed.marketClimate || 'Stable',
@@ -51,34 +84,54 @@ const useGameLogic = () => {
                     investmentAmount: parsed.investmentAmount || 0,
                     units: parsed.units || 0,
                     duration: parsed.duration || 0,
-                    history: parsed.history || [],
-                    loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
                     chartType: parsed.chartType || 'line',
-                    xp: parsed.xp || 0,
-                    rankId: parsed.rankId || 0,
-                    showLoadingOverlay: false,
-                    simulationResult: null,
-                    showSimulationResultOverlay: false,
-                    alertModal: { isOpen: false, title: '', message: '', type: 'info' },
                     rerollCostMultiplier: parsed.rerollCostMultiplier || 5,
                     rerollBasePrice: parsed.rerollBasePrice || 0,
                     rerollCount: parsed.rerollCount || 0,
                     rerollLimit: parsed.rerollLimit !== undefined ? parsed.rerollLimit : 5,
-                    profileIcon: profileIcon,
-                    username: parsed.username || 'OPERATOR_ID',
-                    hasPulledOut: parsed.hasPulledOut || false, // New state for pull out system
+                    hasPulledOut: parsed.hasPulledOut || false,
                     marketEvent: parsed.marketEvent || null,
-                    eventTurnsLeft: parsed.eventTurnsLeft || 0,
-                    showEventModal: parsed.showEventModal || false,
-                    finishedEvent: parsed.finishedEvent || null,
-                    showFinishedEventModal: parsed.showFinishedEventModal || false,
+                    eventTurnsLeft: parsed.eventTurnsLeft || 0
                 };
+
+                localStorage.setItem('marketPulseSave_player_v4', JSON.stringify(playerData));
+                localStorage.setItem('marketPulseSave_gameState_v4', JSON.stringify(gameStateData));
+                localStorage.removeItem('marketPulseSave_v3');
+
+                return { playerData, gameStateData };
             } catch (e) {
-                console.error("Save file corrupted, starting new game.", e);
+                console.error("Migration from v3 failed.", e);
             }
         }
-        return {
+        return null;
+    };
+
+    const [state, setState] = useState(() => {
+        // Try migration first
+        const migrated = migrateFromV3();
+        let playerData, gameStateData;
+
+        if (migrated) {
+            playerData = migrated.playerData;
+            gameStateData = migrated.gameStateData;
+        } else {
+            playerData = loadPlayerData();
+            gameStateData = loadGameStateData();
+        }
+
+        // Default player data
+        const defaultPlayerData = {
             balance: 10000,
+            xp: 0,
+            rankId: 0,
+            profileIcon: PROFILES[0].image,
+            username: 'OPERATOR_ID',
+            history: [],
+            loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 }
+        };
+
+        // Default game state data
+        const defaultGameStateData = {
             turn: 1,
             marketViewMode: 'grid',
             marketClimate: 'Stable',
@@ -87,28 +140,21 @@ const useGameLogic = () => {
             investmentAmount: 0,
             units: 0,
             duration: 0,
-            history: [],
-            loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
             chartType: 'line',
-            xp: 0,
-            rankId: 0,
-            showLoadingOverlay: false,
-            simulationResult: null, // New state for simulation results
-            showSimulationResultOverlay: false, // New state for showing result overlay
-            alertModal: { isOpen: false, title: '', message: '', type: 'info' },
-            rerollCostMultiplier: 5, // Starting at 5%
-            rerollBasePrice: 0, // Base price for rerolls this turn
-            rerollCount: 0, // Number of rerolls this turn
-            rerollLimit: 5, // Number of rerolls available
-            profileIcon: PROFILES[0].image,
-            username: 'OPERATOR_ID',
-            hasPulledOut: false, // New state for pull out system
+            rerollCostMultiplier: 5,
+            rerollBasePrice: 0,
+            rerollCount: 0,
+            rerollLimit: 5,
+            hasPulledOut: false,
             marketEvent: null,
-            eventTurnsLeft: 0,
-            newEvent: null,
-            showEventModal: false,
-            finishedEvent: null,
-            showFinishedEventModal: false,
+            eventTurnsLeft: 0
+        };
+
+        return {
+            ...defaultPlayerData,
+            ...defaultGameStateData,
+            ...(playerData || {}),
+            ...(gameStateData || {})
         };
     });
 
@@ -117,11 +163,6 @@ const useGameLogic = () => {
     const chartInstanceRef = useRef(null);
     const simTimeoutRef = useRef(null);
     const previousBalanceRef = useRef(state.balance);
-
-    // Toggle Loading Overlay
-    const toggleLoadingOverlay = useCallback((show) => {
-        setState(prevState => ({ ...prevState, showLoadingOverlay: show }));
-    }, []);
 
     // Update profile icon
     const updateProfileIcon = useCallback((icon) => {
@@ -140,15 +181,47 @@ const useGameLogic = () => {
         setState(prevState => ({ ...prevState, balance: amount }));
     }, []);
 
-    // Save game state to localStorage
+    // Save game state to localStorage (split into player and game state)
     const saveGame = useCallback(() => {
-        localStorage.setItem('marketPulseSave_v3', JSON.stringify(state));
+        const playerData = {
+            balance: state.balance,
+            xp: state.xp,
+            rankId: state.rankId,
+            profileIcon: state.profileIcon,
+            username: state.username,
+            history: state.history,
+            loan: state.loan
+        };
+
+        const gameStateData = {
+            turn: state.turn,
+            marketViewMode: state.marketViewMode,
+            marketClimate: state.marketClimate,
+            activeProducts: state.activeProducts,
+            currentProduct: state.currentProduct,
+            investmentAmount: state.investmentAmount,
+            units: state.units,
+            duration: state.duration,
+            chartType: state.chartType,
+            rerollCostMultiplier: state.rerollCostMultiplier,
+            rerollBasePrice: state.rerollBasePrice,
+            rerollCount: state.rerollCount,
+            rerollLimit: state.rerollLimit,
+            hasPulledOut: state.hasPulledOut,
+            marketEvent: state.marketEvent,
+            eventTurnsLeft: state.eventTurnsLeft
+        };
+
+        localStorage.setItem('marketPulseSave_player_v4', JSON.stringify(playerData));
+        localStorage.setItem('marketPulseSave_gameState_v4', JSON.stringify(gameStateData));
     }, [state]);
 
     // Reset game data
     const resetData = useCallback(() => {
-localStorage.removeItem('marketPulseSave_v3');
-            window.location.reload();
+        localStorage.removeItem('marketPulseSave_player_v4');
+        localStorage.removeItem('marketPulseSave_gameState_v4');
+        localStorage.removeItem('marketPulseSave_v3'); // Also remove old format if exists
+        window.location.reload();
     }, []);
 
     // Leveling Logic
@@ -221,43 +294,34 @@ localStorage.removeItem('marketPulseSave_v3');
         });
     }, []);
 
-    // Reroll Market (keeps climate, refreshes products)
+    // Reroll Market (keeps climate, refreshes products) - Returns error message if failed
     const rerollMarket = useCallback(() => {
+        // Check if reroll limit is reached
+        if (state.rerollLimit <= 0) {
+            return { error: 'Reroll Limit Reached', message: 'You have reached your reroll limit for this period. The limit will reset in a few turns.' };
+        }
+
+        // Check if balance is negative
+        if (state.balance <= 0) {
+            return { error: 'Insufficient Capital', message: 'Cannot reroll market when your capital is negative or zero.' };
+        }
+
+        // Calculate base price if this is the first reroll of the turn
+        let basePrice = state.rerollBasePrice;
+        if (state.rerollCount === 0) {
+            basePrice = Math.floor(state.balance * 0.05); // 5% of current balance
+        }
+
+        // Calculate current reroll cost: base price + (1% of current balance * reroll count)
+        const incrementCost = Math.floor(state.balance * 0.01) * state.rerollCount;
+        const rerollCost = basePrice + incrementCost;
+        
+        // Check if can afford
+        if (state.balance < rerollCost) {
+            return { error: 'Insufficient Funds', message: `Reroll cost is ${formatMoney(rerollCost)}. You need more capital.` };
+        }
+
         setState(prevState => {
-            // Check if reroll limit is reached
-            if (prevState.rerollLimit <= 0) {
-                return {
-                    ...prevState,
-                    alertModal: { isOpen: true, title: 'Reroll Limit Reached', message: 'You have reached your reroll limit for this period. The limit will reset in a few turns.', type: 'error' }
-                };
-            }
-
-            // Check if balance is negative
-            if (prevState.balance <= 0) {
-                return {
-                    ...prevState,
-                    alertModal: { isOpen: true, title: 'Insufficient Capital', message: 'Cannot reroll market when your capital is negative or zero.', type: 'error' }
-                };
-            }
-
-            // Calculate base price if this is the first reroll of the turn
-            let basePrice = prevState.rerollBasePrice;
-            if (prevState.rerollCount === 0) {
-                basePrice = Math.floor(prevState.balance * 0.05); // 5% of current balance
-            }
-
-            // Calculate current reroll cost: base price + (1% of current balance * reroll count)
-            const incrementCost = Math.floor(prevState.balance * 0.01) * prevState.rerollCount;
-            const rerollCost = basePrice + incrementCost;
-            
-            // Check if can afford
-            if (prevState.balance < rerollCost) {
-                return {
-                    ...prevState,
-                    alertModal: { isOpen: true, title: 'Insufficient Funds', message: `Reroll cost is ${formatMoney(rerollCost)}. You need more capital.`, type: 'error' }
-                };
-            }
-
             // Use existing climate and momentum/volatility multipliers
             const climate = prevState.marketClimate;
             let momentumBias = 1.0, volatilityMult = 1.0;
@@ -297,6 +361,11 @@ localStorage.removeItem('marketPulseSave_v3');
                 };
             });
 
+            // Get the base price and cost from state before update
+            const basePrice = prevState.rerollBasePrice || Math.floor(prevState.balance * 0.05);
+            const incrementCost = Math.floor(prevState.balance * 0.01) * prevState.rerollCount;
+            const rerollCost = basePrice + incrementCost;
+
             return {
                 ...prevState,
                 balance: prevState.balance - rerollCost,
@@ -306,13 +375,11 @@ localStorage.removeItem('marketPulseSave_v3');
                 rerollLimit: prevState.rerollLimit - 1, // Decrement reroll limit
             };
         });
-    }, []);
+        
+        return { success: true };
+    }, [state.rerollLimit, state.balance, state.rerollBasePrice, state.rerollCount]);
 
-    // Loan Logic
-    const toggleLoanModal = useCallback((show) => {
-        setState(prevState => ({ ...prevState, showLoanModal: show }));
-    }, []);
-
+    // Loan Logic - Returns success/error
     const takeLoan = useCallback((amount, term) => {
         if (amount > 0 && amount <= 50000) {
             const premium = Math.floor(term / 5) * 0.01;
@@ -323,15 +390,12 @@ localStorage.removeItem('marketPulseSave_v3');
                 ...prevState,
                 balance: prevState.balance + amount,
                 loan: { active: true, amount: totalDue, dueTurn: prevState.turn + term, interestRate: rate },
-                showLoanModal: false,
                 history: [...prevState.history, { type: 'loan', action: 'take', amount, turn: prevState.turn }],
             }));
+            return { success: true };
         }
         else {
-            setState(prevState => ({
-                ...prevState,
-                alertModal: { isOpen: true, title: 'Invalid Loan Amount', message: 'The maximum loan amount is $50,000. Please enter a valid amount.', type: 'error' }
-            }));
+            return { error: 'Invalid Loan Amount', message: 'The maximum loan amount is $50,000. Please enter a valid amount.' };
         }
     }, []);
 
@@ -345,15 +409,21 @@ localStorage.removeItem('marketPulseSave_v3');
                     history: [...prevState.history, { type: 'loan', action: 'pay', amount: prevState.loan.amount, turn: prevState.turn }],
                 };
             } else {
-                return {
-                    ...prevState,
-                    alertModal: { isOpen: true, title: 'Insufficient Funds', message: 'You do not have enough capital to pay off this loan.', type: 'error' }
-                };
+                return prevState; // Don't change state if insufficient funds
             }
         });
-    }, []);
+        
+        // Return result
+        if (state.balance >= state.loan.amount) {
+            return { success: true };
+        } else {
+            return { error: 'Insufficient Funds', message: 'You do not have enough capital to pay off this loan.' };
+        }
+    }, [state.balance, state.loan.amount]);
 
     const checkLoanStatus = useCallback(() => {
+        let hasDefaulted = false;
+        
         setState(prevState => {
             if (!prevState.loan.active) return prevState;
 
@@ -361,11 +431,11 @@ localStorage.removeItem('marketPulseSave_v3');
                 const overdueTurns = prevState.turn - prevState.loan.dueTurn;
 
                 if (overdueTurns >= 10) {
+                    hasDefaulted = true;
                     return {
                         ...prevState,
                         balance: prevState.balance - prevState.loan.amount, // Balance goes negative if insufficient
                         loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
-                        alertModal: { isOpen: true, title: 'LOAN DEFAULT', message: 'Assets Seized! The bank has liquidated your capital to cover the debt, resulting in a negative balance if insufficient.', type: 'error' }
                     };
                 } else {
                     // Late Penalty: Increase debt by 50%
@@ -378,6 +448,8 @@ localStorage.removeItem('marketPulseSave_v3');
             }
             return prevState;
         });
+        
+        return hasDefaulted ? { defaulted: true } : { defaulted: false };
     }, []);
 
     // Trading Logic
@@ -407,25 +479,42 @@ localStorage.removeItem('marketPulseSave_v3');
     }, []);
 
     const finishSimulation = useCallback((finalPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice) => {
+        console.log('finishSimulation called with:', { finalPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice });
         dispatchSimulation({ type: 'FINISH' });
         
-        setState(prevState => {
-            let profit = (finalPrice * units) - initialInvestment;
-            
-            // Apply event multipliers
-            if (prevState.marketEvent) {
-                if (profit > 0 && prevState.marketEvent.profitMultiplier) {
-                    profit *= prevState.marketEvent.profitMultiplier;
-                } else if (profit < 0 && prevState.marketEvent.lossMultiplier) {
-                    profit *= prevState.marketEvent.lossMultiplier;
-                }
+        // Calculate profit with event multipliers using current state
+        let profit = (finalPrice * units) - initialInvestment;
+        
+        // Apply event multipliers from current state
+        if (state.marketEvent) {
+            if (profit > 0 && state.marketEvent.profitMultiplier) {
+                profit *= state.marketEvent.profitMultiplier;
+            } else if (profit < 0 && state.marketEvent.lossMultiplier) {
+                profit *= state.marketEvent.lossMultiplier;
             }
+        }
 
+        const finalValue = initialInvestment + profit;
+        
+        // Build result object BEFORE setState
+        const simulationResult = {
+            initialInvestment,
+            finalValue,
+            profit,
+            productName: currentProduct.name,
+            peakPrice,
+            lowestPrice,
+        };
+        
+        console.log('Built simulationResult (before setState):', simulationResult);
+        
+        // Now update state
+        setState(prevState => {
             let newBalance = prevState.balance;
             let earnedXp = 50;
 
             if (!prevState.hasPulledOut) {
-                newBalance += (initialInvestment + profit); // Recalculate final value based on modified profit
+                newBalance += (initialInvestment + profit);
                 if (profit > 0) {
                     earnedXp += Math.floor(profit / 100);
                 }
@@ -434,8 +523,6 @@ localStorage.removeItem('marketPulseSave_v3');
                     earnedXp += Math.floor(profit / 100);
                 }
             }
-
-            const finalValue = initialInvestment + profit;
 
             const newHistory = [...prevState.history, {
                 turn: prevState.turn,
@@ -467,18 +554,13 @@ localStorage.removeItem('marketPulseSave_v3');
                 history: newHistory,
                 xp: newXp,
                 rankId: newRankId,
-                simulationResult: {
-                    initialInvestment,
-                    finalValue,
-                    profit,
-                    productName: currentProduct.name,
-                    peakPrice,
-                    lowestPrice,
-                },
                 hasPulledOut: false,
             };
         });
-    }, []);
+        
+        console.log('Returning simulationResult:', simulationResult);
+        return simulationResult;
+    }, [state.marketEvent]);
 
     const pullOut = useCallback((currentPrice, initialInvestment, units, currentProduct, peakPrice, lowestPrice) => {
         const finalValue = currentPrice * units;
@@ -488,6 +570,16 @@ localStorage.removeItem('marketPulseSave_v3');
         if (profit > 0) {
             adjustedProfit = profit * 0.75; // 25% fee on profit
         }
+
+        // Build result object BEFORE setState
+        const simulationResult = {
+            initialInvestment,
+            finalValue: currentPrice * units, // Final value at pull out
+            profit: adjustedProfit, // Adjusted profit
+            productName: currentProduct.name,
+            peakPrice,
+            lowestPrice,
+        };
 
         setState(prevState => {
             // Add XP (50 base + 1 per $100 profit) - use original profit for XP
@@ -525,25 +617,11 @@ localStorage.removeItem('marketPulseSave_v3');
                 history: newHistory,
                 xp: newXp,
                 rankId: newRankId,
-                simulationResult: {
-                    initialInvestment,
-                    finalValue: currentPrice * units, // Final value at pull out
-                    profit: adjustedProfit, // Adjusted profit
-                    productName: currentProduct.name,
-                    peakPrice,
-                    lowestPrice,
-                },
                 hasPulledOut: true,
             };
         });
-    }, []);
 
-    const hideResultOverlay = useCallback((show) => {
-        setState(prevState => ({ ...prevState, showSimulationResultOverlay: show }));
-    }, []);
-
-    const closeAlertModal = useCallback(() => {
-        setState(prevState => ({ ...prevState, alertModal: { isOpen: false, title: '', message: '', type: 'info' } }));
+        return simulationResult;
     }, []);
 
     const nextTurn = useCallback(() => {
@@ -556,23 +634,19 @@ localStorage.removeItem('marketPulseSave_v3');
 
             let currentEvent = prevState.marketEvent;
             let turnsLeft = prevState.eventTurnsLeft;
-            let finishedEvent = null;
-            let showFinishedModal = false;
 
             // Decrease event timer
             if (turnsLeft > 0) {
                 turnsLeft--;
             }
 
-            // If event ends, clear it and trigger finished modal
+            // If event ends, clear it
             if (prevState.marketEvent && turnsLeft === 0) {
-                finishedEvent = prevState.marketEvent;
-                showFinishedModal = true;
                 currentEvent = null;
             }
 
             // Every 5 turns, check for a new event, but not if one just finished
-            if (newTurn % 5 === 0 && !currentEvent && !finishedEvent) {
+            if (newTurn % 5 === 0 && !currentEvent) {
                 const rand = Math.random();
                 const eventKeys = Object.keys(MARKET_EVENTS);
                 let chosenEventKey;
@@ -593,19 +667,6 @@ localStorage.removeItem('marketPulseSave_v3');
                 
                 currentEvent = MARKET_EVENTS[chosenEventKey];
                 turnsLeft = currentEvent.duration;
-                
-                return {
-                    ...prevState,
-                    turn: newTurn,
-                    rerollCostMultiplier: 5,
-                    rerollBasePrice: 0,
-                    rerollCount: 0,
-                    rerollLimit: newRerollLimit,
-                    marketEvent: currentEvent,
-                    eventTurnsLeft: turnsLeft,
-                    newEvent: currentEvent, // Set the new event to trigger modal
-                    showEventModal: true, // Show the modal
-                };
             }
 
             return {
@@ -617,29 +678,11 @@ localStorage.removeItem('marketPulseSave_v3');
                 rerollLimit: newRerollLimit,
                 marketEvent: currentEvent,
                 eventTurnsLeft: turnsLeft,
-                finishedEvent: finishedEvent,
-                showFinishedEventModal: showFinishedModal,
             };
         });
         checkLoanStatus();
         randomizeMarket();
     }, [checkLoanStatus, randomizeMarket]);
-
-    const closeEventModal = useCallback(() => {
-        setState(prevState => ({
-            ...prevState,
-            showEventModal: false,
-            newEvent: null,
-        }));
-    }, []);
-
-    const closeFinishedEventModal = useCallback(() => {
-        setState(prevState => ({
-            ...prevState,
-            showFinishedEventModal: false,
-            finishedEvent: null,
-        }));
-    }, []);
 
     // Initial load and market randomization
     useEffect(() => {
@@ -663,7 +706,6 @@ localStorage.removeItem('marketPulseSave_v3');
         toggleMarketView,
         randomizeMarket,
         rerollMarket,
-        toggleLoanModal,
         takeLoan,
         payLoan,
         checkLoanStatus,
@@ -672,20 +714,15 @@ localStorage.removeItem('marketPulseSave_v3');
         executeTrade,
         updateChartType,
         finishSimulation,
-        hideResultOverlay,
-        closeAlertModal,
         nextTurn,
         chartInstanceRef,
         simTimeoutRef,
         previousBalanceRef,
-        toggleLoadingOverlay,
         updateProfileIcon,
         updateUsername,
         pullOut,
         addMoney,
         setBalance,
-        closeEventModal,
-        closeFinishedEventModal,
     };
 };
 

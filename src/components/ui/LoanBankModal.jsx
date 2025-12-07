@@ -2,18 +2,8 @@ import React from 'react';
 import { X, Landmark, DollarSign, CheckCircle, BadgePercent, CalendarClock, Activity, ShieldAlert, HelpCircle } from 'lucide-react';
 import { formatMoney } from '@/utils';
 
-const LoanBankModal = ({ isOpen, onClose, state, toggleLoanModal, payLoan, toggleLoadingOverlay, setShowPaymentConfirmation, setIsBankInfoModalOpen }) => {
+const LoanBankModal = ({ isOpen, onClose, state, toggleLoanModal, handlePayLoan, setIsBankInfoModalOpen }) => {
     if (!isOpen) return null;
-
-    const handlePayLoan = () => {
-        toggleLoadingOverlay(true);
-        setTimeout(() => {
-            payLoan();
-            toggleLoadingOverlay(false);
-            setShowPaymentConfirmation(true);
-            onClose(); // Close modal after payment
-        }, 1500);
-    };
 
     return (
         <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
@@ -67,7 +57,10 @@ const LoanBankModal = ({ isOpen, onClose, state, toggleLoanModal, payLoan, toggl
                                 </div>
                             </div>
                             <button
-                                onClick={handlePayLoan}
+                                onClick={() => {
+                                    handlePayLoan();
+                                    onClose();
+                                }}
                                 disabled={state.turn < state.loan.dueTurn}
                                 className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white text-lg font-bold rounded-lg transition-colors mt-4 uppercase tracking-wider flex items-center justify-center gap-3 shadow-lg"
                             >

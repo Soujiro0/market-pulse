@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
-import { Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { Sparkles, TrendingUp, AlertCircle, X } from 'lucide-react';
 
-const LoanModal = () => {
-    const { state, toggleLoanModal, takeLoan } = useGame();
+const LoanModal = ({ showAlert }) => {
+    const { state, takeLoan } = useGame();
+    const [showLoanModal, setShowLoanModal] = useState(false);
     const [loanAmount, setLoanAmount] = useState(0);
     const [loanTerm, setLoanTerm] = useState(10); // Default from HTML
     const [isProcessing, setIsProcessing] = useState(false);
@@ -14,15 +15,23 @@ const LoanModal = () => {
     const totalInterestRate = 0.05 + premiumRate;
     const repaymentAmount = Math.floor(loanAmount * (1 + totalInterestRate));
 
+    // Expose open function to parent via ref or callback
+    useEffect(() => {
+        window.openLoanModal = () => setShowLoanModal(true);
+        return () => {
+            delete window.openLoanModal;
+        };
+    }, []);
+
     useEffect(() => {
         // Reset state when modal opens/closes
-        if (state.showLoanModal) {
+        if (showLoanModal) {
             setLoanAmount(0);
             setLoanTerm(10);
             setIsProcessing(false);
             setShowSuccess(false);
         }
-    }, [state.showLoanModal]);
+    }, [showLoanModal]);
 
     const handleTakeLoan = useCallback(() => {
         setIsProcessing(true);
@@ -34,11 +43,14 @@ const LoanModal = () => {
     }, [loanAmount, loanTerm]);
 
     const handleContinue = useCallback(() => {
-        takeLoan(loanAmount, loanTerm);
-        toggleLoanModal(false);
-    }, [loanAmount, loanTerm, takeLoan, toggleLoanModal]);
+        const result = takeLoan(loanAmount, loanTerm);
+        if (result.error) {
+            showAlert(result.error, result.message, 'error');
+        }
+        setShowLoanModal(false);
+    }, [loanAmount, loanTerm, takeLoan, showAlert]);
 
-    if (!state.showLoanModal) return null;
+    if (!showLoanModal) return null;
 
     // Show loading state while processing
     if (isProcessing) {
@@ -100,7 +112,7 @@ const LoanModal = () => {
                             </div>
                         </div>
                         <button 
-                            onClick={() => toggleLoanModal(false)} 
+                            onClick={() => setShowLoanModal(false)} 
                             className="text-slate-500 hover:text-white text-2xl leading-none hover:rotate-90 transition-all duration-300 hover:scale-110"
                         >
                             ×

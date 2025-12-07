@@ -2,10 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import MarketCard from '@/components/ui/MarketCard';
 import MarketListItem from '@/components/ui/MarketListItem';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
+import AlertModal from '@/components/ui/AlertModal';
 import { Globe, Landmark, LayoutGrid, List, DollarSign, RefreshCw, TrendingUp, TrendingDown, Minus, Activity, CheckCircle, BadgePercent, CalendarClock, ArrowUp, ArrowDown, CaseSensitive, Zap as HypeIcon, Gem, X, HelpCircle } from 'lucide-react';
 import { formatMoney } from '@/utils';
 import { CLIMATES } from '@/constants';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import BankInfoModal from '@/components/ui/BankInfoModal';
 import LoanBankModal from '@/components/ui/LoanBankModal';
 
@@ -50,7 +52,7 @@ const activeLoanMessages = [
 ];
 
 const MarketPage = () => {
-    const { state, toggleMarketView, setCurrentProduct, toggleLoanModal, payLoan, rerollMarket, toggleLoadingOverlay } = useGame();
+    const { state, toggleMarketView, setCurrentProduct, payLoan, rerollMarket } = useGame();
     const navigate = useNavigate();
     const [marketKey, setMarketKey] = useState(1);
     const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false);
@@ -59,6 +61,14 @@ const MarketPage = () => {
     const [isLoanBankModalOpen, setIsLoanBankModalOpen] = useState(false);
     const [loanQuote, setLoanQuote] = useState('');
     const [quoteKey, setQuoteKey] = useState(0);
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+    const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
+
+    const toggleLoanModal = useCallback(() => {
+        if (window.openLoanModal) {
+            window.openLoanModal();
+        }
+    }, []);
 
     const sortedProducts = useMemo(() => {
         let sortableItems = [...state.activeProducts];
@@ -139,8 +149,12 @@ const MarketPage = () => {
     }, [state.loan.active, state.loan.dueTurn, state.turn]);
 
     const handleRerollMarket = () => {
-        rerollMarket();
-        setMarketKey(prevKey => prevKey + 1);
+        const result = rerollMarket();
+        if (result.error) {
+            setAlertModal({ isOpen: true, title: result.error, message: result.message, type: 'error' });
+        } else {
+            setMarketKey(prevKey => prevKey + 1);
+        }
     };
 
     const handleProductClick = (product) => {
@@ -149,11 +163,15 @@ const MarketPage = () => {
     };
 
     const handlePayLoan = () => {
-        toggleLoadingOverlay(true);
+        setShowLoadingOverlay(true);
         setTimeout(() => {
-            payLoan();
-            toggleLoadingOverlay(false);
-            setShowPaymentConfirmation(true);
+            const result = payLoan();
+            setShowLoadingOverlay(false);
+            if (result.error) {
+                setAlertModal({ isOpen: true, title: result.error, message: result.message, type: 'error' });
+            } else {
+                setShowPaymentConfirmation(true);
+            }
         }, 1500); // Simulate processing time
     };
 
@@ -200,8 +218,8 @@ const MarketPage = () => {
                                     onClick={handleRerollMarket}
                                     disabled={!canReroll}
                                     className={`px-4 py-2 rounded font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${canReroll
-                                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                            : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                        : 'bg-slate-800 text-slate-600 cursor-not-allowed'
                                         }`}
                                     title={!canReroll ? (state.rerollLimit <= 0 ? 'Reroll limit reached' : 'Insufficient capital') : `Base: 5% + ${state.rerollCount}% increment`}
                                 >
@@ -290,11 +308,10 @@ const MarketPage = () => {
                             <button
                                 key={key}
                                 onClick={() => requestSort(key)}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border ${
-                                    sortConfig && sortConfig.key === key
+                                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border ${sortConfig && sortConfig.key === key
                                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 border-indigo-500'
                                         : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border-slate-700'
-                                }`}
+                                    }`}
                             >
                                 <Icon className="w-4 h-4" />
                                 {label}
@@ -333,28 +350,28 @@ const MarketPage = () => {
                         )
                     ))}
                 </div>
+            </div>
 
-                {/* Payment Confirmation Modal */}
-                {showPaymentConfirmation && (
-                    <div className="fixed inset-0 bg-slate-950/90 z-[200] flex items-center justify-center p-4 backdrop-blur-sm fade-in">
-                        <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-emerald-700 relative animate-bounce-in">
-                            <div className="text-center">
-                                <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                                <h3 className="text-xl font-bold text-white mb-3">Loan Settled!</h3>
-                                <p className="text-slate-300 mb-4 leading-relaxed text-sm">
-                                    Your outstanding debt has been successfully paid off. You are now free from financial obligations.
-                                </p>
-                                <button
-                                    onClick={() => setShowPaymentConfirmation(false)}
-                                    className="w-full py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
-                                >
-                                    Continue
-                                </button>
-                            </div>
+            {/* Payment Confirmation Modal */}
+            {showPaymentConfirmation && (
+                <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-emerald-700 relative animate-bounce-in">
+                        <div className="text-center">
+                            <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-white mb-3">Loan Settled!</h3>
+                            <p className="text-slate-300 mb-4 leading-relaxed text-sm">
+                                Your outstanding debt has been successfully paid off. You are now free from financial obligations.
+                            </p>
+                            <button
+                                onClick={() => setShowPaymentConfirmation(false)}
+                                className="w-full py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-emerald-600 hover:bg-emerald-500 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
+                            >
+                                Continue
+                            </button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             <BankInfoModal
                 isOpen={isBankInfoModalOpen}
@@ -366,10 +383,18 @@ const MarketPage = () => {
                 onClose={() => setIsLoanBankModalOpen(false)}
                 state={state}
                 toggleLoanModal={toggleLoanModal}
-                payLoan={payLoan}
-                toggleLoadingOverlay={toggleLoadingOverlay}
-                setShowPaymentConfirmation={setShowPaymentConfirmation}
+                handlePayLoan={handlePayLoan}
                 setIsBankInfoModalOpen={setIsBankInfoModalOpen}
+            />
+
+            <LoadingOverlay isLoading={showLoadingOverlay} />
+
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                onClose={() => setAlertModal({ isOpen: false, title: '', message: '', type: 'info' })}
+                title={alertModal.title}
+                message={alertModal.message}
+                type={alertModal.type}
             />
         </>
     );

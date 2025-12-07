@@ -4,6 +4,7 @@ import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
 import { Box, Zap, Star, Crown, HelpCircle } from 'lucide-react';
 import { RARITY } from '@/constants';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {
@@ -16,7 +17,7 @@ const RarityIcon = ({ iconName, className }) => {
 };
 
 const TradingPage = () => {
-    const { state, setTradeParams, executeTrade, toggleLoadingOverlay } = useGame();
+    const { state, setTradeParams, executeTrade } = useGame();
     const { currentProduct, balance } = state;
     const navigate = useNavigate();
 
@@ -26,6 +27,7 @@ const TradingPage = () => {
     const [projectedNet, setProjectedNet] = useState(0);
     const [error, setError] = useState('');
     const [showMomentumHelp, setShowMomentumHelp] = useState(false);
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
 
     useEffect(() => {
         if (!currentProduct) {
@@ -74,9 +76,9 @@ const TradingPage = () => {
     const handleExecuteTrade = () => {
         if (error && error !== "OVERDRAFT") return; // Prevent trade if there's a real error
 
-        toggleLoadingOverlay(true);
+        setShowLoadingOverlay(true);
         setTimeout(() => {
-            toggleLoadingOverlay(false);
+            setShowLoadingOverlay(false);
             executeTrade();
             navigate('/simulation');
         }, 2000);
@@ -288,7 +290,10 @@ const TradingPage = () => {
                         </div>
                     </div>
                 </div>
-            )}</>
+            )}
+            
+            <LoadingOverlay isLoading={showLoadingOverlay} />
+        </>
     );
 };
 

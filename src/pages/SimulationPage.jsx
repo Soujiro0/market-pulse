@@ -15,7 +15,6 @@ const SimulationPage = () => {
         simulationState,
         dispatchSimulation,
         finishSimulation,
-        hideResultOverlay,
         nextTurn,
         chartInstanceRef,
         simTimeoutRef,
@@ -23,7 +22,7 @@ const SimulationPage = () => {
     } = useGame();
     const navigate = useNavigate();
 
-    const { currentProduct, duration, units, investmentAmount, simulationResult, showSimulationResultOverlay } = state;
+    const { currentProduct, duration, units, investmentAmount } = state;
     const { speed, isPaused, isFinished } = simulationState;
 
     const [currentDay, setCurrentDay] = useState(0);
@@ -31,6 +30,8 @@ const SimulationPage = () => {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [isSkipping, setIsSkipping] = useState(false);
     const [showPullOutModal, setShowPullOutModal] = useState(false);
+    const [showSimulationResultOverlay, setShowSimulationResultOverlay] = useState(false);
+    const [simulationResult, setSimulationResult] = useState(null);
     const [peakPrice, setPeakPrice] = useState(currentProduct?.currentPrice || 0);
     const [lowestPrice, setLowestPrice] = useState(currentProduct?.currentPrice || 0);
 
@@ -147,7 +148,13 @@ const SimulationPage = () => {
                 setCurrentPrice(finalPrice);
                 setPeakPrice(currentPeak);
                 setLowestPrice(currentLowest);
-                finishSimulation(finalPrice, investmentAmount, units, currentProduct, currentPeak, currentLowest);
+                const result = finishSimulation(finalPrice, investmentAmount, units, currentProduct, currentPeak, currentLowest);
+                console.log('Skip finished, result:', result);
+                if (result) {
+                    setSimulationResult(result);
+                } else {
+                    console.error('finishSimulation (skip) returned null/undefined');
+                }
                 return;
             }
 
@@ -159,7 +166,13 @@ const SimulationPage = () => {
 
             // Check if simulation is complete
             if (currentDayIndex >= prices.length) {
-                finishSimulation(prices[prices.length - 1], investmentAmount, units, currentProduct, peakPrice, lowestPrice);
+                const result = finishSimulation(prices[prices.length - 1], investmentAmount, units, currentProduct, peakPrice, lowestPrice);
+                console.log('Simulation finished, result:', result);
+                if (result) {
+                    setSimulationResult(result);
+                } else {
+                    console.error('finishSimulation returned null/undefined');
+                }
                 return;
             }
 
@@ -235,9 +248,13 @@ const SimulationPage = () => {
     }, [isPaused, dispatchSimulation]);
 
     const handleConfirmPullOut = useCallback(() => {
-        pullOut(currentPrice, investmentAmount, units, currentProduct, peakPrice, lowestPrice);
+        const result = pullOut(currentPrice, investmentAmount, units, currentProduct, peakPrice, lowestPrice);
+        if (result) {
+            setSimulationResult(result);
+        }
         dispatchSimulation({ type: 'PULL_OUT' });
         setShowPullOutModal(false);
+        setShowSimulationResultOverlay(true);
     }, [pullOut, currentPrice, investmentAmount, units, currentProduct, peakPrice, lowestPrice, dispatchSimulation]);
 
     if (!currentProduct) {
@@ -330,7 +347,16 @@ const SimulationPage = () => {
                         /* Post-Sim Controls */
                         <div id="post-sim-controls" className="flex items-center gap-4 px-4 w-full justify-end">
                             <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider animate-pulse">Simulation Complete</span>
-                            <button onClick={() => hideResultOverlay(true)} className="px-6 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2">
+                            <button 
+                                onClick={() => {
+                                    if (simulationResult) {
+                                        setShowSimulationResultOverlay(true);
+                                    } else {
+                                        console.error('Simulation result not available');
+                                    }
+                                }} 
+                                className="px-6 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono tracking-wider shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2"
+                            >
                                 FINALIZE <CheckCircle className="w-4 h-4" />
                             </button>
                         </div>
@@ -380,7 +406,7 @@ const SimulationPage = () => {
                             </div>
 
                             <div className="flex gap-4">
-                                <button onClick={() => hideResultOverlay(false)} className="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl border border-slate-700 transition-colors uppercase text-xs">
+                                <button onClick={() => setShowSimulationResultOverlay(false)} className="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-xl border border-slate-700 transition-colors uppercase text-xs">
                                     Review Chart
                                 </button>
                                 <button onClick={handleNextTurn} className="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-900/50 transition-transform hover:-translate-y-1 uppercase text-xs tracking-wide">
