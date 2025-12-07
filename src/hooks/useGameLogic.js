@@ -4,6 +4,7 @@ import items from '@/data/items.json';
 import ranks from '@/data/ranks.json';
 import { formatMoney } from '@/utils';
 import { simulationReducer, initialSimulationState } from '@/reducers/simulationReducer';
+import { exportPlayerData, importPlayerData } from '@/utils/playerData';
 
 const useGameLogic = () => {
     // Helper function to load player data
@@ -215,6 +216,56 @@ const useGameLogic = () => {
         localStorage.setItem('marketPulseSave_player_v4', JSON.stringify(playerData));
         localStorage.setItem('marketPulseSave_gameState_v4', JSON.stringify(gameStateData));
     }, [state]);
+
+    // Export player data as encrypted file
+    const exportData = useCallback(() => {
+        const playerData = {
+            balance: state.balance,
+            xp: state.xp,
+            rankId: state.rankId,
+            profileIcon: state.profileIcon,
+            username: state.username,
+            history: state.history,
+            loan: state.loan
+        };
+
+        const gameStateData = {
+            turn: state.turn,
+            marketViewMode: state.marketViewMode,
+            marketClimate: state.marketClimate,
+            activeProducts: state.activeProducts,
+            currentProduct: state.currentProduct,
+            investmentAmount: state.investmentAmount,
+            units: state.units,
+            duration: state.duration,
+            chartType: state.chartType,
+            rerollCostMultiplier: state.rerollCostMultiplier,
+            rerollBasePrice: state.rerollBasePrice,
+            rerollCount: state.rerollCount,
+            rerollLimit: state.rerollLimit,
+            hasPulledOut: state.hasPulledOut,
+            marketEvent: state.marketEvent,
+            eventTurnsLeft: state.eventTurnsLeft
+        };
+
+        return exportPlayerData(playerData, gameStateData);
+    }, [state]);
+
+    // Import player data from encrypted file
+    const importData = useCallback((encryptedData) => {
+        const result = importPlayerData(encryptedData);
+        
+        if (result.success) {
+            // Merge imported data with current state
+            setState(prevState => ({
+                ...prevState,
+                ...result.data.player,
+                ...result.data.gameState
+            }));
+        }
+        
+        return result;
+    }, []);
 
     // Reset game data
     const resetData = useCallback(() => {
@@ -723,6 +774,8 @@ const useGameLogic = () => {
         pullOut,
         addMoney,
         setBalance,
+        exportData,
+        importData,
     };
 };
 

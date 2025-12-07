@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
-import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User, Edit } from 'lucide-react';
+import { History, TrendingUp, TrendingDown, Minus, Activity, Box, Zap, Star, Crown, ChevronLeft, ChevronRight, Trash2, User, Edit, Download, Upload } from 'lucide-react';
 import { CLIMATES, RARITY } from '@/constants';
 import ranks from '@/data/ranks.json';
 import PROFILES from '@/data/profiles.json';
@@ -79,7 +79,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUsername, currentIcon, onSav
 
 
 const ProfilePage = () => {
-    const { state, resetData, updateProfileIcon, updateUsername } = useGame();
+    const { state, resetData, updateProfileIcon, updateUsername, exportData, importData } = useGame();
     const navigate = useNavigate();
     const { history, xp, rankId, profileIcon, username } = state;
 
@@ -89,11 +89,50 @@ const ProfilePage = () => {
     const [confirmText, setConfirmText] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [isRanksModalOpen, setIsRanksModalOpen] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [importError, setImportError] = useState('');
     const itemsPerPage = 10;
 
     const handleSaveProfile = (newUsername, newIcon) => {
         updateUsername(newUsername);
         updateProfileIcon(newIcon);
+    };
+
+    const handleExportData = () => {
+        const result = exportData();
+        if (!result.success) {
+            setImportError('Failed to export data. Please try again.');
+            setShowImportModal(true);
+        }
+    };
+
+    const handleImportData = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const encryptedData = e.target?.result;
+                const result = importData(encryptedData);
+                
+                if (result.success) {
+                    // Success - reload page to reflect changes
+                    window.location.reload();
+                } else {
+                    // Show error modal
+                    setImportError(result.error);
+                    setShowImportModal(true);
+                }
+            } catch (error) {
+                setImportError('Failed to read file. Please try again.');
+                setShowImportModal(true);
+            }
+        };
+        reader.readAsText(file);
+        
+        // Reset input so same file can be selected again
+        event.target.value = '';
     };
 
     const totalWins = history.filter(h => h.profit > 0).length;
@@ -143,7 +182,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    <div className="flex-grow">
+                    <div className="grow">
                         <div className="flex items-center gap-4">
                             <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                                 {username} <span id="profile-tier-name" className="text-sm font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">{tierName.toUpperCase()}</span>
@@ -156,7 +195,7 @@ const ProfilePage = () => {
                             <button onClick={() => setIsRanksModalOpen(true)} className="w-12 h-12 hover:scale-110 transition-transform">
                                 <img src={`assets/ranks/${currentRank.image}`} alt={currentRank.name} className="w-full h-full object-contain" />
                             </button>
-                            <div className="flex-grow">
+                            <div className="grow">
                                 <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">
                                     <span>Progress to Next Rank</span>
                                     <span id="profile-xp-text">{currentRankXP} / {xpPerRank} XP</span>
@@ -334,6 +373,33 @@ const ProfilePage = () => {
                     )}
                 </div>
 
+                {/* Export/Import Data Section */}
+                <div className="glass-panel p-6 rounded-xl border border-indigo-900/30 bg-indigo-950/10">
+                    <h3 className="text-lg font-bold text-indigo-400 mb-3 flex items-center gap-2">
+                        <Upload className="w-5 h-5" /> Data Management
+                    </h3>
+                    <p className="text-sm text-slate-400 mb-4">
+                        Export your progress to create a secure backup, or import a previously saved file.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                            onClick={handleExportData}
+                            className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-indigo-900/30 transition-all hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
+                        >
+                            <Download className="w-4 h-4" /> Export Data
+                        </button>
+                        <label className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-emerald-900/30 transition-all hover:scale-105 active:scale-95 cursor-pointer uppercase text-sm tracking-wide">
+                            <Upload className="w-4 h-4" /> Import Data
+                            <input
+                                type="file"
+                                accept=".json"
+                                onChange={handleImportData}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
+                </div>
+
                 {/* Reset Data Button */}
                 <div className="glass-panel p-6 rounded-xl border border-red-900/30 bg-red-950/10">
                     <div className="flex justify-between items-center">
@@ -459,6 +525,34 @@ const ProfilePage = () => {
                                     Delete Everything
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Import Error Modal */}
+            {showImportModal && (
+                <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-8 border border-red-700 relative animate-bounce-in">
+                        <div className="text-center">
+                            <div className="text-6xl mb-4 text-red-500">
+                                ❌
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-3">
+                                Import Failed
+                            </h3>
+                            <p className="text-slate-300 mb-6 leading-relaxed text-sm">
+                                {importError}
+                            </p>
+                            <button
+                                onClick={() => {
+                                    setShowImportModal(false);
+                                    setImportError('');
+                                }}
+                                className="w-full py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-slate-700 hover:bg-slate-600 hover:scale-105 active:scale-95 uppercase text-sm tracking-wide"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>
