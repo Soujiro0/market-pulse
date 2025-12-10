@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { formatMoney } from '@/utils';
-import { Play, Activity, DollarSign, Zap, User, BookOpen, Database, Megaphone, Menu, ChevronDown, Quote } from 'lucide-react';
+import { Play, Activity, DollarSign, Zap, User, BookOpen, Database, Megaphone, Menu, ChevronDown, Quote, Package } from 'lucide-react';
 import ranks from '@/data/ranks.json';
 import Announcements from '@/components/ui/Announcements';
 import GenericModal from '@/components/ui/GenericModal';
@@ -160,6 +160,16 @@ const HomePage = () => {
                                 >
                                     <Database className="w-4 h-4" />
                                     <span className="text-sm font-semibold">Databank</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        navigate('/collection');
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="flex items-center gap-3 px-5 py-3 text-slate-300 hover:text-white hover:bg-slate-700 transition-all w-full border-b border-slate-700"
+                                >
+                                    <Package className="w-4 h-4" />
+                                    <span className="text-sm font-semibold">Collection</span>
                                 </button>
                                 <button
                                     onClick={() => {

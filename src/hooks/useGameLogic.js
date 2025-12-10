@@ -74,7 +74,8 @@ const useGameLogic = () => {
                     username: parsed.username || 'OPERATOR_ID',
                     history: parsed.history || [],
                     loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
-                    seenItems: parsed.seenItems || [] // Migrate seenItems if exists
+                    seenItems: parsed.seenItems || [], // Migrate seenItems if exists
+                    collection: parsed.collection || [] // Migrate collection if exists
                 };
 
                 const gameStateData = {
@@ -130,7 +131,8 @@ const useGameLogic = () => {
             username: 'OPERATOR_ID',
             history: [],
             loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
-            seenItems: [] // Track items that have appeared in market
+            seenItems: [], // Track items that have appeared in market
+            collection: [] // Track purchased collectibles
         };
 
         // Default game state data
@@ -194,6 +196,60 @@ const useGameLogic = () => {
         });
     }, []);
 
+    // Collection Logic
+    const buyCollectible = useCallback((itemName, price) => {
+        let result = { success: false, message: '' };
+        
+        setState(prevState => {
+            // Check if item is already owned
+            const collection = prevState.collection || [];
+            if (collection.some(c => c.itemName === itemName)) {
+                result = { success: false, message: 'You already own this collectible.' };
+                return prevState;
+            }
+
+            // Check if player can afford
+            if (prevState.balance < price) {
+                result = { success: false, message: 'Insufficient funds to purchase this collectible.' };
+                return prevState;
+            }
+
+            // Create new collectible entry
+            const newCollectible = {
+                id: `collectible_${Date.now()}_${Math.random()}`,
+                itemName: itemName,
+                purchasePrice: price,
+                acquiredTurn: prevState.turn
+            };
+
+            result = { success: true };
+            return {
+                ...prevState,
+                balance: prevState.balance - price,
+                collection: [...collection, newCollectible]
+            };
+        });
+
+        return result;
+    }, []);
+
+    const sellCollectible = useCallback((collectibleId) => {
+        setState(prevState => {
+            const collection = prevState.collection || [];
+            const collectible = collection.find(c => c.id === collectibleId);
+            
+            if (!collectible) return prevState;
+
+            const sellPrice = Math.floor(collectible.purchasePrice * 0.65); // 65% of purchase price
+
+            return {
+                ...prevState,
+                balance: prevState.balance + sellPrice,
+                collection: collection.filter(c => c.id !== collectibleId)
+            };
+        });
+    }, []);
+
     // Save game state to localStorage (split into player and game state)
     const saveGame = useCallback(() => {
         const playerData = {
@@ -204,7 +260,8 @@ const useGameLogic = () => {
             username: state.username,
             history: state.history,
             loan: state.loan,
-            seenItems: state.seenItems
+            seenItems: state.seenItems,
+            collection: state.collection
         };
 
         const gameStateData = {
@@ -240,7 +297,8 @@ const useGameLogic = () => {
             username: state.username,
             history: state.history,
             loan: state.loan,
-            seenItems: state.seenItems
+            seenItems: state.seenItems,
+            collection: state.collection
         };
 
         const gameStateData = {
@@ -805,6 +863,8 @@ const useGameLogic = () => {
         exportData,
         importData,
         addItemToSeen,
+        buyCollectible,
+        sellCollectible,
     };
 };
 

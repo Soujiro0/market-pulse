@@ -5,8 +5,10 @@ import SimulationPage from './SimulationPage'; // Import the actual SimulationPa
 import ProfilePage from './ProfilePage'; // Import the actual ProfilePage
 import HelpPage from './HelpPage'; // Import the actual HelpPage
 import DatabankPage from './DatabankPage'; // Import the actual DatabankPage
+import CollectionPage from './CollectionPage'; // Import the CollectionPage
+import CollectionMarketPage from './CollectionMarketPage'; // Import the CollectionMarketPage
 import PlaytestStatsPage from './PlaytestStatsPage'; // Import the actual PlaytestStatsPage
 import RedirectPage from './RedirectPage'; // Import the RedirectPage
 import NotFoundPage from './NotFoundPage'; // Import the NotFoundPage
 
-export { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage, PlaytestStatsPage, RedirectPage, NotFoundPage }; // Export all actual pages
+export { HomePage, MarketPage, TradingPage, SimulationPage, ProfilePage, HelpPage, DatabankPage, CollectionPage, CollectionMarketPage, PlaytestStatsPage, RedirectPage, NotFoundPage }; // Export all actual pages
