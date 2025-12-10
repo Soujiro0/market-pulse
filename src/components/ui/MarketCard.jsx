@@ -39,7 +39,7 @@ const MarketCard = ({ product, onClick, index, isNew = false }) => {
                         <RarityIcon iconName={r.icon} className="w-3 h-3" /> {r.label}
                     </span>
                     {isNew && (
-                        <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gradient-to-r from-yellow-500 to-orange-500 text-white flex items-center gap-1 animate-pulse shadow-lg shadow-yellow-500/50">
+                        <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-linear-to-r from-yellow-500 to-orange-500 text-white flex items-center gap-1 animate-pulse shadow-lg shadow-yellow-500/50">
                             <Sparkles className="w-3 h-3" /> NEW
                         </span>
                     )}

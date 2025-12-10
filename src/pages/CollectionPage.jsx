@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import items from '@/data/items.json';
 import { formatMoney } from '@/utils';
-import { Package, TrendingUp, DollarSign, Calendar, X, AlertCircle, CheckCircle, ShoppingCart, Sparkles, TrendingDown } from 'lucide-react';
+import { RARITY } from '@/constants';
+import { Package, TrendingUp, DollarSign, Calendar, X, AlertCircle, CheckCircle, ShoppingCart, Sparkles, TrendingDown, Layers, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { MergeModal } from '@/components/ui';
 
-const CollectionCard = ({ item, collectionData, onSell, index }) => {
+const CollectionCard = ({ item, collectionData, onSell, index, isSelected, onSelect }) => {
     const [showSellModal, setShowSellModal] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     
@@ -18,26 +20,45 @@ const CollectionCard = ({ item, collectionData, onSell, index }) => {
     };
 
     const animationDelay = `${index * 80}ms`;
+    const rarityInfo = Object.values(RARITY).find(r => r.id === collectionData.rarity) || RARITY.STANDARD;
+    const shouldShine = collectionData.rarity === 'disruptive' || collectionData.rarity === 'unicorn';
 
     return (
         <>
             <div 
-                className="relative rounded-xl border-2 border-emerald-500/30 bg-slate-900 transition-all duration-300 overflow-hidden group hover:border-emerald-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 animate-roll-in"
+                className={`relative rounded-xl border-2 ${rarityInfo.border} bg-slate-900 transition-all duration-300 overflow-hidden group hover:scale-105 hover:shadow-2xl ${rarityInfo.glow} animate-roll-in cursor-pointer ${isSelected ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-950' : ''}`}
                 style={{ animationDelay }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
+                onClick={() => onSelect(collectionData.id)}
             >
                 {/* Glow Effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500/10 blur-xl -z-10"></div>
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${rarityInfo.glow} blur-xl -z-10`}></div>
 
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                {/* Shine Effect - Only for Disruptive and Unicorn */}
+                {shouldShine && (
+                    <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                )}
 
-                {/* Owned Badge */}
-                <div className="absolute top-3 right-3 z-10">
-                    <div className="bg-emerald-500 rounded-full p-1.5 shadow-lg animate-pulse">
-                        <CheckCircle className="w-5 h-5 text-white" />
+                {/* Rarity & Level Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                    <div className={`px-2 py-1 rounded-lg ${rarityInfo.bg} ${rarityInfo.border} border text-[10px] font-bold uppercase flex items-center gap-1`}>
+                        <span className={rarityInfo.color}>{collectionData.rarity}</span>
+                        <span className="text-slate-400">Lv.{collectionData.level || 1}</span>
                     </div>
+                </div>
+
+                {/* Selection Checkbox */}
+                <div className="absolute top-3 right-3 z-10">
+                    {isSelected ? (
+                        <div className="bg-cyan-500 rounded-full p-1.5 shadow-lg border-2 border-cyan-300 animate-pulse">
+                            <CheckCircle className="w-5 h-5 text-white" />
+                        </div>
+                    ) : (
+                        <div className={`${rarityInfo.bg} rounded-full p-1.5 shadow-lg border ${rarityInfo.border} opacity-70 group-hover:opacity-100 transition-opacity`}>
+                            <div className="w-5 h-5 border-2 border-white rounded-full"></div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-5 flex flex-col h-full">
@@ -49,7 +70,12 @@ const CollectionCard = ({ item, collectionData, onSell, index }) => {
                             <img 
                                 src={`assets/items/${item.image}`} 
                                 alt={item.name} 
-                                className="max-w-full max-h-full object-contain filter drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]"
+                                className={`max-w-full max-h-full object-contain ${
+                                    rarityInfo.id === 'unicorn' ? 'filter drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]' :
+                                    rarityInfo.id === 'disruptive' ? 'filter drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]' :
+                                    rarityInfo.id === 'emerging' ? 'filter drop-shadow-[0_0_15px_rgba(99,102,241,0.6)]' :
+                                    'filter drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]'
+                                }`}
                             />
                         </div>
                     </div>
@@ -66,12 +92,12 @@ const CollectionCard = ({ item, collectionData, onSell, index }) => {
 
                     {/* Stats Grid */}
                     <div className="space-y-2 mb-4">
-                        <div className="bg-slate-900/80 rounded-lg p-2 border border-slate-700">
+                        <div className={`bg-slate-900/80 rounded-lg p-2 border ${rarityInfo.border}`}>
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-slate-400 flex items-center gap-1">
                                     <DollarSign className="w-3 h-3" /> Paid
                                 </span>
-                                <span className="font-mono font-bold text-emerald-400 text-sm">{formatMoney(collectionData.purchasePrice)}</span>
+                                <span className={`font-mono font-bold ${rarityInfo.color} text-sm`}>{formatMoney(collectionData.purchasePrice)}</span>
                             </div>
                         </div>
                         <div className="bg-slate-900/80 rounded-lg p-2 border border-orange-700">
@@ -177,9 +203,17 @@ const CollectionCard = ({ item, collectionData, onSell, index }) => {
 
 const CollectionPage = () => {
     const navigate = useNavigate();
-    const { state, sellCollectible } = useGame();
+    const { state, sellCollectible, mergeCollectibles } = useGame();
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [soldItem, setSoldItem] = useState(null);
+    const [showMergeModal, setShowMergeModal] = useState(false);
+    const [showMergeSuccessModal, setShowMergeSuccessModal] = useState(false);
+    const [mergedResult, setMergedResult] = useState(null);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [rarityFilter, setRarityFilter] = useState(['all']);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showMultiSellConfirm, setShowMultiSellConfirm] = useState(false);
+    const itemsPerPage = 8;
 
     const collection = state.collection || [];
 
@@ -192,8 +226,122 @@ const CollectionPage = () => {
         setShowSuccessModal(true);
     };
 
+    const handleMultiSell = () => {
+        setShowMultiSellConfirm(true);
+    };
+
+    const confirmMultiSell = () => {
+        let totalEarned = 0;
+        selectedItems.forEach(id => {
+            const collData = collection.find(c => c.id === id);
+            if (collData) {
+                const sellPrice = Math.floor(collData.purchasePrice * 0.65);
+                totalEarned += sellPrice;
+                sellCollectible(id);
+            }
+        });
+        setSoldItem({ name: `${selectedItems.length} items`, price: totalEarned });
+        setSelectedItems([]);
+        setShowMultiSellConfirm(false);
+        setShowSuccessModal(true);
+    };
+
+    const toggleSelection = (id) => {
+        setSelectedItems(prev => 
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const selectAll = () => {
+        const allIds = filteredCollection.map(c => c.id);
+        setSelectedItems(allIds);
+    };
+
+    const deselectAll = () => {
+        setSelectedItems([]);
+    };
+
+    const handleMerge = (collectibleIds) => {
+        const result = mergeCollectibles(collectibleIds);
+        if (result.success) {
+            setMergedResult(result.mergedItem);
+            setShowMergeModal(false);
+            setShowMergeSuccessModal(true);
+        }
+    };
+
+    // Calculate eligible merge groups
+    const eligibleGroups = useMemo(() => {
+        const mergeRules = {
+            standard: { required: 3, upgradeTo: 'emerging', label: 'Emerging' },
+            emerging: { required: 3, upgradeTo: 'disruptive', label: 'Disruptive' },
+            disruptive: { required: 5, upgradeTo: 'unicorn', label: 'Unicorn' }
+        };
+
+        const groups = {};
+        
+        collection.forEach(c => {
+            const key = `${c.itemName}_${c.rarity}_${c.level || 1}`;
+            if (!groups[key]) {
+                groups[key] = {
+                    itemName: c.itemName,
+                    rarity: c.rarity,
+                    level: c.level || 1,
+                    collectibles: [],
+                    count: 0,
+                    rule: mergeRules[c.rarity]
+                };
+            }
+            if (groups[key].rule) { // Only if mergeable
+                groups[key].collectibles.push(c);
+                groups[key].count++;
+            }
+        });
+
+        return Object.values(groups).filter(g => g.rule && g.count >= 2); // Show groups with at least 2 items
+    }, [collection]);
+
+    // Filter by rarity
+    const filteredCollection = useMemo(() => {
+        if (rarityFilter.includes('all')) return collection;
+        return collection.filter(c => rarityFilter.includes(c.rarity));
+    }, [collection, rarityFilter]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredCollection.length / itemsPerPage);
+    const paginatedCollection = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredCollection.slice(startIndex, endIndex);
+    }, [filteredCollection, currentPage]);
+
+    // Reset to page 1 when filter changes
+    useMemo(() => {
+        setCurrentPage(1);
+    }, [rarityFilter.join(',')]);
+
+    const toggleRarityFilter = (rarity) => {
+        if (rarity === 'all') {
+            setRarityFilter(['all']);
+        } else {
+            setRarityFilter(prev => {
+                const newFilters = prev.filter(f => f !== 'all');
+                if (newFilters.includes(rarity)) {
+                    const filtered = newFilters.filter(f => f !== rarity);
+                    return filtered.length === 0 ? ['all'] : filtered;
+                } else {
+                    return [...newFilters, rarity];
+                }
+            });
+        }
+    };
+
     const totalValue = collection.reduce((sum, c) => sum + c.purchasePrice, 0);
     const totalSellValue = collection.reduce((sum, c) => sum + Math.floor(c.purchasePrice * 0.65), 0);
+    const selectedValue = selectedItems.reduce((sum, id) => {
+        const item = collection.find(c => c.id === id);
+        return sum + (item ? Math.floor(item.purchasePrice * 0.65) : 0);
+    }, 0);
 
     return (
         <>
@@ -215,13 +363,30 @@ const CollectionPage = () => {
                                 💎 <span className="font-bold text-emerald-400">Your Premium Assets:</span> {collection.length} collectible{collection.length !== 1 ? 's' : ''} owned
                             </p>
                         </div>
-                        <button
-                            onClick={() => navigate('/collection-market')}
-                            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 flex items-center gap-2"
-                        >
-                            <ShoppingCart className="w-5 h-5" />
-                            Collection Market
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowMergeModal(true)}
+                                disabled={eligibleGroups.length === 0}
+                                className={`px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 ${
+                                    eligibleGroups.length > 0
+                                        ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105'
+                                        : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                }`}
+                            >
+                                <Layers className="w-5 h-5" />
+                                Merge Items
+                                {eligibleGroups.length > 0 && (
+                                    <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">{eligibleGroups.length}</span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => navigate('/collection-market')}
+                                className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 flex items-center gap-2"
+                            >
+                                <ShoppingCart className="w-5 h-5" />
+                                Collection Market
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -283,13 +448,104 @@ const CollectionPage = () => {
                     </div>
                 ) : (
                     <>
+                        {/* Filter and Multi-Select Controls */}
+                        <div className="glass-panel p-4 rounded-xl border border-slate-700 mb-6">
+                            <div className="flex flex-col gap-4">
+                                {/* Rarity Filter */}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <Filter className="w-5 h-5 text-slate-400" />
+                                    <span className="text-slate-400 text-sm font-semibold">Filter by Rarity:</span>
+                                    <button
+                                        onClick={() => toggleRarityFilter('all')}
+                                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                                            rarityFilter.includes('all')
+                                                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30'
+                                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        All ({collection.length})
+                                    </button>
+                                    <button
+                                        onClick={() => toggleRarityFilter('standard')}
+                                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                                            rarityFilter.includes('standard')
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        Standard ({collection.filter(c => c.rarity === 'standard').length})
+                                    </button>
+                                    <button
+                                        onClick={() => toggleRarityFilter('emerging')}
+                                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                                            rarityFilter.includes('emerging')
+                                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        Emerging ({collection.filter(c => c.rarity === 'emerging').length})
+                                    </button>
+                                    <button
+                                        onClick={() => toggleRarityFilter('disruptive')}
+                                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                                            rarityFilter.includes('disruptive')
+                                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        Disruptive ({collection.filter(c => c.rarity === 'disruptive').length})
+                                    </button>
+                                    <button
+                                        onClick={() => toggleRarityFilter('unicorn')}
+                                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                                            rarityFilter.includes('unicorn')
+                                                ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-500/30'
+                                                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        Unicorn ({collection.filter(c => c.rarity === 'unicorn').length})
+                                    </button>
+                                </div>
+
+                                {/* Multi-Select Controls */}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button
+                                        onClick={selectAll}
+                                        className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold transition-all"
+                                    >
+                                        Select All
+                                    </button>
+                                    <button
+                                        onClick={deselectAll}
+                                        className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold transition-all"
+                                        disabled={selectedItems.length === 0}
+                                    >
+                                        Deselect All
+                                    </button>
+                                    {selectedItems.length > 0 && (
+                                        <button
+                                            onClick={handleMultiSell}
+                                            className="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold transition-all shadow-lg shadow-orange-500/30 flex items-center gap-2 animate-pulse"
+                                        >
+                                            <DollarSign className="w-4 h-4" />
+                                            Sell {selectedItems.length} Items ({formatMoney(selectedValue)})
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex items-center gap-2 mb-4">
                             <div className="h-1 flex-1 bg-emerald-500/50 rounded-full"></div>
-                            <h2 className="text-lg font-bold text-slate-400 uppercase tracking-wider">Your Assets</h2>
+                            <h2 className="text-lg font-bold text-slate-400 uppercase tracking-wider">
+                                Your Assets {!rarityFilter.includes('all') && `(${rarityFilter.length} filter${rarityFilter.length > 1 ? 's' : ''})`}
+                            </h2>
                             <div className="h-1 flex-1 bg-emerald-500/50 rounded-full"></div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {collection.map((collectionData, index) => {
+
+                        {/* Collection Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+                            {paginatedCollection.map((collectionData, index) => {
                                 const item = items.find(i => i.name === collectionData.itemName);
                                 if (!item) return null;
                                 return (
@@ -299,13 +555,163 @@ const CollectionPage = () => {
                                         collectionData={collectionData}
                                         onSell={handleSell}
                                         index={index}
+                                        isSelected={selectedItems.includes(collectionData.id)}
+                                        onSelect={toggleSelection}
                                     />
                                 );
                             })}
                         </div>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center gap-4 mt-8">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className={`p-3 rounded-lg font-bold transition-all shadow-lg flex items-center gap-2 ${
+                                        currentPage === 1
+                                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                            : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-500/30 hover:scale-105'
+                                    }`}
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                    Previous
+                                </button>
+
+                                <div className="flex items-center gap-2">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`w-10 h-10 rounded-lg font-bold transition-all ${
+                                                currentPage === page
+                                                    ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30 scale-110'
+                                                    : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-white'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className={`p-3 rounded-lg font-bold transition-all shadow-lg flex items-center gap-2 ${
+                                        currentPage === totalPages
+                                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                                            : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-500/30 hover:scale-105'
+                                    }`}
+                                >
+                                    Next
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
+
+            {/* Multi-Sell Confirmation Modal */}
+            {showMultiSellConfirm && (
+                <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border-2 border-orange-500 relative animate-bounce-in">
+                        <div className="text-center">
+                            <AlertCircle className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-white mb-3">Confirm Bulk Sale</h3>
+                            <p className="text-slate-300 mb-4 leading-relaxed">
+                                You are about to sell <span className="font-bold text-orange-400">{selectedItems.length} collectible{selectedItems.length > 1 ? 's' : ''}</span>.
+                            </p>
+                            
+                            <div className="bg-slate-800 rounded-lg p-4 mb-4 space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-400">Total Items:</span>
+                                    <span className="font-mono text-white font-bold">{selectedItems.length}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-400">Total Earnings (65%):</span>
+                                    <span className="font-mono text-orange-400 font-bold">{formatMoney(selectedValue)}</span>
+                                </div>
+                                <div className="h-px bg-slate-700"></div>
+                                <div className="flex justify-between text-sm pt-1">
+                                    <span className="text-slate-400 font-bold">You'll Lose:</span>
+                                    <span className="font-mono text-red-400 font-bold">
+                                        -{formatMoney(selectedItems.reduce((sum, id) => {
+                                            const item = collection.find(c => c.id === id);
+                                            return sum + (item ? item.purchasePrice * 0.35 : 0);
+                                        }, 0))}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p className="text-slate-400 text-xs mb-4">
+                                ⚠️ This action cannot be undone. You'll receive 65% of what you paid for each item.
+                            </p>
+                            
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowMultiSellConfirm(false)}
+                                    className="flex-1 py-3 rounded-lg text-white font-bold transition-all bg-slate-700 hover:bg-slate-600 hover:scale-105"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmMultiSell}
+                                    className="flex-1 py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-orange-600 hover:bg-orange-500 hover:scale-105"
+                                >
+                                    Confirm Sale
+                                </button>
+                            </div>
+                        </div>
+                        <button onClick={() => setShowMultiSellConfirm(false)} className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Merge Modal */}
+            <MergeModal
+                isOpen={showMergeModal}
+                onClose={() => setShowMergeModal(false)}
+                eligibleGroups={eligibleGroups}
+                onMerge={handleMerge}
+                items={items}
+            />
+
+            {/* Merge Success Modal */}
+            {showMergeSuccessModal && mergedResult && (
+                <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+                    <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border-2 border-purple-500 relative animate-bounce-in">
+                        <div className="text-center">
+                            <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-pulse" />
+                            <h3 className="text-xl font-bold text-white mb-3">Items Merged Successfully!</h3>
+                            <div className="bg-slate-800 rounded-lg p-4 mb-4">
+                                {(() => {
+                                    const item = items.find(i => i.name === mergedResult.itemName);
+                                    const rarityInfo = Object.values(RARITY).find(r => r.id === mergedResult.rarity);
+                                    return (
+                                        <>
+                                            <img src={`assets/items/${item?.image}`} alt={mergedResult.itemName} className="w-24 h-24 mx-auto mb-3" />
+                                            <p className="font-bold text-white text-lg mb-1">{mergedResult.itemName}</p>
+                                            <p className={`text-sm font-bold uppercase mb-2 ${rarityInfo?.color}`}>
+                                                {mergedResult.rarity} • Level {mergedResult.level}
+                                            </p>
+                                            <p className="text-emerald-400 font-mono font-bold">{formatMoney(mergedResult.purchasePrice)}</p>
+                                        </>
+                                    );
+                                })()}
+                            </div>
+                            <button
+                                onClick={() => setShowMergeSuccessModal(false)}
+                                className="w-full py-3 rounded-lg text-white font-bold transition-all shadow-lg bg-purple-600 hover:bg-purple-500"
+                            >
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Success Modal */}
             {showSuccessModal && soldItem && (

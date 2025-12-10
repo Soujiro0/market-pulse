@@ -1,16 +1,30 @@
 [
-    {
-        "id": 1,
-        "title": "Collections and Collection Market",
-        "date": "2025-12-11",
-        "content": "Added Collections and a new Collection Market. You can now complete collections for rewards and trade collection items.",
-        "tag": "New Feature"
-    },
-    {
-        "id": 2,
-        "title": "Unlockable items in databank",
-        "date": "2025-12-11",
-        "content": "Added Unlockable items in databank. You can now see which items are unlockable and how to obtain them.",
-        "tag": "New Feature"
-    }
+  {
+    "id": 1,
+    "title": "Collections and Collection Market",
+    "date": "2025-12-11",
+    "content": "Added Collections and a new Collection Market. You can now complete collections for rewards and trade collection items.",
+    "tag": "New Feature"
+  },
+  {
+    "id": 2,
+    "title": "Unlockable items in databank",
+    "date": "2025-12-11",
+    "content": "Added Unlockable items in databank. You can now see which items are unlockable and how to obtain them.",
+    "tag": "New Feature"
+  },
+  {
+    "id": 3,
+    "title": "Merging Items Collectibles",
+    "date": "2025-12-11",
+    "content": "You can now merge collectible items to create rarer and more valuable items. Check your collection for mergeable items.",
+    "tag": "New Feature"
+  },
+  {
+    "id": 4,
+    "title": "EXP Requirements Update",
+    "date": "2025-12-11",
+    "content": "We have rebalanced the EXP requirements for leveling up to provide a smoother progression.",
+    "tag": "Patch Notes"
+  }
 ]

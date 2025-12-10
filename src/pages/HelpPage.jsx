@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
-import { Book, Crosshair, Lightbulb, Award, Layers, BarChart2, Landmark, Box, Zap, Star, Crown, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Book, Crosshair, Lightbulb, Award, Layers, BarChart2, Landmark, Box, Zap, Star, Crown, HelpCircle, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 
 const HelpPage = () => {
     const navigate = useNavigate();
@@ -63,7 +63,7 @@ const HelpPage = () => {
                     <span className="bg-slate-900 p-2 rounded border border-slate-800">9. Executive</span>
                     <span className="bg-slate-900 p-2 rounded border border-slate-800 text-yellow-500 font-bold">10. Chairman</span>
                 </div>
-                <p className="mt-4 text-sm text-slate-500">*Each Rank requires 1000 XP.</p>
+                <p className="mt-4 text-sm text-slate-500">*Each Rank requires 5000 XP.</p>
             </div>
         </section>,
 
@@ -254,6 +254,106 @@ const HelpPage = () => {
                 <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
                     <h4 className="font-bold text-indigo-400 text-sm mb-2">How do I level up?</h4>
                     <p className="text-sm text-slate-400">Complete trades to earn XP. Profitable trades give bonus XP. Progress through 10 tiers (Intern to Chairman), each with 5 ranks. Check your Profile page to see your current rank and XP progress.</p>
+                </div>
+            </div>
+        </section>,
+
+        // Page 10: Collection System (Part 1)
+        <section key="collection-system-1">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-indigo-400" /> Collection System (1/2)
+            </h3>
+            <div className="space-y-4">
+                <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                    <h4 className="font-bold text-indigo-400 text-base mb-3">Overview</h4>
+                    <p className="text-sm text-slate-400 mb-3">The Collection system allows you to purchase and collect items as premium assets, separate from regular trading. Build your collection, merge items to increase rarity, and manage your portfolio.</p>
+                </div>
+
+                <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                    <h4 className="font-bold text-indigo-400 text-base mb-3">Collection Market</h4>
+                    <p className="text-sm text-slate-400 mb-3">Access the Collection Market from the homepage or My Collection page.</p>
+                    <ul className="text-sm text-slate-400 space-y-2 list-disc pl-5 marker:text-indigo-500">
+                        <li><strong>10 Random Items:</strong> 10 collectibles available per refresh cycle</li>
+                        <li><strong>Auto-Refresh:</strong> Market refreshes every 5 minutes</li>
+                        <li><strong>Purchase Once Per Refresh:</strong> Each item can only be bought once per cycle</li>
+                        <li><strong>Rarity Pricing:</strong> Standard ($10M-$30M), Emerging ($3.5M-$7.5M), Disruptive ($10M-$25M), Unicorn ($30M-$50M)</li>
+                    </ul>
+                </div>
+
+                <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                    <h4 className="font-bold text-indigo-400 text-base mb-3">Rarity Distribution</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="p-3 bg-blue-900/20 rounded border border-blue-900/30">
+                            <strong className="text-blue-400 block mb-1">Standard (65%)</strong>
+                            <span className="text-slate-400">Blue accents, no shine</span>
+                        </div>
+                        <div className="p-3 bg-indigo-900/20 rounded border border-indigo-900/30">
+                            <strong className="text-indigo-400 block mb-1">Emerging (30%)</strong>
+                            <span className="text-slate-400">Indigo accents, no shine</span>
+                        </div>
+                        <div className="p-3 bg-purple-900/20 rounded border border-purple-900/30">
+                            <strong className="text-purple-400 block mb-1">Disruptive (4%)</strong>
+                            <span className="text-slate-400">Purple accents, shine effect</span>
+                        </div>
+                        <div className="p-3 bg-yellow-900/20 rounded border border-yellow-900/30">
+                            <strong className="text-yellow-400 block mb-1">Unicorn (1%)</strong>
+                            <span className="text-slate-400">Gold accents, shine effect</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>,
+
+        // Page 11: Collection System (Part 2)
+        <section key="collection-system-2">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-indigo-400" /> Collection System (2/2)
+            </h3>
+            <div className="space-y-4">
+                <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                    <h4 className="font-bold text-indigo-400 text-base mb-3">My Collection Features</h4>
+                    <ul className="text-sm text-slate-400 space-y-2 list-disc pl-5 marker:text-indigo-500">
+                        <li><strong>Rarity Filter:</strong> Filter by Standard, Emerging, Disruptive, Unicorn, or All (checkbox buttons)</li>
+                        <li><strong>Pagination:</strong> 8 items per page with page navigation</li>
+                        <li><strong>Multi-Selection:</strong> Select multiple items for bulk operations</li>
+                        <li><strong>Bulk Sell:</strong> Sell multiple items at once with confirmation prompt</li>
+                        <li><strong>Sell Value:</strong> Receive 65% of purchase price when selling</li>
+                    </ul>
+                </div>
+
+                <div className="bg-slate-800/50 p-5 rounded-xl border border-slate-700">
+                    <h4 className="font-bold text-indigo-400 text-base mb-3">Merge System</h4>
+                    <p className="text-sm text-slate-400 mb-3">Combine multiple copies of the same item to upgrade its rarity.</p>
+                    <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-3 gap-3 text-xs font-bold text-slate-400 border-b border-slate-700 pb-2 mb-2">
+                            <span>From Rarity</span>
+                            <span>Items Needed</span>
+                            <span>Result</span>
+                        </div>
+                        <div className="space-y-2 text-xs">
+                            <div className="grid grid-cols-3 gap-3 items-center">
+                                <span className="text-blue-400">Standard</span>
+                                <span className="text-slate-400">3 copies</span>
+                                <span className="text-indigo-400">→ Emerging</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3 items-center">
+                                <span className="text-indigo-400">Emerging</span>
+                                <span className="text-slate-400">3 copies</span>
+                                <span className="text-purple-400">→ Disruptive</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3 items-center">
+                                <span className="text-purple-400">Disruptive</span>
+                                <span className="text-slate-400">5 copies</span>
+                                <span className="text-yellow-400">→ Unicorn</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul className="text-sm text-slate-400 space-y-1 list-disc pl-5 marker:text-purple-500">
+                        <li>Drag and drop interface</li>
+                        <li>+20% value bonus (totalPrice × 1.2)</li>
+                        <li>Level increases by 1 after merge</li>
+                        <li>Preview card shows result before confirming</li>
+                    </ul>
                 </div>
             </div>
         </section>,

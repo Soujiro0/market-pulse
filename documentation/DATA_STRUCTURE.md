@@ -1,7 +1,7 @@
 # Market Pulse: Restructured Data Documentation
 
-**Version**: 0.0.1-build.20251207.1  
-**Last Updated**: December 7, 2025
+**Version**: 0.0.1-build.20251211.1  
+**Last Updated**: December 11, 2025
 
 This document outlines the new restructured data format, separating player data from game state data.
 
@@ -30,7 +30,9 @@ Stored under `marketPulseSave_player_v4` in localStorage:
     "amount": 0,
     "dueTurn": 0,
     "interestRate": 0.05
-  }
+  },
+  "seenItems": [],
+  "collection": []
 }
 ```
 
@@ -43,6 +45,92 @@ Stored under `marketPulseSave_player_v4` in localStorage:
 - `username` (string): Player's username
 - `history` (array): Array of trade history entries
 - `loan` (object): Current loan information
+- `seenItems` (array): Array of item names that have been unlocked in the Databank
+- `collection` (array): Array of collectible items purchased from Collection Market
+
+### Collection Item Structure
+
+Each item in the `collection` array follows this structure:
+
+```json
+{
+  "id": "collectible_1234567890_0.123",
+  "itemName": "CryptoShark",
+  "purchasePrice": 1500,
+  "acquiredTurn": 5,
+  "rarity": "emerging",
+  "level": 1
+}
+```
+
+- `id` (string): Unique identifier for this collectible instance
+- `itemName` (string): Name of the item from items.json
+- `purchasePrice` (number): Amount paid for this item
+- `acquiredTurn` (number): Turn when the item was acquired
+- `rarity` (string): Rarity tier ("standard", "emerging", "disruptive", "unicorn")
+- `level` (number): Level of the item (increases when merging)
+
+### Collectible Merging System
+
+Players can merge multiple copies of the same item to upgrade its rarity:
+
+**Merge Requirements:**
+- 3 Standard items → 1 Emerging item
+- 3 Emerging items → 1 Disruptive item  
+- 5 Disruptive items → 1 Unicorn item
+
+**Merge Rules:**
+- All items must be the same item, same rarity, and same level
+- Merged items receive a +20% value bonus (formula: totalPrice × 1.2)
+- Level increases by 1 after each merge
+- Unicorn rarity items cannot be merged further
+- Drag and drop interface for intuitive crafting
+
+### Collection Interface Features
+
+**Pagination System:**
+- Displays 8 collectibles per page
+- Shows page numbers with Previous/Next navigation
+- Current page highlighted with cyan styling
+- Resets to page 1 when filter changes
+- Maintains selections across page navigation
+
+**Rarity Filtering:**
+- Dropdown filter: All, Standard, Emerging, Disruptive, Unicorn
+- Shows item count for each rarity category
+- Filtering preserves selection state
+- Filter persists across page navigation
+
+**Multi-Selection System:**
+- Click cards to toggle selection (cyan ring indicator)
+- Select All: Selects all items in current filtered view
+- Deselect All: Clears all selections
+- Selected items persist across page navigation
+- Bulk sell button appears when items selected
+- Shows total sell value for selected items
+
+**Visual Presentation:**
+- Rarity-based colors:
+  - Standard: Blue (rgb(59,130,246))
+  - Emerging: Indigo (rgb(99,102,241))
+  - Disruptive: Purple (rgb(168,85,247))
+  - Unicorn: Yellow/Gold (rgb(234,179,8))
+- Shine effects: Only on Disruptive and Unicorn during hover
+- Selection indicator: Cyan ring (ring-4 ring-cyan-400) and filled checkbox
+- Hover effects: Scale transform (105%) and glow based on rarity
+
+**Multi-Selection System:**
+- Click cards to toggle selection (cyan ring indicator)
+- Select All: Selects all items in current filtered view
+- Deselect All: Clears all selections
+- Selected items persist across page navigation
+- Bulk sell button appears when items selected
+
+**Visual Presentation:**
+- Rarity-based colors: Blue (Standard), Indigo (Emerging), Purple (Disruptive), Yellow (Unicorn)
+- Shine effects: Only visible on Disruptive and Unicorn rarities during hover
+- Selection indicator: Cyan ring and filled checkbox
+- Hover effects: Scale transform and glow based on rarity
 
 ## Game State Data
 
@@ -110,6 +198,39 @@ When loading old saves (`marketPulseSave_v3`), the system will automatically:
 3. Save in the new format
 4. Delete the old save
 
+### Collection Interface Features
+
+**Pagination System:**
+- Displays 8 collectibles per page
+- Shows page numbers with Previous/Next navigation
+- Current page highlighted with cyan styling
+- Resets to page 1 when filter changes
+- Maintains selections across page navigation
+
+**Rarity Filtering:**
+- Dropdown filter: All, Standard, Emerging, Disruptive, Unicorn
+- Shows item count for each rarity category
+- Filtering preserves selection state
+- Filter persists across page navigation
+
+**Multi-Selection System:**
+- Click cards to toggle selection (cyan ring indicator)
+- Select All: Selects all items in current filtered view
+- Deselect All: Clears all selections
+- Selected items persist across page navigation
+- Bulk sell button appears when items selected
+- Shows total sell value for selected items
+
+**Visual Presentation:**
+- Rarity-based colors:
+  - Standard: Blue (rgb(59,130,246))
+  - Emerging: Indigo (rgb(99,102,241))
+  - Disruptive: Purple (rgb(168,85,247))
+  - Unicorn: Yellow/Gold (rgb(234,179,8))
+- Shine effects: Only on Disruptive and Unicorn during hover
+- Selection indicator: Cyan ring (ring-4 ring-cyan-400) and filled checkbox
+- Hover effects: Scale transform (105%) and glow based on rarity
+
 ## Export/Import Data Structure
 
 When exporting data through the Profile page, the system creates an encrypted JSON file with the following structure (before encryption):
@@ -130,7 +251,9 @@ When exporting data through the Profile page, the system creates an encrypted JS
       "amount": 0,
       "dueTurn": 0,
       "interestRate": 0.05
-    }
+    },
+    "seenItems": [],
+    "collection": []
   },
   "gameState": {
     "turn": 1,

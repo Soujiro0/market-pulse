@@ -141,7 +141,7 @@ const ProfilePage = () => {
 
     const currentRank = ranks[rankId];
     const tierName = currentRank.name;
-    const xpPerRank = 1000;
+    const xpPerRank = 5000;
     const currentRankXP = xp % xpPerRank;
 
     // Pagination logic

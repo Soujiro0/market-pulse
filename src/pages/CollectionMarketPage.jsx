@@ -1,10 +1,14 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/contexts/GameContext';
 import items from '@/data/items.json';
 import { formatMoney } from '@/utils';
 import { RARITY } from '@/constants';
 import { ShoppingCart, Package, Box, Zap, Star, Crown, X, CheckCircle, AlertCircle, HelpCircle, RefreshCw, DollarSign } from 'lucide-react';
+
+// Global timer state that persists across component mounts
+let globalTimerStart = Date.now();
+let globalMarketKey = 0;
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {
@@ -16,67 +20,64 @@ const RarityIcon = ({ iconName, className }) => {
     }
 };
 
-const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, index }) => {
+const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, isPurchased, index, collection }) => {
     const [showBuyModal, setShowBuyModal] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
     const handleBuy = () => {
-        onBuy(item, price);
+        onBuy(item, price, rarity);
         setShowBuyModal(false);
     };
 
-    const glowClass = rarity.label === 'Blue Chip' ? 'hover:shadow-blue-500/30' :
-                      rarity.label === 'Growth' ? 'hover:shadow-indigo-500/30' :
-                      rarity.label === 'High-Risk' ? 'hover:shadow-purple-500/30' :
-                      rarity.label === 'Moonshot' ? 'hover:shadow-yellow-500/30' : '';
-
     const animationDelay = `${index * 100}ms`;
+    const shouldShine = rarity.id === 'disruptive' || rarity.id === 'unicorn';
 
     return (
         <>
             <div 
-                className={`relative rounded-xl border-2 transition-all duration-300 overflow-hidden group cursor-pointer animate-roll-in ${
-                    isOwned 
-                        ? 'border-emerald-500/50 bg-emerald-900/10' 
-                        : isLocked
-                        ? 'border-slate-700 bg-slate-900/50'
-                        : `${rarity.border} bg-slate-900 hover:scale-105 hover:shadow-2xl ${glowClass}`
+                className={`relative rounded-xl border-2 ${rarity.border} bg-slate-900 transition-all duration-300 overflow-hidden group hover:scale-105 hover:shadow-2xl ${rarity.glow} animate-roll-in ${
+                    isPurchased ? 'opacity-60' : isLocked ? 'opacity-50' : ''
                 }`}
                 style={{ animationDelay }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                {/* Rarity Glow Effect */}
-                {!isOwned && !isLocked && (
+                {/* Glow Effect */}
+                {!isLocked && !isPurchased && (
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${rarity.glow} blur-xl -z-10`}></div>
                 )}
 
-                {/* Shine Effect for High Rarities */}
-                {!isOwned && !isLocked && (rarity.id === 'unicorn' || rarity.id === 'disruptive') && (
+                {/* Shine Effect - Only for Disruptive and Unicorn */}
+                {shouldShine && !isLocked && !isPurchased && (
                     <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 )}
 
-                {/* Owned Badge */}
-                {isOwned && !isLocked && (
-                    <div className="absolute top-2 right-2 z-10">
-                        <div className="bg-emerald-500 rounded-full p-1.5 shadow-lg animate-pulse">
-                            <CheckCircle className="w-5 h-5 text-white" />
-                        </div>
+                {/* Rarity Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                    <div className={`px-2 py-1 rounded-lg ${rarity.bg} ${rarity.border} border text-[10px] font-bold uppercase flex items-center gap-1`}>
+                        <span className={rarity.color}>{rarity.id}</span>
                     </div>
-                )}
+                </div>
+
+                {/* Owned Badge - Show count if owned */}
+                {isOwned && !isLocked && (() => {
+                    const ownedCount = collection.filter(c => c.itemName === item.name).length;
+                    return (
+                        <div className="absolute top-3 right-3 z-10">
+                            <div className={`${rarity.bg} rounded-lg px-2 py-1 shadow-lg border ${rarity.border} flex items-center gap-1`}>
+                                <CheckCircle className="w-4 h-4 text-white" />
+                                <span className="text-white text-xs font-bold">x{ownedCount}</span>
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 <div className="p-5 flex flex-col h-full">
-                    {/* Rarity Badge */}
-                    <div className="flex justify-between items-start mb-3">
-                        <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${rarity.bg} ${rarity.color} border ${rarity.border} flex items-center gap-1 shadow-md`}>
-                            <RarityIcon iconName={rarity.icon} className="w-3 h-3" /> {rarity.label}
-                        </span>
-                    </div>
 
                     {/* Item Image */}
-                    <div className="flex-1 flex items-center justify-center mb-4 relative">
+                    <div className="flex-1 flex items-center justify-center mb-4">
                         <div className={`w-32 h-32 flex items-center justify-center transition-transform duration-300 ${
-                            isHovered && !isOwned && !isLocked ? 'scale-110 rotate-6' : ''
+                            isHovered && !isLocked ? 'scale-110 rotate-3' : ''
                         }`}>
                             {isLocked ? (
                                 <div className="relative">
@@ -87,9 +88,11 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
                                 <img 
                                     src={`assets/items/${item.image}`} 
                                     alt={item.name} 
-                                    className={`max-w-full max-h-full object-contain drop-shadow-2xl ${
+                                    className={`max-w-full max-h-full object-contain ${
                                         rarity.id === 'unicorn' ? 'filter drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]' :
-                                        rarity.id === 'disruptive' ? 'filter drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]' : ''
+                                        rarity.id === 'disruptive' ? 'filter drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]' :
+                                        rarity.id === 'emerging' ? 'filter drop-shadow-[0_0_15px_rgba(99,102,241,0.6)]' :
+                                        'filter drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]'
                                     }`}
                                 />
                             )}
@@ -106,42 +109,46 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
                         </p>
                     </div>
 
-                    {/* Price Tag */}
-                    <div className="mb-3">
-                        <div className="bg-slate-900/80 rounded-lg p-3 border border-slate-700 backdrop-blur-sm">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-400 uppercase font-bold">Price</span>
-                                <span className="font-mono font-bold text-white text-xl">{formatMoney(price)}</span>
+                    {/* Stats Grid */}
+                    <div className="space-y-2 mb-4">
+                        <div className={`bg-slate-900/80 rounded-lg p-2 border ${rarity.border}`}>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs text-slate-400 flex items-center gap-1">
+                                    <DollarSign className="w-3 h-3" /> Price
+                                </span>
+                                <span className={`font-mono font-bold ${rarity.color} text-sm`}>{formatMoney(price)}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Action Button */}
                     <button
-                        onClick={() => !isOwned && !isLocked && setShowBuyModal(true)}
-                        disabled={isOwned || isLocked}
-                        className={`w-full py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 uppercase tracking-wider ${
-                            isOwned
-                                ? 'bg-emerald-600/50 text-emerald-300 cursor-not-allowed'
+                        onClick={() => !isLocked && !isPurchased && setShowBuyModal(true)}
+                        disabled={isLocked || isPurchased}
+                        className={`w-full py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
+                            isPurchased
+                                ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                 : isLocked
                                 ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700'
-                                : 'bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transform hover:-translate-y-0.5 active:translate-y-0'
+                                : isOwned
+                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105'
+                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105'
                         }`}
                     >
-                        {isOwned ? (
+                        {isPurchased ? (
                             <>
-                                <CheckCircle className="w-5 h-5" />
-                                Owned
+                                <CheckCircle className="w-4 h-4" />
+                                Purchased
                             </>
                         ) : isLocked ? (
                             <>
-                                <HelpCircle className="w-5 h-5" />
+                                <HelpCircle className="w-4 h-4" />
                                 Locked
                             </>
                         ) : (
                             <>
-                                <ShoppingCart className="w-5 h-5" />
-                                Purchase
+                                <ShoppingCart className="w-4 h-4" />
+                                {isOwned ? 'Buy Another' : 'Purchase'}
                             </>
                         )}
                     </button>
@@ -149,7 +156,7 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
             </div>
 
             {/* Buy Confirmation Modal */}
-            {showBuyModal && !isOwned && !isLocked && (
+            {showBuyModal && !isPurchased && (
                 <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in" onClick={() => setShowBuyModal(false)}>
                     <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-indigo-700 relative animate-bounce-in" onClick={e => e.stopPropagation()}>
                         <div className="text-center">
@@ -201,28 +208,36 @@ const CollectionMarketPage = () => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [boughtItem, setBoughtItem] = useState(null);
-    const [marketKey, setMarketKey] = useState(0);
-    const [timeUntilRefresh, setTimeUntilRefresh] = useState(300); // 5 minutes in seconds
+    const [marketKey, setMarketKey] = useState(globalMarketKey);
+    const [timeUntilRefresh, setTimeUntilRefresh] = useState(() => {
+        const elapsed = Math.floor((Date.now() - globalTimerStart) / 1000);
+        return Math.max(1, 300 - (elapsed % 300));
+    });
+    const [purchasedThisRefresh, setPurchasedThisRefresh] = useState([]);
 
-    // Auto-refresh market every 5 minutes
+    // Countdown timer that syncs with global state
     useEffect(() => {
-        const interval = setInterval(() => {
-            setMarketKey(prev => prev + 1);
-            setTimeUntilRefresh(300); // Reset timer
-        }, 300000); // 300000ms = 5 minutes
+        const updateTimer = () => {
+            const elapsed = Math.floor((Date.now() - globalTimerStart) / 1000);
+            const remaining = 300 - (elapsed % 300);
+            
+            // Check if we need to refresh the market
+            if (remaining >= 300 || elapsed >= 300 * (globalMarketKey + 1)) {
+                globalMarketKey += 1;
+                globalTimerStart = Date.now();
+                setMarketKey(globalMarketKey);
+                setTimeUntilRefresh(300);
+                setPurchasedThisRefresh([]);
+            } else {
+                setTimeUntilRefresh(Math.max(1, remaining));
+            }
+        };
 
-        return () => clearInterval(interval);
-    }, []);
-
-    // Countdown timer
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeUntilRefresh(prev => {
-                if (prev <= 1) return 300;
-                return prev - 1;
-            });
-        }, 1000);
-
+        // Initial update
+        updateTimer();
+        
+        // Update every second
+        const timer = setInterval(updateTimer, 1000);
         return () => clearInterval(timer);
     }, []);
 
@@ -232,31 +247,31 @@ const CollectionMarketPage = () => {
         const shuffledItems = [...items].sort(() => 0.5 - Math.random()).slice(0, 5);
         
         return shuffledItems.map(item => {
-            // Determine rarity based on random roll
+            // Determine rarity based on random roll (lower rates for rare items)
             const rRoll = Math.random();
             let rarity = RARITY.STANDARD;
-            if (rRoll > 0.95) rarity = RARITY.UNICORN;
-            else if (rRoll > 0.85) rarity = RARITY.DISRUPTIVE;
-            else if (rRoll > 0.60) rarity = RARITY.EMERGING;
+            if (rRoll > 0.99) rarity = RARITY.UNICORN; // 1% chance (was 5%)
+            else if (rRoll > 0.95) rarity = RARITY.DISRUPTIVE; // 4% chance (was 10%)
+            else if (rRoll > 0.65) rarity = RARITY.EMERGING; // 30% chance (was 40%)
 
-            // Base price range depending on rarity
+            // Base price range depending on rarity (premium collectibles)
             let minPrice, maxPrice;
             switch (rarity.id) {
                 case 'unicorn':
-                    minPrice = 8000;
-                    maxPrice = 15000;
+                    minPrice = 30000000; // Ultra rare
+                    maxPrice = 50000000;
                     break;
                 case 'disruptive':
-                    minPrice = 3000;
-                    maxPrice = 7000;
+                    minPrice = 10000000; // Very rare
+                    maxPrice = 25000000;
                     break;
                 case 'emerging':
-                    minPrice = 1000;
-                    maxPrice = 2500;
+                    minPrice = 3500000; // Uncommon
+                    maxPrice = 7500000;
                     break;
                 default: // standard
-                    minPrice = 300;
-                    maxPrice = 900;
+                    minPrice = 10000000; // Common
+                    maxPrice = 30000000;
                     break;
             }
 
@@ -271,11 +286,19 @@ const CollectionMarketPage = () => {
         });
     }, [marketKey]); // Regenerate when marketKey changes
 
-    const handleBuy = (item, price) => {
-        const result = buyCollectible(item.name, price);
+    const handleBuy = (item, price, rarity) => {
+        // Check if already purchased this refresh
+        if (purchasedThisRefresh.includes(item.name)) {
+            setErrorMessage('You already purchased this item. Wait for the market to refresh.');
+            setShowErrorModal(true);
+            return;
+        }
+
+        const result = buyCollectible(item.name, price, rarity.id);
         
         if (result.success) {
             setBoughtItem({ name: item.name, price });
+            setPurchasedThisRefresh(prev => [...prev, item.name]); // Track purchase
             setShowSuccessModal(true);
         } else {
             setErrorMessage(result.message);
@@ -285,7 +308,8 @@ const CollectionMarketPage = () => {
 
     const collection = state.collection || [];
     const seenItems = state.seenItems || [];
-    const ownedItemNames = collection.map(c => c.itemName);
+    // Check if player owns at least one copy for visual indicator
+    const ownedItemNames = [...new Set(collection.map(c => c.itemName))];
 
     return (
         <>
@@ -390,17 +414,20 @@ const CollectionMarketPage = () => {
                             
                             const isOwned = ownedItemNames.includes(item.name);
                             const isLocked = !seenItems.includes(item.name);
+                            const isPurchased = purchasedThisRefresh.includes(item.name);
                             
                             return (
-                                <CollectionMarketCard
+                                    <CollectionMarketCard
                                     key={`${marketKey}-${item.id}`}
                                     item={item}
                                     price={marketData.price}
                                     rarity={marketData.rarity}
-                                    onBuy={handleBuy}
+                                    onBuy={(item, price) => handleBuy(item, price, marketData.rarity)}
                                     isOwned={isOwned}
                                     isLocked={isLocked}
+                                    isPurchased={isPurchased}
                                     index={index}
+                                    collection={collection}
                                 />
                             );
                         })}

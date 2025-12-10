@@ -1,9 +1,9 @@
 # Market Pulse: Comprehensive Documentation
 
-**Version**: 0.0.1-build.20251207.1
+**Version**: 0.0.1-build.20251211.1
 **Platform**: Web (Single Page Application)
 **Genre**: Strategic Business Simulation
-**Last Updated**: December 7, 2025
+**Last Updated**: December 11, 2025
 
 ---
 
@@ -198,7 +198,9 @@ const totalCost = baseCost * rerollCostMultiplier;
 
 ### 1.7 Rank Progression System
 
-Climb the corporate ladder by earning XP through successful trades.
+Climb the corporate ladder by earning XP through successful trades. Each rank requires **5000 XP** to advance.
+
+**Rank Structure:** 10 tiers (Intern to Chairman), each with 5 levels (50 total ranks)
 
 | Rank ID | Title | XP Required | Icon | Unlocks |
 |---------|-------|-------------|------|---------|
@@ -274,7 +276,135 @@ View detailed logs of all completed trades with pagination:
 
 ---
 
-### 1.9 Strategic Advice (Tips)
+### 1.9 Collection System
+
+The Collection system allows players to purchase and collect items as premium assets, separate from regular trading.
+
+#### **Databank**
+- Encyclopedia of all items in the game
+- Items are locked until encountered in Global Ventures
+- Items unlock only when purchased/traded in the main market
+- Locked items display as "?" with hidden images
+- Unlocked items show full details and images
+
+#### **Collection Market**
+A premium marketplace where players can purchase collectibles with varying rarities.
+
+**Market Features:**
+- **10 Random Items**: 10 collectibles available per refresh cycle
+- **Auto-Refresh**: Market refreshes every 5 minutes
+- **Rarity-Based Pricing**: Higher rarity = higher cost (50% premium)
+- **Multiple Purchases**: Can buy the same item multiple times
+- **Purchase Protection**: Each item can only be bought once per refresh
+  - "Purchased" button prevents spam buying
+  - "Buy Another" option if item already owned
+  - Counter resets on market refresh
+  - Shows owned count badge
+
+**Rarity Distribution:**
+- Standard (65%): $10M - $30M
+- Emerging (30%): $3.5M - $7.5M
+- Disruptive (4%): $10M - $25M
+- Unicorn (1%): $30M - $50M
+
+#### **My Collection**
+View and manage all purchased collectibles with advanced filtering and selection tools.
+
+**Collection Stats:**
+- Total Items: Number of collectibles owned
+- Purchase Value: Total amount spent
+- Current Value: 65% of purchase price (sell value)
+
+**Interface Features:**
+- **Rarity Filter**: Dropdown to filter by rarity tier
+  - Options: All, Standard, Emerging, Disruptive, Unicorn
+  - Shows count for each category
+  - Resets to page 1 on filter change
+- **Pagination**: 8 items per page
+  - Previous/Next navigation buttons
+  - Direct page number selection
+  - Maintains filter across pages
+- **Multi-Selection**: Select multiple items for bulk operations
+  - Click cards to toggle selection (cyan ring indicator)
+  - "Select All" button - selects all items in current filtered view
+  - "Deselect All" button - clears all selections
+  - Bulk sell button shows total earnings for selected items
+
+**Collectible Properties:**
+- Item Name and Image
+- Rarity (Standard, Emerging, Disruptive, Unicorn)
+- Level (starts at 1, increases through merging)
+- Purchase Price
+- Acquired Turn
+- Rarity-based card colors and effects
+
+**Visual Effects by Rarity:**
+- **Standard**: Blue accents, no shine effect
+- **Emerging**: Indigo accents, no shine effect
+- **Disruptive**: Purple accents, **shine effect on hover**
+- **Unicorn**: Yellow/gold accents, **shine effect on hover**
+
+**Selling Collectibles:**
+- **Single Sell**: Click individual item's sell button
+  - Sell for 65% of purchase price
+  - Confirmation modal shows loss calculation
+- **Multi-Sell**: Select multiple items and use bulk sell button
+  - Shows total earnings for all selected items
+  - Processes all sales at once
+  - Displays combined result in success modal
+- Instant liquidity
+- Cannot be undone
+
+#### **Merge System** ✨
+
+Combine multiple copies of the same item to upgrade its rarity.
+
+**Merge Requirements:**
+| From Rarity | Items Needed | Result | Value Bonus |
+|-------------|--------------|--------|-------------|
+| Standard | 3 copies | 1 Emerging | +20% |
+| Emerging | 3 copies | 1 Disruptive | +20% |
+| Disruptive | 5 copies | 1 Unicorn | +20% |
+| Unicorn | - | Cannot merge | - |
+
+**Merge Rules:**
+- All items must be the same item name
+- All items must be the same rarity
+- All items must be the same level
+- Merged item receives +20% value bonus (formula: totalPrice × 1.2)
+- Level increases by 1 after merge
+
+**Merge Interface:**
+- **Drag and Drop**: Interactive crafting system using @dnd-kit
+  - Draggable items from available list
+  - Droppable slots for crafting (3 or 5 slots depending on rarity)
+  - Visual feedback during drag operations
+  - Remove items from slots by clicking X button
+- **Visual Slots**: See exactly what you're merging
+  - Shows item images and prices
+  - Highlights when dragging over
+  - Slot counter shows progress (e.g., "2/3")
+  - Total price displayed below slots
+- **Result Preview**: Shows the upgraded item before confirming
+  - Full card with upgraded rarity styling
+  - New value calculation with +20% bonus
+  - Sell value preview (65% of new value)
+  - Item flavor text and description
+- **Eligible Groups**: System highlights which items can be merged
+  - Filters by same item name, rarity, and level
+  - Shows merge requirements (3 or 5 items)
+  - Merge button badge shows number of eligible groups
+  - Only shows groups with 2+ items
+
+**Strategic Benefits:**
+- Build high-value collections
+- Create rare items without relying on market RNG
+- Increase resale value through merging
+- Progress toward completing high-tier collections
+
+---
+
+### 1.10 Strategic Advice (Tips)
 
 #### **For Beginners**
 1. **Start Conservative**: Focus on Standard and Emerging tier assets

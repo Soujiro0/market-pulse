@@ -75,7 +75,7 @@ const HomePage = () => {
 
     const currentRank = ranks[rankId];
     const tierName = currentRank.name;
-    const xpPerRank = 1000;
+    const xpPerRank = 5000;
     const currentRankXP = xp % xpPerRank;
     const xpProgress = (currentRankXP / xpPerRank) * 100;
 
@@ -139,8 +139,8 @@ const HomePage = () => {
                             </button>
 
                             <div className={`absolute top-full mt-2 w-full bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden z-10 transition-all duration-300 origin-top ${isMenuOpen
-                                    ? 'opacity-100 scale-y-100 translate-y-0'
-                                    : 'opacity-0 scale-y-0 -translate-y-2 pointer-events-none'
+                                ? 'opacity-100 scale-y-100 translate-y-0'
+                                : 'opacity-0 scale-y-0 -translate-y-2 pointer-events-none'
                                 }`}>
                                 <button
                                     onClick={() => {
@@ -196,6 +196,31 @@ const HomePage = () => {
                         </div>
                     </div>
 
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Year Counter */}
+                        <div className="glass-panel p-5 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105 bg-indigo-900/10 shadow-lg hover:shadow-indigo-500/30 group">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-slate-400 text-xs uppercase font-bold">Year</span>
+                                <div className="w-10 h-10 bg-indigo-600/20 rounded-lg flex items-center justify-center border border-indigo-500/30 group-hover:border-indigo-500 transition-all">
+                                    <Activity className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                                </div>
+                            </div>
+                            <p className="text-2xl font-bold text-indigo-400 font-mono">#{turn}</p>
+                        </div>
+
+                        {/* Balance Card */}
+                        <div className="glass-panel p-5 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500 transition-all hover:scale-105 bg-emerald-900/10 shadow-lg hover:shadow-emerald-500/30 group">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-slate-400 text-xs uppercase font-bold">Capital</span>
+                                <div className="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center border border-emerald-500/30 group-hover:border-emerald-500 transition-all">
+                                    <DollarSign className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                                </div>
+                            </div>
+                            <p className="text-2xl font-bold text-emerald-400 font-mono">{formatMoney(balance)}</p>
+                        </div>
+                    </div>
+
                     {/* Main Content Grid: Market Wisdom Left, Stats Right */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Market Wisdom Quote - Square */}
@@ -219,29 +244,41 @@ const HomePage = () => {
 
                         {/* Right Side: Stats and Play Button */}
                         <div className="flex flex-col gap-4">
-                            {/* Stats Row */}
-                            <div className="grid grid-cols-2 gap-4">
-                                {/* Balance Card */}
-                                <div className="glass-panel p-5 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105 bg-indigo-900/10 shadow-lg hover:shadow-indigo-500/30 group">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-slate-400 text-xs uppercase font-bold">Capital</span>
-                                        <div className="w-10 h-10 bg-indigo-600/20 rounded-lg flex items-center justify-center border border-indigo-500/30 group-hover:border-indigo-500 transition-all">
-                                            <DollarSign className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                            {/* Collection Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Collection Market Button */}
+                                <button
+                                    onClick={() => navigate('/collection-market')}
+                                    className="glass-panel p-6 rounded-xl border-2 border-purple-500/30 hover:border-purple-500 transition-all hover:scale-105 bg-purple-900/10 shadow-lg hover:shadow-purple-500/30 group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-purple-600/20 rounded-xl flex items-center justify-center border-2 border-purple-500/30 group-hover:border-purple-500 transition-all group-hover:scale-110">
+                                            <Package className="w-7 h-7 text-purple-400 group-hover:rotate-12 transition-transform" />
                                         </div>
+                                        <div className="text-left flex-1">
+                                            <h3 className="text-lg font-bold text-purple-400 mb-1">Collection Market</h3>
+                                            <p className="text-slate-400 text-xs">Browse and purchase premium collectibles</p>
+                                        </div>
+                                        <ChevronDown className="w-5 h-5 text-purple-400 -rotate-90 group-hover:translate-x-1 transition-transform" />
                                     </div>
-                                    <p className="text-2xl font-bold text-indigo-400 font-mono">{formatMoney(balance)}</p>
-                                </div>
+                                </button>
 
-                                {/* Year Counter */}
-                                <div className="glass-panel p-5 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500 transition-all hover:scale-105 bg-emerald-900/10 shadow-lg hover:shadow-emerald-500/30 group">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-slate-400 text-xs uppercase font-bold">Year</span>
-                                        <div className="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center border border-emerald-500/30 group-hover:border-emerald-500 transition-all">
-                                            <Activity className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                                {/* My Collection Button */}
+                                <button
+                                    onClick={() => navigate('/collection')}
+                                    className="glass-panel p-6 rounded-xl border-2 border-emerald-500/30 hover:border-emerald-500 transition-all hover:scale-105 bg-emerald-900/10 shadow-lg hover:shadow-emerald-500/30 group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-emerald-600/20 rounded-xl flex items-center justify-center border-2 border-emerald-500/30 group-hover:border-emerald-500 transition-all group-hover:scale-110">
+                                            <Package className="w-7 h-7 text-emerald-400 group-hover:rotate-12 transition-transform" />
                                         </div>
+                                        <div className="text-left flex-1">
+                                            <h3 className="text-lg font-bold text-emerald-400 mb-1">My Collection</h3>
+                                            <p className="text-slate-400 text-xs">View, manage, and merge your collectibles</p>
+                                        </div>
+                                        <ChevronDown className="w-5 h-5 text-emerald-400 -rotate-90 group-hover:translate-x-1 transition-transform" />
                                     </div>
-                                    <p className="text-2xl font-bold text-emerald-400 font-mono">#{turn}</p>
-                                </div>
+                                </button>
                             </div>
 
                             {/* Loan Warning */}
@@ -268,30 +305,26 @@ const HomePage = () => {
 
                             {/* Current Market Event */}
                             {marketEvent && (
-                                <div className={`glass-panel p-5 rounded-2xl border-2 shadow-lg ${
-                                    marketEvent.climate === 'Bullish' ? 'border-green-500/50 bg-green-900/10 shadow-green-500/20' :
-                                    marketEvent.climate === 'Bearish' ? 'border-red-500/50 bg-red-900/10 shadow-red-500/20' :
-                                    'border-yellow-500/50 bg-yellow-900/10 shadow-yellow-500/20'
-                                }`}>
+                                <div className={`glass-panel p-5 rounded-2xl border-2 shadow-lg ${marketEvent.climate === 'Bullish' ? 'border-green-500/50 bg-green-900/10 shadow-green-500/20' :
+                                        marketEvent.climate === 'Bearish' ? 'border-red-500/50 bg-red-900/10 shadow-red-500/20' :
+                                            'border-yellow-500/50 bg-yellow-900/10 shadow-yellow-500/20'
+                                    }`}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                                                marketEvent.climate === 'Bullish' ? 'bg-green-900/30 border-green-500/50' :
-                                                marketEvent.climate === 'Bearish' ? 'bg-red-900/30 border-red-500/50' :
-                                                'bg-yellow-900/30 border-yellow-500/50'
-                                            }`}>
-                                                <Activity className={`w-5 h-5 ${
-                                                    marketEvent.climate === 'Bullish' ? 'text-green-400' :
-                                                    marketEvent.climate === 'Bearish' ? 'text-red-400' :
-                                                    'text-yellow-400'
-                                                } animate-pulse`} />
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${marketEvent.climate === 'Bullish' ? 'bg-green-900/30 border-green-500/50' :
+                                                    marketEvent.climate === 'Bearish' ? 'bg-red-900/30 border-red-500/50' :
+                                                        'bg-yellow-900/30 border-yellow-500/50'
+                                                }`}>
+                                                <Activity className={`w-5 h-5 ${marketEvent.climate === 'Bullish' ? 'text-green-400' :
+                                                        marketEvent.climate === 'Bearish' ? 'text-red-400' :
+                                                            'text-yellow-400'
+                                                    } animate-pulse`} />
                                             </div>
                                             <div>
-                                                <p className={`font-bold text-sm uppercase ${
-                                                    marketEvent.climate === 'Bullish' ? 'text-green-400' :
-                                                    marketEvent.climate === 'Bearish' ? 'text-red-400' :
-                                                    'text-yellow-400'
-                                                }`}>
+                                                <p className={`font-bold text-sm uppercase ${marketEvent.climate === 'Bullish' ? 'text-green-400' :
+                                                        marketEvent.climate === 'Bearish' ? 'text-red-400' :
+                                                            'text-yellow-400'
+                                                    }`}>
                                                     🎯 {marketEvent.climate} Market Event
                                                 </p>
                                                 <p className="text-slate-400 text-xs mt-1">
@@ -299,11 +332,10 @@ const HomePage = () => {
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border-2 ${
-                                            marketEvent.climate === 'Bullish' ? 'text-green-400 bg-green-900/50 border-green-500' :
-                                            marketEvent.climate === 'Bearish' ? 'text-red-400 bg-red-900/50 border-red-500' :
-                                            'text-yellow-400 bg-yellow-900/50 border-yellow-500'
-                                        }`}>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border-2 ${marketEvent.climate === 'Bullish' ? 'text-green-400 bg-green-900/50 border-green-500' :
+                                                marketEvent.climate === 'Bearish' ? 'text-red-400 bg-red-900/50 border-red-500' :
+                                                    'text-yellow-400 bg-yellow-900/50 border-yellow-500'
+                                            }`}>
                                             {eventTurnsLeft} Years Left
                                         </span>
                                     </div>

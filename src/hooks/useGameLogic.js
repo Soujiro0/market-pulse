@@ -197,16 +197,11 @@ const useGameLogic = () => {
     }, []);
 
     // Collection Logic
-    const buyCollectible = useCallback((itemName, price) => {
+    const buyCollectible = useCallback((itemName, price, rarity) => {
         let result = { success: false, message: '' };
         
         setState(prevState => {
-            // Check if item is already owned
             const collection = prevState.collection || [];
-            if (collection.some(c => c.itemName === itemName)) {
-                result = { success: false, message: 'You already own this collectible.' };
-                return prevState;
-            }
 
             // Check if player can afford
             if (prevState.balance < price) {
@@ -214,12 +209,14 @@ const useGameLogic = () => {
                 return prevState;
             }
 
-            // Create new collectible entry
+            // Create new collectible entry (allow multiple purchases)
             const newCollectible = {
                 id: `collectible_${Date.now()}_${Math.random()}`,
                 itemName: itemName,
                 purchasePrice: price,
-                acquiredTurn: prevState.turn
+                acquiredTurn: prevState.turn,
+                rarity: rarity, // Store rarity ID (standard, emerging, disruptive, unicorn)
+                level: 1 // All items start at level 1
             };
 
             result = { success: true };
@@ -248,6 +245,78 @@ const useGameLogic = () => {
                 collection: collection.filter(c => c.id !== collectibleId)
             };
         });
+    }, []);
+
+    const mergeCollectibles = useCallback((collectibleIds) => {
+        let result = { success: false, message: '', mergedItem: null };
+        
+        setState(prevState => {
+            const collection = prevState.collection || [];
+            const collectibles = collectibleIds.map(id => collection.find(c => c.id === id)).filter(Boolean);
+            
+            if (collectibles.length === 0) {
+                result = { success: false, message: 'Invalid collectibles selected.' };
+                return prevState;
+            }
+
+            // Validate all items are the same and same rarity
+            const firstItem = collectibles[0];
+            const allSame = collectibles.every(c => 
+                c.itemName === firstItem.itemName && 
+                c.rarity === firstItem.rarity &&
+                c.level === firstItem.level
+            );
+
+            if (!allSame) {
+                result = { success: false, message: 'All items must be the same item, rarity, and level.' };
+                return prevState;
+            }
+
+            // Check merge requirements
+            const mergeRules = {
+                standard: { required: 3, upgradeTo: 'emerging' },
+                emerging: { required: 3, upgradeTo: 'disruptive' },
+                disruptive: { required: 5, upgradeTo: 'unicorn' },
+                unicorn: { required: null, upgradeTo: null } // Cannot merge unicorns
+            };
+
+            const rule = mergeRules[firstItem.rarity];
+            
+            if (!rule.upgradeTo) {
+                result = { success: false, message: 'Unicorn rarity items cannot be merged further.' };
+                return prevState;
+            }
+
+            if (collectibles.length !== rule.required) {
+                result = { success: false, message: `You need exactly ${rule.required} items of the same type and rarity to merge.` };
+                return prevState;
+            }
+
+            // Calculate new price (total of merged items + 20% bonus)
+            const totalPrice = collectibles.reduce((sum, c) => sum + c.purchasePrice, 0);
+            const newPrice = Math.floor(totalPrice * 1.2);
+
+            // Create merged collectible
+            const mergedCollectible = {
+                id: `collectible_${Date.now()}_${Math.random()}`,
+                itemName: firstItem.itemName,
+                purchasePrice: newPrice,
+                acquiredTurn: prevState.turn,
+                rarity: rule.upgradeTo,
+                level: firstItem.level + 1
+            };
+
+            // Remove merged items and add new one
+            const remainingCollection = collection.filter(c => !collectibleIds.includes(c.id));
+
+            result = { success: true, message: 'Items merged successfully!', mergedItem: mergedCollectible };
+            return {
+                ...prevState,
+                collection: [...remainingCollection, mergedCollectible]
+            };
+        });
+
+        return result;
     }, []);
 
     // Save game state to localStorage (split into player and game state)
@@ -351,7 +420,7 @@ const useGameLogic = () => {
     const addXp = useCallback((amount) => {
         setState(prevState => {
             const newXp = prevState.xp + amount;
-            const xpPerRank = 1000;
+            const xpPerRank = 5000;
             let newRankId = Math.floor(newXp / xpPerRank);
 
             if (newRankId >= ranks.length) {
@@ -677,7 +746,7 @@ const useGameLogic = () => {
                 event: prevState.marketEvent ? prevState.marketEvent.name : null
             }];
 
-            const xpPerRank = 1000;
+            const xpPerRank = 5000;
             const newXp = prevState.xp + earnedXp;
             let newRankId = Math.floor(newXp / xpPerRank);
 
@@ -740,7 +809,7 @@ const useGameLogic = () => {
                 climate: prevState.marketClimate
             }];
 
-            const xpPerRank = 1000;
+            const xpPerRank = 5000;
             const newXp = prevState.xp + earnedXp;
             let newRankId = Math.floor(newXp / xpPerRank);
 
@@ -865,6 +934,7 @@ const useGameLogic = () => {
         addItemToSeen,
         buyCollectible,
         sellCollectible,
+        mergeCollectibles,
     };
 };
 
