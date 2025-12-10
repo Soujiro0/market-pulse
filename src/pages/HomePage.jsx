@@ -87,12 +87,12 @@ const HomePage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] gap-4 items-start">
                         {/* Rank Badge */}
                         <div
-                            className="glass-panel p-4 rounded-2xl border border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105 cursor-pointer"
+                            className="glass-panel p-4 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105 cursor-pointer group bg-indigo-900/10 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/30"
                             onClick={() => navigate('/profile')}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-                                    <img src={`assets/ranks/${currentRank.image}`} alt={tierName} className="w-full h-full object-contain" />
+                                <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-indigo-600/20 border-2 border-indigo-500/30 group-hover:border-indigo-500 transition-all">
+                                    <img src={`assets/ranks/${currentRank.image}`} alt={tierName} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
                                 </div>
                                 <div>
                                     <p className="text-slate-400 text-xs uppercase font-bold">Rank</p>
@@ -104,9 +104,9 @@ const HomePage = () => {
                         </div>
 
                         {/* XP Progress Bar */}
-                        <div className="glass-panel p-4 rounded-2xl border border-indigo-500/30">
+                        <div className="glass-panel p-4 rounded-2xl border-2 border-indigo-500/30 bg-indigo-900/10 shadow-lg">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                                <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shrink-0 animate-pulse">
                                     <Zap className="w-6 h-6 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -114,11 +114,12 @@ const HomePage = () => {
                                         <p className="text-slate-400 text-xs uppercase font-bold">Level {currentRank.level} Experience</p>
                                         <p className="text-indigo-400 font-mono font-bold text-xs">{currentRankXP} / {xpPerRank} XP</p>
                                     </div>
-                                    <div className="relative w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+                                    <div className="relative w-full bg-slate-800/50 rounded-full h-4 overflow-hidden border border-slate-700">
                                         <div
-                                            className="absolute inset-0 bg-indigo-500 transition-all duration-500 shadow-lg"
+                                            className="absolute inset-0 bg-indigo-500 transition-all duration-500 shadow-lg shadow-indigo-500/50"
                                             style={{ width: `${xpProgress}%` }}
                                         ></div>
+                                        <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                                     </div>
                                 </div>
                             </div>
@@ -128,13 +129,13 @@ const HomePage = () => {
                         <div className="relative w-full lg:w-48">
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="flex items-center justify-between gap-3 px-5 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl transition-all border border-slate-700 w-full shadow-lg"
+                                className="flex items-center justify-between gap-3 px-5 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl transition-all border-2 border-slate-700 hover:border-indigo-500/50 w-full shadow-lg hover:shadow-indigo-500/20 hover:scale-105"
                             >
                                 <div className="flex items-center gap-2">
-                                    <Menu className="w-5 h-5" />
+                                    <Menu className="w-5 h-5 text-indigo-400" />
                                     <span className="text-sm font-semibold">Menu</span>
                                 </div>
-                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 text-indigo-400 ${isMenuOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             <div className={`absolute top-full mt-2 w-full bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden z-10 transition-all duration-300 origin-top ${isMenuOpen
@@ -198,12 +199,16 @@ const HomePage = () => {
                     {/* Main Content Grid: Market Wisdom Left, Stats Right */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Market Wisdom Quote - Square */}
-                        <div className="glass-panel p-8 rounded-2xl relative overflow-hidden border border-amber-500/30 aspect-square flex flex-col justify-center">
-                            <div className="absolute inset-0 bg-linear-to-br from-amber-500/5 to-transparent pointer-events-none"></div>
+                        <div className="glass-panel p-8 rounded-2xl relative overflow-hidden border-2 border-amber-500/30 aspect-square flex flex-col justify-center bg-amber-900/10 shadow-lg hover:shadow-amber-500/20 transition-all group">
+                            <div className="absolute inset-0 bg-amber-500/5 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-white/5 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                             <div className="relative flex flex-col items-center text-center gap-6">
-                                <Quote className="w-16 h-16 text-amber-400 shrink-0" />
+                                <div className="relative">
+                                    <Quote className="w-16 h-16 text-amber-400 shrink-0 animate-pulse" />
+                                    <div className="absolute inset-0 bg-amber-400/20 blur-2xl rounded-full"></div>
+                                </div>
                                 <div className="flex-1 flex flex-col justify-center">
-                                    <h3 className="text-xl font-bold text-amber-400 uppercase tracking-wider mb-6">Market Wisdom</h3>
+                                    <h3 className="text-xl font-bold text-amber-400 uppercase tracking-wider mb-6">💡 Market Wisdom</h3>
                                     <p className="text-slate-300 text-lg font-mono leading-relaxed">
                                         {displayedQuote}
                                         <span className="inline-block w-2 h-5 bg-amber-400 ml-1 animate-pulse"></span>
@@ -217,45 +222,45 @@ const HomePage = () => {
                             {/* Stats Row */}
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Balance Card */}
-                                <div className="glass-panel p-5 rounded-2xl border border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-10 h-10 bg-indigo-600/20 rounded-lg flex items-center justify-center">
-                                            <DollarSign className="w-5 h-5 text-indigo-400" />
-                                        </div>
+                                <div className="glass-panel p-5 rounded-2xl border-2 border-indigo-500/30 hover:border-indigo-500 transition-all hover:scale-105 bg-indigo-900/10 shadow-lg hover:shadow-indigo-500/30 group">
+                                    <div className="flex items-center justify-between mb-2">
                                         <span className="text-slate-400 text-xs uppercase font-bold">Capital</span>
+                                        <div className="w-10 h-10 bg-indigo-600/20 rounded-lg flex items-center justify-center border border-indigo-500/30 group-hover:border-indigo-500 transition-all">
+                                            <DollarSign className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                                        </div>
                                     </div>
-                                    <p className="text-2xl font-bold text-white font-mono">{formatMoney(balance)}</p>
+                                    <p className="text-2xl font-bold text-indigo-400 font-mono">{formatMoney(balance)}</p>
                                 </div>
 
                                 {/* Year Counter */}
-                                <div className="glass-panel p-5 rounded-2xl border border-emerald-500/30 hover:border-emerald-500 transition-all hover:scale-105">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center">
-                                            <Activity className="w-5 h-5 text-emerald-400" />
-                                        </div>
+                                <div className="glass-panel p-5 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500 transition-all hover:scale-105 bg-emerald-900/10 shadow-lg hover:shadow-emerald-500/30 group">
+                                    <div className="flex items-center justify-between mb-2">
                                         <span className="text-slate-400 text-xs uppercase font-bold">Year</span>
+                                        <div className="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center border border-emerald-500/30 group-hover:border-emerald-500 transition-all">
+                                            <Activity className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                                        </div>
                                     </div>
-                                    <p className="text-2xl font-bold text-white font-mono">#{turn}</p>
+                                    <p className="text-2xl font-bold text-emerald-400 font-mono">#{turn}</p>
                                 </div>
                             </div>
 
                             {/* Loan Warning */}
                             {loan.active && (
-                                <div className="glass-panel p-5 rounded-2xl border border-red-500/50 bg-red-500/5">
+                                <div className="glass-panel p-5 rounded-2xl border-2 border-red-500/50 bg-red-900/10 shadow-lg shadow-red-500/20 animate-pulse">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-red-900/30 rounded-lg flex items-center justify-center">
+                                            <div className="w-10 h-10 bg-red-900/30 rounded-lg flex items-center justify-center border border-red-500/50">
                                                 <Activity className="w-5 h-5 text-red-400 animate-pulse" />
                                             </div>
                                             <div>
-                                                <p className="text-red-400 font-bold text-sm uppercase">Active Loan Warning</p>
+                                                <p className="text-red-400 font-bold text-sm uppercase">⚠️ Active Loan Warning</p>
                                                 <p className="text-slate-400 text-xs mt-1">
                                                     Outstanding debt: <span className="font-mono font-bold text-red-400">{formatMoney(loan.amount)}</span> | Due: Year {loan.dueTurn}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className="text-red-500 text-xs font-bold px-3 py-1 bg-red-900/30 rounded-full border border-red-900">
-                                            {loan.dueTurn - turn} Years Remaining
+                                        <span className="text-red-400 text-xs font-bold px-3 py-1 bg-red-900/50 rounded-full border-2 border-red-500">
+                                            {loan.dueTurn - turn} Years Left
                                         </span>
                                     </div>
                                 </div>
@@ -263,17 +268,17 @@ const HomePage = () => {
 
                             {/* Current Market Event */}
                             {marketEvent && (
-                                <div className={`glass-panel p-5 rounded-2xl border ${
-                                    marketEvent.climate === 'Bullish' ? 'border-green-500/50 bg-green-500/5' :
-                                    marketEvent.climate === 'Bearish' ? 'border-red-500/50 bg-red-500/5' :
-                                    'border-yellow-500/50 bg-yellow-500/5'
+                                <div className={`glass-panel p-5 rounded-2xl border-2 shadow-lg ${
+                                    marketEvent.climate === 'Bullish' ? 'border-green-500/50 bg-green-900/10 shadow-green-500/20' :
+                                    marketEvent.climate === 'Bearish' ? 'border-red-500/50 bg-red-900/10 shadow-red-500/20' :
+                                    'border-yellow-500/50 bg-yellow-900/10 shadow-yellow-500/20'
                                 }`}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                                marketEvent.climate === 'Bullish' ? 'bg-green-900/30' :
-                                                marketEvent.climate === 'Bearish' ? 'bg-red-900/30' :
-                                                'bg-yellow-900/30'
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
+                                                marketEvent.climate === 'Bullish' ? 'bg-green-900/30 border-green-500/50' :
+                                                marketEvent.climate === 'Bearish' ? 'bg-red-900/30 border-red-500/50' :
+                                                'bg-yellow-900/30 border-yellow-500/50'
                                             }`}>
                                                 <Activity className={`w-5 h-5 ${
                                                     marketEvent.climate === 'Bullish' ? 'text-green-400' :
@@ -287,17 +292,17 @@ const HomePage = () => {
                                                     marketEvent.climate === 'Bearish' ? 'text-red-400' :
                                                     'text-yellow-400'
                                                 }`}>
-                                                    {marketEvent.climate} Market Event
+                                                    🎯 {marketEvent.climate} Market Event
                                                 </p>
                                                 <p className="text-slate-400 text-xs mt-1">
                                                     {marketEvent.name}
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                                            marketEvent.climate === 'Bullish' ? 'text-green-400 bg-green-900/30 border-green-900' :
-                                            marketEvent.climate === 'Bearish' ? 'text-red-400 bg-red-900/30 border-red-900' :
-                                            'text-yellow-400 bg-yellow-900/30 border-yellow-900'
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full border-2 ${
+                                            marketEvent.climate === 'Bullish' ? 'text-green-400 bg-green-900/50 border-green-500' :
+                                            marketEvent.climate === 'Bearish' ? 'text-red-400 bg-red-900/50 border-red-500' :
+                                            'text-yellow-400 bg-yellow-900/50 border-yellow-500'
                                         }`}>
                                             {eventTurnsLeft} Years Left
                                         </span>
@@ -307,22 +312,21 @@ const HomePage = () => {
 
                             {/* Play Button - Takes remaining space */}
                             <div className="flex-1 flex items-center justify-center">
-
                                 <button
                                     onClick={() => navigate('/market')}
-                                    className="group relative flex items-center justify-start p-7 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xl rounded-full shadow-2xl shadow-indigo-900/50 transition-all duration-500 hover:scale-105 hover:shadow-indigo-500/50 hover:pr-8 mx-auto overflow-hidden"
+                                    className="group relative flex items-center justify-start p-7 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xl rounded-full shadow-2xl shadow-indigo-900/50 transition-all duration-500 hover:scale-110 hover:shadow-indigo-500/50 hover:pr-8 mx-auto overflow-hidden border-2 border-indigo-500/50 hover:border-indigo-400"
                                 >
                                     {/* Background Glow Effect */}
                                     <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl group-hover:blur-3xl transition-all -z-10 animate-pulse"></div>
 
                                     {/* Shining Sweep Effect */}
-                                    <div className="absolute inset-0 rounded-full bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-[200%] skew-x-12 group-hover:animate-[shimmer_1s_infinite] transition-transform"></div>
+                                    <div className="absolute inset-0 rounded-full bg-white/30 -translate-x-[200%] skew-x-12 group-hover:animate-[shimmer_1s_infinite] transition-transform"></div>
 
                                     {/* Icon - Always Visible */}
-                                    <Play className="w-14 h-14 shrink-0 transition-transform duration-300 group-hover:scale-110" />
+                                    <Play className="w-14 h-14 shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6 relative z-10" />
 
                                     {/* Text - Slides out on Hover */}
-                                    <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 ease-in-out">
+                                    <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 ease-in-out relative z-10 uppercase tracking-wider">
                                         Enter Market
                                     </span>
                                 </button>

@@ -37,10 +37,10 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
             <div 
                 className={`relative rounded-xl border-2 transition-all duration-300 overflow-hidden group cursor-pointer animate-roll-in ${
                     isOwned 
-                        ? 'border-emerald-500/50 bg-linear-to-br from-emerald-900/20 to-slate-900' 
+                        ? 'border-emerald-500/50 bg-emerald-900/10' 
                         : isLocked
-                        ? 'border-slate-700 bg-linear-to-br from-slate-800/50 to-slate-900'
-                        : `${rarity.border} bg-linear-to-br from-slate-800/80 to-slate-900 hover:scale-105 hover:shadow-2xl ${glowClass}`
+                        ? 'border-slate-700 bg-slate-900/50'
+                        : `${rarity.border} bg-slate-900 hover:scale-105 hover:shadow-2xl ${glowClass}`
                 }`}
                 style={{ animationDelay }}
                 onMouseEnter={() => setIsHovered(true)}
@@ -53,7 +53,7 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
 
                 {/* Shine Effect for High Rarities */}
                 {!isOwned && !isLocked && (rarity.id === 'unicorn' || rarity.id === 'disruptive') && (
-                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 )}
 
                 {/* Owned Badge */}
@@ -81,7 +81,7 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
                             {isLocked ? (
                                 <div className="relative">
                                     <HelpCircle className="w-24 h-24 text-slate-600 animate-pulse" />
-                                    <div className="absolute inset-0 bg-linear-to-t from-slate-900 to-transparent opacity-50"></div>
+                                    <div className="absolute inset-0 bg-slate-900/50"></div>
                                 </div>
                             ) : (
                                 <img 
@@ -299,7 +299,7 @@ const CollectionMarketPage = () => {
                 <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 mb-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tight flex items-center gap-3 mb-2 animate-pulse">
+                            <h1 className="text-4xl font-bold text-indigo-400 tracking-tight flex items-center gap-3 mb-2 animate-pulse">
                                 <ShoppingCart className="w-10 h-10 text-indigo-400" />
                                 Collection Market
                             </h1>
@@ -309,7 +309,7 @@ const CollectionMarketPage = () => {
                         </div>
                         <button
                             onClick={() => navigate('/collection')}
-                            className="px-6 py-3 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 flex items-center gap-2"
+                            className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 flex items-center gap-2"
                         >
                             <Package className="w-5 h-5" />
                             My Collection ({collection.length})
@@ -320,7 +320,7 @@ const CollectionMarketPage = () => {
                 {/* Stats & Timer Banner */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                     {/* Balance Card */}
-                    <div className="glass-panel p-5 rounded-xl border border-emerald-500/30 bg-linear-to-br from-emerald-900/20 to-slate-900 hover:scale-105 transition-transform">
+                    <div className="glass-panel p-5 rounded-xl border border-emerald-500/30 bg-emerald-900/10 hover:scale-105 transition-transform">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs text-slate-400 uppercase font-bold mb-1">Your Balance</p>
@@ -333,7 +333,7 @@ const CollectionMarketPage = () => {
                     </div>
 
                     {/* Refresh Timer Card */}
-                    <div className="glass-panel p-5 rounded-xl border border-indigo-500/30 bg-linear-to-br from-indigo-900/20 to-slate-900 hover:scale-105 transition-transform">
+                    <div className="glass-panel p-5 rounded-xl border border-indigo-500/30 bg-indigo-900/10 hover:scale-105 transition-transform">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs text-slate-400 uppercase font-bold mb-1">Next Refresh</p>
@@ -348,7 +348,7 @@ const CollectionMarketPage = () => {
                     </div>
 
                     {/* Shop Info Card */}
-                    <div className="glass-panel p-5 rounded-xl border border-purple-500/30 bg-linear-to-br from-purple-900/20 to-slate-900 hover:scale-105 transition-transform">
+                    <div className="glass-panel p-5 rounded-xl border border-purple-500/30 bg-purple-900/10 hover:scale-105 transition-transform">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs text-slate-400 uppercase font-bold mb-1">Available Items</p>
@@ -362,7 +362,7 @@ const CollectionMarketPage = () => {
                 </div>
 
                 {/* Info Banner */}
-                <div className="glass-panel p-4 rounded-xl border border-yellow-500/30 bg-linear-to-r from-yellow-900/10 to-orange-900/10 mb-6">
+                <div className="glass-panel p-4 rounded-xl border border-yellow-500/30 bg-yellow-900/10 mb-6">
                     <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 shrink-0 animate-pulse" />
                         <div>
@@ -379,9 +379,9 @@ const CollectionMarketPage = () => {
                 {/* Market Grid */}
                 <div className="mb-4">
                     <div className="flex items-center gap-2 mb-4">
-                        <div className="h-1 flex-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent rounded-full"></div>
+                        <div className="h-1 flex-1 bg-indigo-500/50 rounded-full"></div>
                         <h2 className="text-lg font-bold text-slate-400 uppercase tracking-wider">Featured Items</h2>
-                        <div className="h-1 flex-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent rounded-full"></div>
+                        <div className="h-1 flex-1 bg-indigo-500/50 rounded-full"></div>
                     </div>
                     <div key={marketKey} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                         {marketPrices.map((marketData, index) => {
