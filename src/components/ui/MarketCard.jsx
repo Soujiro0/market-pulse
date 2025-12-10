@@ -1,4 +1,4 @@
-import { Box, Zap, Star, Crown } from 'lucide-react';
+import { Box, Zap, Star, Crown, Sparkles } from 'lucide-react';
 import { formatMoney } from '@/utils';
 import { RARITY } from '@/constants';
 
@@ -12,7 +12,7 @@ const RarityIcon = ({ iconName, className }) => {
     }
 };
 
-const MarketCard = ({ product, onClick, index }) => {
+const MarketCard = ({ product, onClick, index, isNew = false }) => {
     const r = product.rarity;
     const hypeColor = product.hype > 50 ? 'bg-emerald-500' : 'bg-orange-500';
     
@@ -38,6 +38,11 @@ const MarketCard = ({ product, onClick, index }) => {
                     <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-slate-900/80 backdrop-blur border border-slate-700 text-white flex items-center gap-1">
                         <RarityIcon iconName={r.icon} className="w-3 h-3" /> {r.label}
                     </span>
+                    {isNew && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gradient-to-r from-yellow-500 to-orange-500 text-white flex items-center gap-1 animate-pulse shadow-lg shadow-yellow-500/50">
+                            <Sparkles className="w-3 h-3" /> NEW
+                        </span>
+                    )}
                 </div>
                 <div className="flex flex-col items-center text-center my-4">
                     <div className={`w-32 h-32 mb-3 flex items-center justify-center`}>

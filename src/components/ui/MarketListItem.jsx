@@ -1,4 +1,4 @@
-import { Box, Zap, Star, Crown } from 'lucide-react';
+import { Box, Zap, Star, Crown, Sparkles } from 'lucide-react';
 import { formatMoney } from '@/utils';
 import { RARITY } from '@/constants';
 
@@ -12,7 +12,7 @@ const RarityIcon = ({ iconName, className }) => {
     }
 };
 
-const MarketListItem = ({ product, onClick, index }) => {
+const MarketListItem = ({ product, onClick, index, isNew = false }) => {
     const r = product.rarity;
 
     const shiningClass = (r.id === 'unicorn' || r.id === 'disruptive') ? 'shine-effect' : '';
@@ -40,6 +40,11 @@ const MarketListItem = ({ product, onClick, index }) => {
                 </div>
             </div>
             <div className="flex items-center gap-6">
+                {isNew && (
+                    <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gradient-to-r from-yellow-500 to-orange-500 text-white flex items-center gap-1 animate-pulse shadow-lg shadow-yellow-500/50">
+                        <Sparkles className="w-3 h-3" /> NEW
+                    </span>
+                )}
                 <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded bg-slate-900 ${r.color} border border-slate-600 hidden md:flex items-center gap-1`}>
                     <RarityIcon iconName={r.icon} className="w-3 h-3" /> {r.label}
                 </span>

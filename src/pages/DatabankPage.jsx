@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGame } from '@/contexts/GameContext';
 import items from '@/data/items.json';
 import ranks from '@/data/ranks.json';
 import { CLIMATES, RARITY, MARKET_EVENTS } from '@/constants';
-import { Box, Zap, Star, Crown, TrendingUp, TrendingDown, Minus, Activity, Package, BarChart, Cloud, Gem, X, Megaphone } from 'lucide-react';
+import { Box, Zap, Star, Crown, TrendingUp, TrendingDown, Minus, Activity, Package, BarChart, Cloud, Gem, X, Megaphone, HelpCircle } from 'lucide-react';
 
 const RarityIcon = ({ iconName, className }) => {
     switch (iconName) {
@@ -41,18 +42,26 @@ const SectionButton = ({ label, icon, isActive, onClick }) => {
     );
 };
 
-const ItemDetailModal = ({ item, onClose }) => {
+const ItemDetailModal = ({ item, onClose, isLocked }) => {
     if (!item) return null;
 
     return (
-        <div className="fixed inset-0 bg-slate-950/90 z-[200] flex items-center justify-center p-4 backdrop-blur-sm fade-in" onClick={onClose}>
+        <div className="fixed inset-0 bg-slate-950/90 z-200 flex items-center justify-center p-4 backdrop-blur-sm fade-in" onClick={onClose}>
             <div className="bg-slate-900 rounded-xl shadow-2xl max-w-md w-full p-6 border border-indigo-700 relative animate-bounce-in" onClick={e => e.stopPropagation()}>
                 <div className="flex flex-col items-center text-center">
                     <div className="w-48 h-48 bg-slate-800 rounded-2xl shadow-inner border border-slate-700 flex items-center justify-center mb-6 relative">
-                        <img src={`assets/items/${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain p-4" />
+                        {isLocked ? (
+                            <HelpCircle className="w-24 h-24 text-slate-600" />
+                        ) : (
+                            <img src={`assets/items/${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain p-4" />
+                        )}
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-2 leading-tight">{item.name}</h2>
-                    <p className="text-sm text-slate-400 italic">"{item.flavorText}"</p>
+                    <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
+                        {isLocked ? '???' : item.name}
+                    </h2>
+                    <p className="text-sm text-slate-400 italic">
+                        {isLocked ? '"Discover this asset in Global Venture"' : `"${item.flavorText}"`}
+                    </p>
                 </div>
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
                     <X className="w-6 h-6" />
@@ -62,21 +71,30 @@ const ItemDetailModal = ({ item, onClose }) => {
     );
 };
 
-const ItemsSection = ({ onItemSelected }) => (
+const ItemsSection = ({ onItemSelected, seenItems }) => (
     <div className="glass-panel p-6 rounded-xl animate-fade-in">
         <h2 className="text-2xl font-bold text-indigo-400 mb-4">Registered Assets</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map(item => (
-                <div key={item.id} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex items-center gap-4 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => onItemSelected(item)}>
-                    <div className="w-16 h-16 flex-shrink-0 bg-slate-900 rounded-md flex items-center justify-center">
-                        <img src={`assets/items/${item.image}`} alt={item.name} className="w-12 h-12 object-contain" />
+            {items.map(item => {
+                const isUnlocked = seenItems.includes(item.name);
+                return (
+                    <div key={item.id} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex items-center gap-4 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => onItemSelected(item)}>
+                        <div className="w-16 h-16 shrink-0 bg-slate-900 rounded-md flex items-center justify-center">
+                            {isUnlocked ? (
+                                <img src={`assets/items/${item.image}`} alt={item.name} className="w-12 h-12 object-contain" />
+                            ) : (
+                                <HelpCircle className="w-12 h-12 text-slate-600" />
+                            )}
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-white">{isUnlocked ? item.name : '???'}</h3>
+                            <p className="text-xs text-slate-400 italic">
+                                {isUnlocked ? `"${item.flavorText}"` : '"Locked"'}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-white">{item.name}</h3>
-                        <p className="text-xs text-slate-400 italic">"{item.flavorText}"</p>
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     </div>
 );
@@ -172,11 +190,15 @@ const MarketEventsSection = () => (
 
 const DatabankPage = () => {
     const navigate = useNavigate();
+    const { state } = useGame();
     const [activeSection, setActiveSection] = useState('items');
     const [selectedItem, setSelectedItem] = useState(null);
 
+    const seenItems = state.seenItems || [];
+    const isItemLocked = selectedItem && !seenItems.includes(selectedItem.name);
+
     const sections = {
-        items: { label: 'Assets', icon: Package, component: <ItemsSection onItemSelected={setSelectedItem} /> },
+        items: { label: 'Assets', icon: Package, component: <ItemsSection onItemSelected={setSelectedItem} seenItems={seenItems} /> },
         ranks: { label: 'Tiers', icon: BarChart, component: <RanksSection /> },
         climates: { label: 'Climates', icon: Cloud, component: <ClimatesSection /> },
         rarities: { label: 'Rarities', icon: Gem, component: <RaritiesSection /> },
@@ -209,7 +231,7 @@ const DatabankPage = () => {
                     {sections[activeSection].component}
                 </div>
             </div>
-            <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+            <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} isLocked={isItemLocked} />
         </>
     );
 };

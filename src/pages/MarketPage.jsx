@@ -342,13 +342,14 @@ const MarketPage = () => {
 
                 {/* Enhanced Product Grid/List Container */}
                 <div key={marketKey} id="product-grid" className={state.marketViewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-3"}>
-                    {sortedProducts.map((product, index) => (
-                        state.marketViewMode === 'grid' ? (
-                            <MarketCard key={product.id} product={product} onClick={handleProductClick} index={index} />
+                    {sortedProducts.map((product, index) => {
+                        const isNew = !state.seenItems || !state.seenItems.includes(product.name);
+                        return state.marketViewMode === 'grid' ? (
+                            <MarketCard key={product.id} product={product} onClick={handleProductClick} index={index} isNew={isNew} />
                         ) : (
-                            <MarketListItem key={product.id} product={product} onClick={handleProductClick} index={index} />
-                        )
-                    ))}
+                            <MarketListItem key={product.id} product={product} onClick={handleProductClick} index={index} isNew={isNew} />
+                        );
+                    })}
                 </div>
             </div>
 

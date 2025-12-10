@@ -73,7 +73,8 @@ const useGameLogic = () => {
                     profileIcon: profileIcon,
                     username: parsed.username || 'OPERATOR_ID',
                     history: parsed.history || [],
-                    loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 }
+                    loan: parsed.loan || { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
+                    seenItems: parsed.seenItems || [] // Migrate seenItems if exists
                 };
 
                 const gameStateData = {
@@ -128,7 +129,8 @@ const useGameLogic = () => {
             profileIcon: PROFILES[0].image,
             username: 'OPERATOR_ID',
             history: [],
-            loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 }
+            loan: { active: false, amount: 0, dueTurn: 0, interestRate: 0.05 },
+            seenItems: [] // Track items that have appeared in market
         };
 
         // Default game state data
@@ -182,6 +184,16 @@ const useGameLogic = () => {
         setState(prevState => ({ ...prevState, balance: amount }));
     }, []);
 
+    const addItemToSeen = useCallback((itemName) => {
+        setState(prevState => {
+            const currentSeenItems = prevState.seenItems || [];
+            if (!currentSeenItems.includes(itemName)) {
+                return { ...prevState, seenItems: [...currentSeenItems, itemName] };
+            }
+            return prevState;
+        });
+    }, []);
+
     // Save game state to localStorage (split into player and game state)
     const saveGame = useCallback(() => {
         const playerData = {
@@ -191,7 +203,8 @@ const useGameLogic = () => {
             profileIcon: state.profileIcon,
             username: state.username,
             history: state.history,
-            loan: state.loan
+            loan: state.loan,
+            seenItems: state.seenItems
         };
 
         const gameStateData = {
@@ -226,7 +239,8 @@ const useGameLogic = () => {
             profileIcon: state.profileIcon,
             username: state.username,
             history: state.history,
-            loan: state.loan
+            loan: state.loan,
+            seenItems: state.seenItems
         };
 
         const gameStateData = {
@@ -341,6 +355,7 @@ const useGameLogic = () => {
                     hype: Math.floor(Math.random() * 100)
                 };
             });
+
             return { ...prevState, marketClimate: climate, activeProducts: newActiveProducts };
         });
     }, []);
@@ -515,7 +530,20 @@ const useGameLogic = () => {
     const executeTrade = useCallback(() => {
         setState(prevState => {
             const newBalance = prevState.balance - prevState.investmentAmount;
-            return { ...prevState, balance: newBalance, showSimulationResultOverlay: false };
+            
+            // Track item as seen when player actually buys it
+            const currentSeenItems = prevState.seenItems || [];
+            const productName = prevState.currentProduct?.name;
+            const updatedSeenItems = productName && !currentSeenItems.includes(productName)
+                ? [...currentSeenItems, productName]
+                : currentSeenItems;
+            
+            return { 
+                ...prevState, 
+                balance: newBalance, 
+                showSimulationResultOverlay: false,
+                seenItems: updatedSeenItems
+            };
         });
         dispatchSimulation({ type: 'RESET' });
     }, []);
@@ -776,6 +804,7 @@ const useGameLogic = () => {
         setBalance,
         exportData,
         importData,
+        addItemToSeen,
     };
 };
 
