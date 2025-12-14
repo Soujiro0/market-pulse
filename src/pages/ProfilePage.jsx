@@ -51,7 +51,7 @@ const EditProfileModal = ({ isOpen, onClose, currentUsername, currentIcon, onSav
                                             : 'border border-slate-700'
                                         }`}
                                 >
-                                    <img src={`/market-pulse/assets/profiles/${p.image}`} alt={p.name} className="w-full h-full object-cover rounded-lg" />
+                                    <img src={`/market-pulse/assets/profiles/${p.image}`} alt={p.name} className="w-full h-full object-cover rounded-lg" loading="lazy" decoding="async" />
                                 </button>
                             ))}
                         </div>
@@ -174,7 +174,7 @@ const ProfilePage = () => {
                                 id="profile-tier-icon"
                                 className="w-24 h-24 rounded-full bg-slate-800 border-4 border-indigo-400 flex items-center justify-center shadow-xl shadow-indigo-500/40 overflow-hidden"
                             >
-                                <img src={`assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" />
+                                <img src={`assets/profiles/${profileIcon}`} alt="Profile" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             </div>
                             <div id="profile-tier-badge" className="absolute -bottom-2 -right-2 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full border-2 border-slate-900 shadow-lg animate-pulse">
                                 Rank {currentRank.level}
@@ -193,7 +193,7 @@ const ProfilePage = () => {
                         </div>
                         <div className="mt-4 flex items-center gap-4">
                             <button onClick={() => setIsRanksModalOpen(true)} className="w-12 h-12 hover:scale-110 transition-transform">
-                                <img src={`assets/ranks/${currentRank.image}`} alt={currentRank.name} className="w-full h-full object-contain" />
+                                <img src={`assets/ranks/${currentRank.image}`} alt={currentRank.name} className="w-full h-full object-contain" loading="lazy" decoding="async" />
                             </button>
                             <div className="grow">
                                 <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono uppercase">

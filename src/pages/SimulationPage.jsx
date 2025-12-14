@@ -281,7 +281,7 @@ const SimulationPage = () => {
             <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-start z-20 pointer-events-none">
                 {/* Left HUD */}
                 <div className="bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-lg pointer-events-auto shadow-lg flex items-center gap-4">
-                    <img src={currentProduct.image} alt={currentProduct.name} className="w-16 h-16 rounded-lg bg-slate-800 p-1" />
+                    <img src={currentProduct.image} alt={currentProduct.name} className="w-16 h-16 rounded-lg bg-slate-800 p-1" loading="lazy" decoding="async" />
                     <div>
                         <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">Active Asset</div>
                         <div id="sim-product-name" className="text-xl font-mono text-indigo-400 font-bold">{currentProduct.name}</div>

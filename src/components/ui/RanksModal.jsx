@@ -57,7 +57,7 @@ const RanksModal = ({ isOpen, onClose, currentRankId }) => {
                     {currentTier.ranks.map(rank => (
                         <div key={rank.image} className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all ${currentRank.name === rank.name && currentRank.level === rank.level ? 'border-indigo-500 shadow-lg shadow-indigo-500/50' : 'border-slate-700'}`}>
                             <div className="w-20 h-20">
-                                <img src={`assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" />
+                                <img src={`assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" loading="lazy" decoding="async" />
                             </div>
                             <span className="font-bold text-white text-center text-sm">{rank.name} {rank.level}</span>
                         </div>

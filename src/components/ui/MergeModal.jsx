@@ -207,7 +207,7 @@ const MergeModal = ({ isOpen, onClose, eligibleGroups, onMerge, items }) => {
                                                 }`}
                                             >
                                                 <div className="flex gap-4">
-                                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" />
+                                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" loading="lazy" decoding="async" />
                                                     <div className="flex-1">
                                                         <p className="font-bold text-white mb-1">{item.name}</p>
                                                         <p className={`text-xs uppercase font-bold mb-2 ${rarityInfo?.color}`}>{group.rarity} • Level {group.level}</p>

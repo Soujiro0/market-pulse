@@ -88,6 +88,8 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
                                 <img 
                                     src={`assets/items/${item.image}`} 
                                     alt={item.name} 
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`max-w-full max-h-full object-contain ${
                                         rarity.id === 'unicorn' ? 'filter drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]' :
                                         rarity.id === 'disruptive' ? 'filter drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]' :
@@ -164,7 +166,7 @@ const CollectionMarketCard = ({ item, price, rarity, onBuy, isOwned, isLocked, i
                             <h3 className="text-xl font-bold text-white mb-3">Purchase Collectible?</h3>
                             <div className="bg-slate-800 rounded-lg p-4 mb-4">
                                 <div className="w-24 h-24 mx-auto bg-slate-900 rounded-lg flex items-center justify-center mb-3">
-                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" />
+                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" loading="lazy" decoding="async" />
                                 </div>
                                 <p className="font-bold text-white text-lg mb-1">{item.name}</p>
                                 <p className="text-xs text-slate-400 italic mb-3">"{item.flavorText}"</p>

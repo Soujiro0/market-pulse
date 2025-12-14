@@ -92,7 +92,7 @@ const HomePage = () => {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-indigo-600/20 border-2 border-indigo-500/30 group-hover:border-indigo-500 transition-all">
-                                    <img src={`assets/ranks/${currentRank.image}`} alt={tierName} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                                    <img src={`assets/ranks/${currentRank.image}`} alt={tierName} className="w-full h-full object-contain group-hover:scale-110 transition-transform" loading="lazy" decoding="async" />
                                 </div>
                                 <div>
                                     <p className="text-slate-400 text-xs uppercase font-bold">Rank</p>

@@ -46,7 +46,7 @@ const MarketCard = ({ product, onClick, index, isNew = false }) => {
                 </div>
                 <div className="flex flex-col items-center text-center my-4">
                     <div className={`w-32 h-32 mb-3 flex items-center justify-center`}>
-                        <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                        <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" decoding="async" />
                     </div>
                     <h3 className="text-lg font-bold text-white leading-tight mb-1 shadow-black drop-shadow-md">{product.name}</h3>
                     <p className="text-[10px] text-slate-300 italic h-8 overflow-hidden leading-tight opacity-80 px-2 line-clamp-2">{product.desc}</p>

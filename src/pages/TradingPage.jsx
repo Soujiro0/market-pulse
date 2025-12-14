@@ -113,7 +113,7 @@ const TradingPage = () => {
                                 </div>
 
                                 <div className="w-64 h-64 bg-slate-800 rounded-2xl shadow-inner border border-slate-700 flex items-center justify-center mb-6 relative">
-                                    <img src={currentProduct.image} alt={currentProduct.name} className="max-w-full max-h-full object-contain" />
+                                    <img src={currentProduct.image} alt={currentProduct.name} className="max-w-full max-h-full object-contain" loading="lazy" decoding="async" />
                                     <div className="absolute inset-0 bg-indigo-500/10 rounded-2xl"></div>
                                 </div>
 

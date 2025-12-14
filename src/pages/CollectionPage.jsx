@@ -70,6 +70,8 @@ const CollectionCard = ({ item, collectionData, onSell, index, isSelected, onSel
                             <img 
                                 src={`assets/items/${item.image}`} 
                                 alt={item.name} 
+                                loading="lazy"
+                                decoding="async"
                                 className={`max-w-full max-h-full object-contain ${
                                     rarityInfo.id === 'unicorn' ? 'filter drop-shadow-[0_0_15px_rgba(234,179,8,0.6)]' :
                                     rarityInfo.id === 'disruptive' ? 'filter drop-shadow-[0_0_15px_rgba(168,85,247,0.6)]' :
@@ -150,7 +152,7 @@ const CollectionCard = ({ item, collectionData, onSell, index, isSelected, onSel
                             
                             <div className="bg-slate-800/50 rounded-xl p-4 mb-4 border border-slate-700">
                                 <div className="w-24 h-24 mx-auto bg-slate-900 rounded-lg flex items-center justify-center mb-3 border-2 border-emerald-500/30">
-                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" />
+                                    <img src={`assets/items/${item.image}`} alt={item.name} className="w-20 h-20 object-contain" loading="lazy" decoding="async" />
                                 </div>
                                 <p className="font-bold text-white text-lg mb-1">{item.name}</p>
                                 <p className="text-xs text-slate-400 italic mb-3">"{item.flavorText}"</p>
@@ -692,7 +694,7 @@ const CollectionPage = () => {
                                     const rarityInfo = Object.values(RARITY).find(r => r.id === mergedResult.rarity);
                                     return (
                                         <>
-                                            <img src={`assets/items/${item?.image}`} alt={mergedResult.itemName} className="w-24 h-24 mx-auto mb-3" />
+                                            <img src={`assets/items/${item?.image}`} alt={mergedResult.itemName} className="w-24 h-24 mx-auto mb-3" loading="lazy" decoding="async" />
                                             <p className="font-bold text-white text-lg mb-1">{mergedResult.itemName}</p>
                                             <p className={`text-sm font-bold uppercase mb-2 ${rarityInfo?.color}`}>
                                                 {mergedResult.rarity} • Level {mergedResult.level}

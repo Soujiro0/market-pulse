@@ -202,8 +202,6 @@ function App() {
                     onClose={closeFinishedEventModal}
                 />
             )}
-
-            <img src="" alt="" />
         </div>
     );
 }

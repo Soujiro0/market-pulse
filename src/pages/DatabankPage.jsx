@@ -53,7 +53,7 @@ const ItemDetailModal = ({ item, onClose, isLocked }) => {
                         {isLocked ? (
                             <HelpCircle className="w-24 h-24 text-slate-600" />
                         ) : (
-                            <img src={`assets/items/${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain p-4" />
+                            <img src={`assets/items/${item.image}`} alt={item.name} className="max-w-full max-h-full object-contain p-4" loading="lazy" decoding="async" />
                         )}
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
@@ -81,7 +81,7 @@ const ItemsSection = ({ onItemSelected, seenItems }) => (
                     <div key={item.id} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex items-center gap-4 cursor-pointer hover:bg-slate-700 transition-colors" onClick={() => onItemSelected(item)}>
                         <div className="w-16 h-16 shrink-0 bg-slate-900 rounded-md flex items-center justify-center">
                             {isUnlocked ? (
-                                <img src={`assets/items/${item.image}`} alt={item.name} className="w-12 h-12 object-contain" />
+                                <img src={`assets/items/${item.image}`} alt={item.name} className="w-12 h-12 object-contain" loading="lazy" decoding="async" />
                             ) : (
                                 <HelpCircle className="w-12 h-12 text-slate-600" />
                             )}
@@ -119,7 +119,7 @@ const RanksSection = () => {
                             {tierRanks.map(rank => (
                                 <div key={rank.image} className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center gap-2">
                                     <div className="w-16 h-16">
-                                        <img src={`assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" />
+                                        <img src={`assets/ranks/${rank.image}`} alt={rank.name} className="w-full h-full object-contain" loading="lazy" decoding="async" />
                                     </div>
                                     <span className="font-bold text-white text-sm">{rank.name} {rank.level}</span>
                                 </div>

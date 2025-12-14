@@ -32,7 +32,7 @@ const MarketListItem = ({ product, onClick, index, isNew = false }) => {
         >
             <div className="flex items-center gap-4">
                 <div className="w-12 h-12 flex items-center justify-center">
-                    <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                    <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" decoding="async" />
                 </div>
                 <div>
                     <h3 className="text-sm font-bold text-white group-hover:text-indigo-400">{product.name}</h3>
