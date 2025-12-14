@@ -3,6 +3,7 @@ import './index.css'
 import AppRoutes from './routes/AppRoute' // Import AppRoutes
 import { GameProvider } from './contexts/GameContext'
 import { BrowserRouter } from 'react-router-dom'
+import { Analytics } from "@vercel/analytics/next"
 
 const GOOGLE_ANALYTICS_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
 
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <GameProvider>
       <AppRoutes /> {/* Render AppRoutes */}
+      <Analytics />
     </GameProvider>
   </BrowserRouter>
 )
